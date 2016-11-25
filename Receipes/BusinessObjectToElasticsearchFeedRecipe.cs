@@ -58,7 +58,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
                 .WithBlade(key, c => c.WithDelay(TimeSpan.Zero).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired());
 
             var i = 0;
-            var blades = new[] {TimeSpan.Zero, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(20), TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(15)};
+            var blades = new[] {TimeSpan.Zero, TimeSpan.FromSeconds(15), TimeSpan.FromMinutes(15)};
             foreach(var timeSpan in blades)
             {
                 var delay = timeSpan;

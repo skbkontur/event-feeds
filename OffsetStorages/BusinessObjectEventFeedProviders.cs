@@ -1,12 +1,8 @@
 ﻿using GroboContainer.Core;
-
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage.Implementation;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage
+namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     public class BusinessObjectEventFeedProviders
     {

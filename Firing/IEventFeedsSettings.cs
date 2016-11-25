@@ -1,8 +1,7 @@
 ﻿using System;
-
 using SKBKontur.Catalogue.Core.Configuration.Settings;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 {
     public interface IEventFeedsSettings
     {

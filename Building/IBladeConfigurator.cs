@@ -1,8 +1,7 @@
 using System;
-
 using JetBrains.Annotations;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public interface IBladeConfigurator<TOffset>
     {

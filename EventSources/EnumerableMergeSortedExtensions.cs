@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
     internal static class EnumerableMergeSortedExtensions
     {

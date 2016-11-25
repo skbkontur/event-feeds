@@ -1,6 +1,6 @@
 ﻿using Humanizer;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Recipes
+namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
 {
     public static class ElasticsearchIdentifiersConversionExtensions
     {

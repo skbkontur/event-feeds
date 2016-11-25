@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     internal class EventFeedGraphitePaths
     {

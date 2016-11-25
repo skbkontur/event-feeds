@@ -1,11 +1,8 @@
 ﻿using System.Collections.Concurrent;
-
 using JetBrains.Annotations;
+using SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages;
 
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.Providers.Implementation;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers
+namespace SKBKontur.Catalogue.Core.EventFeeds.UnprocessedEvents
 {
     public class InMemoryEventFeedProviders
     {

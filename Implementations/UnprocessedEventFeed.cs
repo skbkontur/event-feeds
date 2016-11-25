@@ -1,19 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using JetBrains.Annotations;
-
 using log4net;
-
 using MoreLinq;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
 using SKBKontur.Catalogue.Objects;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     internal class UnprocessedEventFeed<TEvent> : IEventFeed where TEvent : GenericEvent
     {

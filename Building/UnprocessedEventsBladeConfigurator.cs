@@ -1,11 +1,9 @@
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Implementation;
+using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     internal class UnprocessedEventsBladeConfigurator<TEvent> : IUnprocessedEventsBladeConfigurator<TEvent> where TEvent : GenericEvent
     {

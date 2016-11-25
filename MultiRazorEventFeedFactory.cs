@@ -1,9 +1,9 @@
 ﻿using GroboContainer.Core;
-
 using JetBrains.Annotations;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
+using SKBKontur.Catalogue.Core.EventFeeds.Building;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     [PublicAPI]
     public class MultiRazorEventFeedFactory

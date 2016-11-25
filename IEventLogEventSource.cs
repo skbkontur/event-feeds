@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces
+namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     public interface IEventLogEventSource<TEvent>
     {

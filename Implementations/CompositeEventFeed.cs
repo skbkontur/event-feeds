@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using JetBrains.Annotations;
-
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
 using SKBKontur.Catalogue.Objects;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     internal class CompositeEventFeed : IEventFeed
     {

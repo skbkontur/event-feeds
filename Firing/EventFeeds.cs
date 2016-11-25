@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using JetBrains.Annotations;
-
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
+using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 {
     public class EventFeeds : IEventFeeds
     {

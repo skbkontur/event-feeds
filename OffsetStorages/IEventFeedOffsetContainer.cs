@@ -1,4 +1,4 @@
-﻿namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage
+﻿namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     public interface IEventFeedOffsetContainer<TOffset>
     {

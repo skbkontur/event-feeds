@@ -3,23 +3,17 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading;
-
 using JetBrains.Annotations;
-
 using log4net;
-
 using MoreLinq;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
+using SKBKontur.Catalogue.Core.EventFeeds.Building;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.Ranges;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     internal class SingleRazorEventFeedWithDelayImpl<TEvent> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
     {

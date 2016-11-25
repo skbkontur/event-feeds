@@ -1,8 +1,6 @@
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     internal class ObjectMutationEvent<TEvent> : IObjectMutationEvent<TEvent>
     {

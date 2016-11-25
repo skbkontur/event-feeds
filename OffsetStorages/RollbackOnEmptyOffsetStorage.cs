@@ -1,12 +1,8 @@
 ﻿using System;
-
 using JetBrains.Annotations;
-
 using log4net;
 
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     internal class RollbackOnEmptyOffsetStorage : IOffsetStorage<long>
     {

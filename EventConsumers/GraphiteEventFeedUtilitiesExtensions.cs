@@ -1,6 +1,4 @@
-﻿using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers
+﻿namespace SKBKontur.Catalogue.Core.EventFeeds.EventConsumers
 {
     public static class GraphiteEventFeedUtilitiesExtensions
     {

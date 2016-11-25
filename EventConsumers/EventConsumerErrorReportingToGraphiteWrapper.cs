@@ -1,7 +1,6 @@
-﻿using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.Graphite.Client.StatsD;
+﻿using SKBKontur.Catalogue.Core.Graphite.Client.StatsD;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.EventConsumers
 {
     public class EventConsumerErrorReportingToGraphiteWrapper<TObjectId> : IEventConsumer<TObjectId>
     {

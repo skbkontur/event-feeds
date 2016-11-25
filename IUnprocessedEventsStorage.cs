@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-
 using JetBrains.Annotations;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Interfaces
+namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     public interface IUnprocessedEventsStorage<T>
     {

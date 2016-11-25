@@ -1,9 +1,7 @@
 ﻿using MoreLinq;
-
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl;
 using SKBKontur.Catalogue.ServiceLib.HttpHandlers;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Recipes.Bootstrapping
+namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
 {
     public class GenericEventFeedHttpHandler : IHttpHandler
     {

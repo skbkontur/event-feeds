@@ -1,13 +1,10 @@
 ﻿using System;
-
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Simple;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
     internal class UnorderedEventLogEventSource : IEventLogEventSource<Event>
     {

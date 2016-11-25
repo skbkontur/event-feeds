@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using JetBrains.Annotations;
-
 using MoreLinq;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
+using SKBKontur.Catalogue.Core.EventFeeds.Firing;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 using SKBKontur.Catalogue.Objects;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class EventFeedsBuilder<TEvent, TOffset> : IEventFeedsBuilder<TEvent, TOffset> where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
     {

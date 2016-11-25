@@ -1,8 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     public class InMemoryOffsetStorage<TOffset> : IOffsetStorage<TOffset>
     {

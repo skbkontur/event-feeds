@@ -1,17 +1,12 @@
 using Elasticsearch.Net;
-
 using JetBrains.Annotations;
-
 using log4net;
-
 using Newtonsoft.Json;
-
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions.Responses.Get;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
 using SKBKontur.Catalogue.Objects;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.Elasticsearch.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     internal class ElasticsearchGenericOffsetInfoStorage<TOffset> : IOffsetStorage<TOffset>
     {

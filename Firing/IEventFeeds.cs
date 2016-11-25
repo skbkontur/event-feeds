@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 {
     public interface IEventFeeds
     {

@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
     public static class UnorderedEventLogRepositoryGenericExtensions
     {

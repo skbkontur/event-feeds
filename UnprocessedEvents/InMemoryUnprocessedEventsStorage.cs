@@ -1,12 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-
 using MoreLinq;
 
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.UnprocessedEvents
 {
     public class InMemoryUnprocessedEventsStorage<T> : IUnprocessedEventsStorage<T>
     {

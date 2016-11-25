@@ -1,17 +1,13 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.Providers;
-using SKBKontur.Catalogue.Core.EventFeed.Providers.Elasticsearch;
+using SKBKontur.Catalogue.Core.EventFeeds.Building;
+using SKBKontur.Catalogue.Core.EventFeeds.Firing;
+using SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages;
+using SKBKontur.Catalogue.Core.EventFeeds.UnprocessedEvents;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Recipes
+namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
 {
     public class BusinessObjectToElasticsearchFeedRecipe
     {

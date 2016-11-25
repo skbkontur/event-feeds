@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Implementation;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
+using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl
+namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class BladeConfigurator<TOffset> : IBladeConfigurator<TOffset>, IBladeConfigurationContext
     {

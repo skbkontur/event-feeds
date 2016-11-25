@@ -1,8 +1,6 @@
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
-using SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage.Implementation;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage
+namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
     public static class EventLogEventSourceExtensions
     {

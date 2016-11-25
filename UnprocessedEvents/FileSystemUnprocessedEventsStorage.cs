@@ -3,15 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using JetBrains.Annotations;
-
 using MoreLinq;
-
-using SKBKontur.Catalogue.Core.EventFeed.Interfaces;
 using SKBKontur.Catalogue.Core.LocalPersistentStoring;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.UnprocessedEvents
 {
     internal class FileSystemUnprocessedEventsStorage<T> : IUnprocessedEventsStorage<T>
     {

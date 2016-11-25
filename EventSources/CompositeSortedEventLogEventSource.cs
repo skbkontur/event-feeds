@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
-
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Core.EventFeed.MultiRazorImpl.Interfaces;
 
-namespace SKBKontur.Catalogue.Core.EventFeed.Providers.BusinessObjectStorage.Implementation
+namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
     internal class CompositeSortedEventLogEventSource<T> : IEventLogEventSource<T> where T : GenericEvent
     {

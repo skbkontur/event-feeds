@@ -89,7 +89,7 @@
     <Compile Include="HttpAccess\GenericEventFeedHttpHandler.cs" />
     <Compile Include="IEventConsumer.cs" />
     <Compile Include="IEventFeed.cs" />
-    <Compile Include="IEventFeedRegistry.cs" />
+    <Compile Include="EventFeedsRegistry.cs" />
     <Compile Include="IEventSource.cs" />
     <Compile Include="Implementations\CompositeEventFeed.cs" />
     <Compile Include="Implementations\ObjectMutationEvent.cs" />

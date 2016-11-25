@@ -4,40 +4,36 @@ using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
-    public interface IEventFeedRegistry
+    public static class EventFeedsRegistry
     {
-        void Register([NotNull] IEventFeed feed);
-
-        [NotNull]
-        IEnumerable<IEventFeed> GetAll();
-
-        [NotNull]
-        IEventFeed GetByKey([NotNull] string key);
-    }
-
-    public class EventFeedRegistry : IEventFeedRegistry
-    {
-        public void Register([NotNull] IEventFeed feed)
+        public static void Register([NotNull] IEventFeed feed)
         {
             if(feeds.ContainsKey(feed.Key))
                 throw new InvalidProgramStateException(string.Format("Feed with key {0} has already been added into registry", feed.Key));
             feeds.Add(feed.Key, feed);
         }
 
+        public static void Unregister([NotNull] string key)
+        {
+            if (!feeds.ContainsKey(key))
+                throw new InvalidProgramStateException(string.Format("Feed with key {0} is not registered", key));
+            feeds.Remove(key);
+        }
+
         [NotNull]
-        public IEnumerable<IEventFeed> GetAll()
+        public static IEnumerable<IEventFeed> GetAll()
         {
             return feeds.Values;
         }
 
         [NotNull]
-        public IEventFeed GetByKey([NotNull] string key)
+        public static IEventFeed GetByKey([NotNull] string key)
         {
             if(!feeds.ContainsKey(key))
                 throw new InvalidProgramStateException(string.Format("Feed with key {0} is not registered", key));
             return feeds[key];
         }
 
-        private readonly Dictionary<string, IEventFeed> feeds = new Dictionary<string, IEventFeed>();
+        private static readonly Dictionary<string, IEventFeed> feeds = new Dictionary<string, IEventFeed>();
     }
 }

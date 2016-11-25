@@ -47,6 +47,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         {
             foreach(var eventFeed in feeds)
             {
+                EventFeedsRegistry.Register(eventFeed);
                 var feed = eventFeed;
                 if(eventFeed.LeaderElectionRequired)
                     periodicJobRunnerWithLeaderElection.RunPeriodicJob(feed.Key + "Indexer", eventFeedsSettings.ActualizeInterval, feed.ExecuteFeeding, feed.Initialize, feed.Shutdown);
@@ -76,6 +77,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
                     periodicJobRunnerWithLeaderElection.StopPeriodicJob(feed.Key + "Indexer");
                 else
                     periodicTaskRunner.Unregister(feed.Key + "Indexer", (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
+                EventFeedsRegistry.Unregister(eventFeed.Key);
             }
         }
 
@@ -84,16 +86,5 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         private readonly IEventFeedsSettings eventFeedsSettings;
 
         private readonly List<IEventFeed> feeds;
-    }
-
-    public static class EventFeedsExtensions
-    {
-        [NotNull]
-        public static IEventFeedsFireRaiser AddFeedsToRegistry([NotNull] this IEventFeedsFireRaiser eventFeeds, [NotNull] IEventFeedRegistry registry)
-        {
-            foreach(var eventFeed in eventFeeds.Feeds())
-                registry.Register(eventFeed);
-            return eventFeeds;
-        }
     }
 }

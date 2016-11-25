@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BDBE2CC2-AD4A-4EB9-8865-4789E4D264BC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SKBKontur.Catalogue.Core.EventFeeds</RootNamespace>
+    <AssemblyName>Catalogue.Core.EventFeeds</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Assemblies\Temp\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Elasticsearch.Net">
+      <HintPath>..\..\Assemblies\ElasticSearch\Client\Elasticsearch.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="GroboContainer">
+      <HintPath>..\..\Assemblies\GroboContainer.dll</HintPath>
+    </Reference>
+    <Reference Include="Humanizer">
+      <HintPath>..\..\Assemblies\Humanizer\Humanizer.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\..\Assemblies\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\Assemblies\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MoreLinq">
+      <HintPath>..\..\Assemblies\MoreLinq\MoreLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Assemblies\json.net\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SKBKontur.Graphite.Client">
+      <HintPath>..\..\Assemblies\GraphiteClient\SKBKontur.Graphite.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Building\BladeConfigurator.cs" />
+    <Compile Include="Building\EventFeedGraphitePaths.cs" />
+    <Compile Include="Building\EventFeedsBuilder.cs" />
+    <Compile Include="Building\IBladeConfigurationContext.cs" />
+    <Compile Include="Building\IBladeConfigurator.cs" />
+    <Compile Include="Building\IEventFeedsBuilder.cs" />
+    <Compile Include="Building\IUnprocessedEventsBladeConfigurator.cs" />
+    <Compile Include="Building\UnprocessedEventsBladeConfigurator.cs" />
+    <Compile Include="EventConsumers\EventConsumerErrorReportingToGraphiteWrapper.cs" />
+    <Compile Include="EventConsumers\GraphiteEventFeedUtilities.cs" />
+    <Compile Include="EventConsumers\GraphiteEventFeedUtilitiesExtensions.cs" />
+    <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
+    <Compile Include="EventSources\CompositeSortedEventLogEventSource.cs" />
+    <Compile Include="EventSources\EnumerableMergeSortedExtensions.cs" />
+    <Compile Include="EventSources\EventLogEventSourceExtensions.cs" />
+    <Compile Include="EventSources\UnorderedArrayEventLogEventSource.cs" />
+    <Compile Include="EventSources\unorderedEventLogEventSource.cs" />
+    <Compile Include="EventSources\UnorderedEventLogRepositoryGenericExtensions.cs" />
+    <Compile Include="EventsQueryResult.cs" />
+    <Compile Include="Firing\EventFeeds.cs" />
+    <Compile Include="Firing\IEventFeeds.cs" />
+    <Compile Include="Firing\IEventFeedsSettings.cs" />
+    <Compile Include="HttpAccess\GenericEventFeedHttpHandler.cs" />
+    <Compile Include="IEventConsumer.cs" />
+    <Compile Include="IEventFeed.cs" />
+    <Compile Include="IEventFeedRegistry.cs" />
+    <Compile Include="IEventLogEventSource.cs" />
+    <Compile Include="Implementations\CompositeEventFeed.cs" />
+    <Compile Include="Implementations\ObjectMutationEvent.cs" />
+    <Compile Include="Implementations\SingleRazorEventFeedWithDelayImpl.cs" />
+    <Compile Include="Implementations\UnprocessedEventFeed.cs" />
+    <Compile Include="IObjectMutationEvent.cs" />
+    <Compile Include="IOffsetStorage.cs" />
+    <Compile Include="IUnprocessedEventsStorage.cs" />
+    <Compile Include="MultiRazorEventFeedFactory.cs" />
+    <Compile Include="OffsetStorages\BusinessObjectEventFeedProviders.cs" />
+    <Compile Include="OffsetStorages\BusinessObjectStorageOffsetContainer.cs" />
+    <Compile Include="OffsetStorages\ElasticsearchEventFeedProviders.cs" />
+    <Compile Include="OffsetStorages\ElasticsearchGenericOffsetInfoStorage.cs" />
+    <Compile Include="OffsetStorages\ElasticsearchStorageSettings.cs" />
+    <Compile Include="OffsetStorages\FallbackToIfEmptyOffsetStorage.cs" />
+    <Compile Include="OffsetStorages\IEventFeedOffsetContainer.cs" />
+    <Compile Include="OffsetStorages\InMemoryOffsetStorage.cs" />
+    <Compile Include="OffsetStorages\OffsetStorageExtensions.cs" />
+    <Compile Include="OffsetStorages\RollbackOnEmptyOffsetStorage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Receipes\BusinessObjectToElasticsearchFeedRecipe.cs" />
+    <Compile Include="Receipes\ElasticsearchIdentifiersConversionExtensions.cs" />
+    <Compile Include="UnprocessedEvents\FileSystemEventFeedProviders.cs" />
+    <Compile Include="UnprocessedEvents\FileSystemUnprocessedEventsStorage.cs" />
+    <Compile Include="UnprocessedEvents\InMemoryEventFeedProviders.cs" />
+    <Compile Include="UnprocessedEvents\InMemoryUnprocessedEventsStorage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CassandraStorageCore\CassandraStorageCore.csproj">
+      <Project>{3e5b30ef-0a43-459d-8c09-0bbb1ce62a63}</Project>
+      <Name>CassandraStorageCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CommonBusinessObjects\CommonBusinessObjects.csproj">
+      <Project>{3a5bb480-8709-4130-ae27-bf31750123f8}</Project>
+      <Name>CommonBusinessObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Commons\Commons.csproj">
+      <Project>{95b2ccb1-0c83-4a9b-a33f-ea8b13fd099b}</Project>
+      <Name>Commons</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Configuration.Settings\Configuration.Settings.csproj">
+      <Project>{de7b1fa9-c38e-4798-b0dd-048eaadadcfd}</Project>
+      <Name>Configuration.Settings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ElasticsearchClientExtensions\ElasticsearchClientExtensions.csproj">
+      <Project>{988abfe1-2caf-4493-9d61-3d0e8760d0c2}</Project>
+      <Name>ElasticsearchClientExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Graphite.Client\Graphite.Client.csproj">
+      <Project>{fccbee89-0b3c-4046-baf3-a99b0d10b3f5}</Project>
+      <Name>Graphite.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LocalPersistentStoring\LocalPersistentStoring.csproj">
+      <Project>{3d73f5e1-e9b3-492a-8702-ae8c78bed7d1}</Project>
+      <Name>LocalPersistentStoring</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceLib\ServiceLib.csproj">
+      <Project>{2f8f38dc-3cda-48bb-9798-7b6f75b02bc8}</Project>
+      <Name>ServiceLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -4,9 +4,9 @@ using SKBKontur.Catalogue.Core.LocalPersistentStoring;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.UnprocessedEvents
 {
-    public class FileSystemEventFeedProviders
+    public class FileSystemUnprocessedEventsStorageProvider
     {
-        public FileSystemEventFeedProviders(IContainer container)
+        public FileSystemUnprocessedEventsStorageProvider(IContainer container)
         {
             this.container = container;
         }

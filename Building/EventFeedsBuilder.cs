@@ -17,7 +17,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             [NotNull] string key,
             [NotNull] IGlobalTicksHolder globalTicksHolder,
             [NotNull] ICatalogueGraphiteClient graphiteClient,
-            [NotNull] Func<string, List<IEventFeed>, IEventFeeds> createEventFeeds)
+            [NotNull] Func<string, List<IEventFeed>, IEventFeedsFireRaiser> createEventFeeds)
         {
             this.key = key;
             this.globalTicksHolder = globalTicksHolder;
@@ -26,7 +26,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventLogEventSource<TEvent> eventSource)
+        public IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent> eventSource)
         {
             this.eventSource = eventSource;
             return this;
@@ -65,7 +65,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeeds Create()
+        public IEventFeedsFireRaiser Create()
         {
             var eventFeedBlades = blades
                 .Pipe(blade => blade.WithOffsetFactory(offsetStorageFactory))
@@ -84,8 +84,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private readonly string key;
         private readonly IGlobalTicksHolder globalTicksHolder;
         private readonly ICatalogueGraphiteClient graphiteClient;
-        private readonly Func<string, List<IEventFeed>, IEventFeeds> createEventFeeds;
-        private IEventLogEventSource<TEvent> eventSource;
+        private readonly Func<string, List<IEventFeed>, IEventFeedsFireRaiser> createEventFeeds;
+        private IEventSource<TEvent> eventSource;
         private IEventConsumer<TEvent> consumer;
         private Func<IBladeConfigurationContext, IOffsetStorage<TOffset>> offsetStorageFactory;
         private readonly List<BladeConfigurator<TOffset>> blades = new List<BladeConfigurator<TOffset>>();

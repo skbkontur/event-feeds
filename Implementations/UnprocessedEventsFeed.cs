@@ -10,9 +10,9 @@ using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    internal class UnprocessedEventFeed<TEvent> : IEventFeed where TEvent : GenericEvent
+    internal class UnprocessedEventsFeed<TEvent> : IEventFeed where TEvent : GenericEvent
     {
-        public UnprocessedEventFeed(
+        public UnprocessedEventsFeed(
             [NotNull] string key, 
             [NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage, 
             [NotNull] IEventConsumer<TEvent> consumer,
@@ -107,7 +107,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly IEventConsumer<TEvent> consumer;
         private readonly IGlobalTicksHolder globalTicksHolder;
 
-        private readonly ILog logger = LogManager.GetLogger(typeof(UnprocessedEventFeed<TEvent>));
+        private readonly ILog logger = LogManager.GetLogger(typeof(UnprocessedEventsFeed<TEvent>));
         private bool eventFeedStopped;
     }
 }

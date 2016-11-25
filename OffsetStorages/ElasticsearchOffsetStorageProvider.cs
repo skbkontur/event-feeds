@@ -4,9 +4,9 @@ using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
-    public class ElasticsearchEventFeedProviders
+    public class ElasticsearchOffsetStorageProvider
     {
-        public ElasticsearchEventFeedProviders([NotNull] InternalDataElasticsearchFactory internalDataElasticsearch,
+        public ElasticsearchOffsetStorageProvider([NotNull] InternalDataElasticsearchFactory internalDataElasticsearch,
                                                [NotNull] ClientDataElasticsearchFactory clientDataElasticsearch)
         {
             this.internalDataElasticsearch = internalDataElasticsearch;

@@ -15,12 +15,12 @@ using SKBKontur.Catalogue.Ranges;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    internal class SingleRazorEventFeedWithDelayImpl<TEvent> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+    internal class DelayedEventFeed<TEvent> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
     {
-        public SingleRazorEventFeedWithDelayImpl(
+        public DelayedEventFeed(
             [NotNull] string key,
             [NotNull] IGlobalTicksHolder globalTicksHolder,
-            [NotNull] IEventLogEventSource<TEvent> eventSource,
+            [NotNull] IEventSource<TEvent> eventSource,
             [NotNull] IOffsetStorage<long> offsetStorage,
             [NotNull] IEventConsumer<TEvent> consumer,
             [NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage,
@@ -221,9 +221,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private bool eventFeedStopped;
 
         private readonly object lockObject = new object();
-        private readonly ILog logger = LogManager.GetLogger(typeof(SingleRazorEventFeedWithDelayImpl<TEvent>));
+        private readonly ILog logger = LogManager.GetLogger(typeof(DelayedEventFeed<TEvent>));
         private readonly IGlobalTicksHolder globalTicksHolder;
-        private readonly IEventLogEventSource<TEvent> eventSource;
+        private readonly IEventSource<TEvent> eventSource;
         private readonly IOffsetStorage<long> offsetStorage;
         private readonly IEventConsumer<TEvent> consumer;
         private readonly IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage;

@@ -1,21 +1,21 @@
 ﻿using System;
 using JetBrains.Annotations;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog;
-using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Arrays;
+using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Simple;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
-    internal class UnorderedArrayEventLogEventSource : IEventLogEventSource<ArrayEvent>
+    internal class UnorderedEventSource : IEventSource<Event>
     {
-        public UnorderedArrayEventLogEventSource(
+        public UnorderedEventSource(
             [NotNull] Type businessObjectType,
             [NotNull] ITypeIdentifierProvider typeIdentifierProvider,
-            [NotNull] IUnorderedArrayEventLogRepositoryFactory eventLogRepositoryFactory)
+            [NotNull] IUnorderedEventLogRepositoryFactory eventLogRepositoryFactory)
         {
             this.businessObjectType = businessObjectType;
             typeIdentifier = typeIdentifierProvider.GetTypeIdentifier(businessObjectType);
-            eventLog = eventLogRepositoryFactory.Create(businessObjectType);
+            unorderedEventLog = eventLogRepositoryFactory.Create(businessObjectType);
         }
 
         public string GetDescription()
@@ -23,14 +23,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
             return string.Format("EventLog based event source: BusinessObjectType: {0}, Type identifier: {1}", businessObjectType.Name, typeIdentifier);
         }
 
-        public EventsQueryResult<ArrayEvent, long> GetEvents(long fromOffsetExclusive, long toOffsetInclusive, int estimatedCount)
+        public EventsQueryResult<Event, long> GetEvents(long fromOffsetExclusive, long toOffsetInclusive, int estimatedCount)
         {
-            return eventLog.GetEvents<ArrayEvent>(typeIdentifier, fromOffsetExclusive, toOffsetInclusive, estimatedCount);
+            return unorderedEventLog.GetEvents<Event>(typeIdentifier, fromOffsetExclusive, toOffsetInclusive, estimatedCount);
         }
 
         private readonly Type businessObjectType;
 
-        private readonly IUnorderedArrayEventLogRepository eventLog;
+        private readonly IUnorderedEventLogRepository unorderedEventLog;
         private readonly string typeIdentifier;
     }
 }

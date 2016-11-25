@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
-    public interface IEventLogEventSource<TEvent>
+    public interface IEventSource<TEvent>
     {
         [NotNull]
         string GetDescription();

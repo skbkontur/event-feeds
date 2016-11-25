@@ -4,9 +4,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
     public static class EventLogEventSourceExtensions
     {
-        public static IEventLogEventSource<T> Combine<T>(this IEventLogEventSource<T> a, IEventLogEventSource<T> b) where T : GenericEvent
+        public static IEventSource<T> Combine<T>(this IEventSource<T> a, IEventSource<T> b) where T : GenericEvent
         {
-            return new CompositeSortedEventLogEventSource<T>(a, b);
+            return new CompositeSortedEventSource<T>(a, b);
         }
     }
 }

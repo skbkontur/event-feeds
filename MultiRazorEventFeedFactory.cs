@@ -15,7 +15,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> Feed2<TEvent, TOffset>([NotNull] string key) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+        public IEventFeedsBuilder<TEvent, TOffset> Feed<TEvent, TOffset>([NotNull] string key) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
         {
             return container.Create<string, IEventFeedsBuilder<TEvent, TOffset>>(key);
         }

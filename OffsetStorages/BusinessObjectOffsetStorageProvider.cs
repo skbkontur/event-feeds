@@ -4,11 +4,9 @@ using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
-    public class BusinessObjectEventFeedProviders
+    public class BusinessObjectOffsetStorageProvider
     {
-        public BusinessObjectEventFeedProviders(
-            [NotNull] IContainer container
-            )
+        public BusinessObjectOffsetStorageProvider([NotNull] IContainer container)
         {
             this.container = container;
         }

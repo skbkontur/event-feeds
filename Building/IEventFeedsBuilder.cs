@@ -8,7 +8,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
     public interface IEventFeedsBuilder<TEvent, TOffset> where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
     {
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventLogEventSource<TEvent> eventSource);
+        IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent> eventSource);
 
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent> eventConsumer);
@@ -23,6 +23,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> AndUnprocessedEvents([NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage, [NotNull] Action<IUnprocessedEventsBladeConfigurator<TEvent>> bladeConfigurator);
 
         [NotNull]
-        IEventFeeds Create();
+        IEventFeedsFireRaiser Create();
     }
 }

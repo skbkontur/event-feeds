@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 {
-    public interface IEventFeeds
+    public interface IEventFeedsFireRaiser
     {
         [NotNull]
         string Key { get; }
@@ -12,10 +12,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         IEnumerable<IEventFeed> Feeds();
 
         [NotNull]
-        IEventFeeds AsOneFeed();
+        IEventFeedsFireRaiser NoParallel();
 
-        void RegisterPeriodicTasks();
+        void FirePeriodicTasks();
 
-        void UnregisterPeriodicTasks();
+        void ExtinguishPeriodicTasks();
     }
 }

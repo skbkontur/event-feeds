@@ -20,15 +20,15 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
         }
 
         [NotNull]
-        public IEventLogEventSource<Event> ForBusinessObject<TBusinessObject>() where TBusinessObject : BusinessObject
+        public IEventSource<Event> ForBusinessObject<TBusinessObject>() where TBusinessObject : BusinessObject
         {
-            return new UnorderedEventLogEventSource(typeof(TBusinessObject), typeIdentifierProvider, eventLogRepositoryFactory);
+            return new UnorderedEventSource(typeof(TBusinessObject), typeIdentifierProvider, eventLogRepositoryFactory);
         }
 
         [NotNull]
-        public IEventLogEventSource<ArrayEvent> ForBusinessArrayObject<TBusinessObject>() where TBusinessObject : IBusinessArrayObject
+        public IEventSource<ArrayEvent> ForBusinessArrayObject<TBusinessObject>() where TBusinessObject : IBusinessArrayObject
         {
-            return new UnorderedArrayEventLogEventSource(typeof(TBusinessObject), typeIdentifierProvider, arrayEventLogRepositoryFactory);
+            return new UnorderedArrayEventSource(typeof(TBusinessObject), typeIdentifierProvider, arrayEventLogRepositoryFactory);
         }
 
         private readonly ITypeIdentifierProvider typeIdentifierProvider;

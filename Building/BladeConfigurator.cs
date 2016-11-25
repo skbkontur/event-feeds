@@ -43,12 +43,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 
         public IEventFeed Create<TEvent>(
             [NotNull] IGlobalTicksHolder globalTicksHolder,
-            [NotNull] IEventLogEventSource<TEvent> eventSource,
+            [NotNull] IEventSource<TEvent> eventSource,
             [NotNull] IEventConsumer<TEvent> consumer,
             [NotNull] ICatalogueGraphiteClient graphiteClient,
             [CanBeNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
         {
-            return new SingleRazorEventFeedWithDelayImpl<TEvent>(
+            return new DelayedEventFeed<TEvent>(
                 key, globalTicksHolder, eventSource,
                 (IOffsetStorage<long>)createOffsetStorage(this),
                 consumer,

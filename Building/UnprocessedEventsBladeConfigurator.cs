@@ -27,9 +27,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public UnprocessedEventFeed<TEvent> Create([NotNull] IEventConsumer<TEvent> eventConsumer, [NotNull] IGlobalTicksHolder globalTicksHolder)
+        public UnprocessedEventsFeed<TEvent> Create([NotNull] IEventConsumer<TEvent> eventConsumer, [NotNull] IGlobalTicksHolder globalTicksHolder)
         {
-            return new UnprocessedEventFeed<TEvent>(key, unprocessedEventsStorage, eventConsumer, globalTicksHolder, leaderElectionRequired);
+            return new UnprocessedEventsFeed<TEvent>(key, unprocessedEventsStorage, eventConsumer, globalTicksHolder, leaderElectionRequired);
         }
 
         private readonly string key;

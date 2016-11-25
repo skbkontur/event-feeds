@@ -7,9 +7,9 @@ using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 {
-    public class EventFeeds : IEventFeeds
+    public class EventFeedsFireRaiser : IEventFeedsFireRaiser
     {
-        public EventFeeds(
+        public EventFeedsFireRaiser(
             [NotNull] string key,
             [NotNull] List<IEventFeed> feeds,
             [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection,
@@ -17,7 +17,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             [NotNull] IEventFeedsSettings eventFeedsSettings)
         {
             if(feeds.Count == 0)
-                throw new InvalidProgramStateException(string.Format("EventFeeds (key = {0}) can't be created without feeds", key));
+                throw new InvalidProgramStateException(string.Format("EventFeedsFireRaiser (key = {0}) can't be created without feeds", key));
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             this.periodicTaskRunner = periodicTaskRunner;
             this.eventFeedsSettings = eventFeedsSettings;
@@ -35,15 +35,15 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         }
 
         [NotNull]
-        public IEventFeeds AsOneFeed()
+        public IEventFeedsFireRaiser NoParallel()
         {
             if(feeds.Count == 1)
                 return this;
             var compositeFeed = new CompositeEventFeed(Key, feeds);
-            return new EventFeeds(Key, new List<IEventFeed> {compositeFeed}, periodicJobRunnerWithLeaderElection, periodicTaskRunner, eventFeedsSettings);
+            return new EventFeedsFireRaiser(Key, new List<IEventFeed> {compositeFeed}, periodicJobRunnerWithLeaderElection, periodicTaskRunner, eventFeedsSettings);
         }
 
-        public void RegisterPeriodicTasks()
+        public void FirePeriodicTasks()
         {
             foreach(var eventFeed in feeds)
             {
@@ -67,7 +67,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             }
         }
 
-        public void UnregisterPeriodicTasks()
+        public void ExtinguishPeriodicTasks()
         {
             foreach(var eventFeed in feeds)
             {
@@ -89,7 +89,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
     public static class EventFeedsExtensions
     {
         [NotNull]
-        public static IEventFeeds AddFeedsToRegistry([NotNull] this IEventFeeds eventFeeds, [NotNull] IEventFeedRegistry registry)
+        public static IEventFeedsFireRaiser AddFeedsToRegistry([NotNull] this IEventFeedsFireRaiser eventFeeds, [NotNull] IEventFeedRegistry registry)
         {
             foreach(var eventFeed in eventFeeds.Feeds())
                 registry.Register(eventFeed);

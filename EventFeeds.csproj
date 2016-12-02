@@ -70,7 +70,6 @@
     <Compile Include="Building\IBladeConfigurationContext.cs" />
     <Compile Include="Building\IBladeConfigurator.cs" />
     <Compile Include="Building\IEventFeedsBuilder.cs" />
-    <Compile Include="Building\IUnprocessedEventsBladeConfigurator.cs" />
     <Compile Include="Building\UnprocessedEventsBladeConfigurator.cs" />
     <Compile Include="EventConsumers\EventConsumerErrorReportingToGraphiteWrapper.cs" />
     <Compile Include="EventConsumers\GraphiteEventFeedUtilities.cs" />

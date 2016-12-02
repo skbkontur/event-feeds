@@ -20,7 +20,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, [NotNull] Action<IBladeConfigurator<TOffset>> bladeConfigurator);
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> AndUnprocessedEvents([NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage, [NotNull] Action<IUnprocessedEventsBladeConfigurator<TEvent>> bladeConfigurator);
+        IEventFeedsBuilder<TEvent, TOffset> AndUnprocessedEvents([NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage);
+
+        [NotNull]
+        IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired();
 
         [NotNull]
         IEventFeedsFireRaiser Create();

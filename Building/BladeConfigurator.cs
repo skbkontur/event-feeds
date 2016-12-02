@@ -30,15 +30,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IBladeConfigurator<TOffset> AndLeaderElectionRequired()
+        public BladeConfigurator<TOffset> AndLeaderElectionBehavior(bool leaderElectionRequired)
         {
-            this.leaderElectionRequired = true;
+            this.leaderElectionRequired = leaderElectionRequired;
             return this;
         }
 
-        public void WithOffsetFactory(Func<IBladeConfigurationContext, IOffsetStorage<TOffset>> createOffsetStorage)
+        public BladeConfigurator<TOffset> WithOffsetFactory(Func<IBladeConfigurationContext, IOffsetStorage<TOffset>> createOffsetStorage)
         {
             this.createOffsetStorage = createOffsetStorage;
+            return this;
         }
 
         public IEventFeed Create<TEvent>(

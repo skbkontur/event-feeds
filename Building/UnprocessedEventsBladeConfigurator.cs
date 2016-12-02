@@ -5,7 +5,7 @@ using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    internal class UnprocessedEventsBladeConfigurator<TEvent> : IUnprocessedEventsBladeConfigurator<TEvent> where TEvent : GenericEvent
+    internal class UnprocessedEventsBladeConfigurator<TEvent> where TEvent : GenericEvent
     {
         public UnprocessedEventsBladeConfigurator([NotNull] string key)
         {
@@ -13,16 +13,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IUnprocessedEventsBladeConfigurator<TEvent> WithUnprocessedEventsStorage([NotNull] IUnprocessedEventsStorage<TEvent> storage)
+        public UnprocessedEventsBladeConfigurator<TEvent> WithUnprocessedEventsStorage([NotNull] IUnprocessedEventsStorage<TEvent> storage)
         {
             this.unprocessedEventsStorage = storage;
             return this;
         }
 
         [NotNull]
-        public IUnprocessedEventsBladeConfigurator<TEvent> AndLeaderElectionRequired()
+        public UnprocessedEventsBladeConfigurator<TEvent> AndLeaderElectionBehavior(bool leaderElectionRequired)
         {
-            leaderElectionRequired = true;
+            this.leaderElectionRequired = leaderElectionRequired;
             return this;
         }
 

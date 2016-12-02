@@ -1,6 +1,7 @@
 ﻿using Elasticsearch.Net;
 using JetBrains.Annotations;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
+using SKBKontur.Catalogue.Core.EventFeeds.Receipes;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
@@ -27,5 +28,20 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         private readonly InternalDataElasticsearchFactory internalDataElasticsearch;
         private readonly ClientDataElasticsearchFactory clientDataElasticsearch;
+    }
+
+    public static class ElasticsearchOffsetStorageProviderExtensions
+    {
+        [NotNull]
+        public static IOffsetStorage<TOffset> InternalDataStadardOffsetStorage<TOffset>([NotNull] this ElasticsearchOffsetStorageProvider provider, [NotNull] string key)
+        {
+            return provider.OffsetStorage<TOffset>(key, new ElasticsearchStorageSettings("EventFeedOffsets".CamelCaseForElasticsearch(), "MultiRazorEventFeedOffset", true));
+        }
+        
+        [NotNull]
+        public static IOffsetStorage<TOffset> ClientDataStadardOffsetStorage<TOffset>([NotNull] this ElasticsearchOffsetStorageProvider provider, [NotNull] string key)
+        {
+            return provider.OffsetStorage<TOffset>(key, new ElasticsearchStorageSettings("EventFeedOffsets".CamelCaseForElasticsearch(), "MultiRazorEventFeedOffset", false));
+        }
     }
 }

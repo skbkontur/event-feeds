@@ -10,8 +10,5 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 
         [NotNull]
         IBladeConfigurator<TOffset> AndSendLagToGraphitePath([NotNull] Func<IBladeConfigurationContext, string> getGraphitePath);
-
-        [NotNull]
-        IBladeConfigurator<TOffset> AndLeaderElectionRequired();
     }
 }

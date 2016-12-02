@@ -35,15 +35,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
             return CreateFeeds(consumer, key, eventSource, useInternalDataElasticsearch).Create().NoParallel();
         }
 
-        [NotNull]
-        public IEventFeedsFireRaiser CreateParallelFeeds<TEvent>(
-            [NotNull] IEventConsumer<TEvent> consumer,
-            [NotNull] string key,
-            [NotNull] IEventSource<TEvent> eventSource) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
-        {
-            return CreateFeeds(consumer, key, eventSource, false).Create();
-        }
-
         private IEventFeedsBuilder<TEvent, long> CreateFeeds<TEvent>(IEventConsumer<TEvent> consumer, string key, IEventSource<TEvent> eventSource, bool useInternalDataElasticsearch) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
         {
             return eventFeedFactory
@@ -54,10 +45,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
                                           elasticsearchOffsetStorageProvider
                                               .OffsetStorage<long>(bladeContext.BladeKey + "Offset", new ElasticsearchStorageSettings("EventFeedOffsets".CamelCaseForElasticsearch(), "MultiRazorEventFeedOffset", useInternalDataElasticsearch))
                                               .AndRollbackIfOffsetEmpty(TimeSpan.FromMinutes(10).Ticks))
-                .AndUnprocessedEvents(fileSystemUnprocessedEventsStorageProvider.CreateUnprocessedEventStorage<TEvent>(Path.Combine(eventFeedsSettings.UnprocessedEventsLocation, key)), c => c.AndLeaderElectionRequired())
-                .WithBlade(key, c => c.WithDelay(TimeSpan.Zero).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired())
-                .WithBlade(key + "_Blade0", c => c.WithDelay(TimeSpan.FromSeconds(15)).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired())
-                .WithBlade(key + "_Blade1", c => c.WithDelay(TimeSpan.FromMinutes(15)).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired());
+                .AndUnprocessedEvents(fileSystemUnprocessedEventsStorageProvider.CreateUnprocessedEventStorage<TEvent>(Path.Combine(eventFeedsSettings.UnprocessedEventsLocation, key)))
+                .WithBlade(key, c => c.WithDelay(TimeSpan.Zero).AndSendLagToGraphitePath(GetGraphitePath))
+                .WithBlade(key + "_Blade0", c => c.WithDelay(TimeSpan.FromSeconds(15)).AndSendLagToGraphitePath(GetGraphitePath))
+                .WithBlade(key + "_Blade1", c => c.WithDelay(TimeSpan.FromMinutes(15)).AndSendLagToGraphitePath(GetGraphitePath))
+                .AndLeaderElectionRequired();
         }
 
         [NotNull]

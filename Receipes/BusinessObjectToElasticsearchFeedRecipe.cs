@@ -46,7 +46,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
 
         private IEventFeedsBuilder<TEvent, long> CreateFeeds<TEvent>(IEventConsumer<TEvent> consumer, string key, IEventSource<TEvent> eventSource, bool useInternalDataElasticsearch) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
         {
-            var builder = eventFeedFactory
+            return eventFeedFactory
                 .Feed<TEvent, long>(key)
                 .WithConsumer(consumer)
                 .WithEventSource(eventSource)
@@ -55,17 +55,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
                                               .OffsetStorage<long>(bladeContext.BladeKey + "Offset", new ElasticsearchStorageSettings("EventFeedOffsets".CamelCaseForElasticsearch(), "MultiRazorEventFeedOffset", useInternalDataElasticsearch))
                                               .AndRollbackIfOffsetEmpty(TimeSpan.FromMinutes(10).Ticks))
                 .AndUnprocessedEvents(fileSystemUnprocessedEventsStorageProvider.CreateUnprocessedEventStorage<TEvent>(Path.Combine(eventFeedsSettings.UnprocessedEventsLocation, key)), c => c.AndLeaderElectionRequired())
-                .WithBlade(key, c => c.WithDelay(TimeSpan.Zero).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired());
-
-            var i = 0;
-            var blades = new[] {TimeSpan.Zero, TimeSpan.FromSeconds(15), TimeSpan.FromMinutes(15)};
-            foreach(var timeSpan in blades)
-            {
-                var delay = timeSpan;
-                builder = builder.WithBlade(key + "_Blade" + i, c => c.WithDelay(delay).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired());
-                i++;
-            }
-            return builder;
+                .WithBlade(key, c => c.WithDelay(TimeSpan.Zero).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired())
+                .WithBlade(key + "_Blade0", c => c.WithDelay(TimeSpan.FromSeconds(15)).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired())
+                .WithBlade(key + "_Blade1", c => c.WithDelay(TimeSpan.FromMinutes(15)).AndSendLagToGraphitePath(GetGraphitePath).AndLeaderElectionRequired());
         }
 
         [NotNull]

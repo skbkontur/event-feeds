@@ -1,6 +1,6 @@
 ﻿using Humanizer;
 
-namespace SKBKontur.Catalogue.Core.EventFeeds.Receipes
+namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     public static class ElasticsearchIdentifiersConversionExtensions
     {

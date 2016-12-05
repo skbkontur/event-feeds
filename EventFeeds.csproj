@@ -109,8 +109,7 @@
     <Compile Include="OffsetStorages\OffsetStorageExtensions.cs" />
     <Compile Include="OffsetStorages\RollbackOnEmptyOffsetStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Receipes\BusinessObjectToElasticsearchFeedRecipe.cs" />
-    <Compile Include="Receipes\ElasticsearchIdentifiersConversionExtensions.cs" />
+    <Compile Include="OffsetStorages\ElasticsearchIdentifiersConversionExtensions.cs" />
     <Compile Include="UnprocessedEvents\FileSystemUnprocessedEventsStorageProvider.cs" />
     <Compile Include="UnprocessedEvents\FileSystemUnprocessedEventsStorage.cs" />
     <Compile Include="UnprocessedEvents\InMemoryEventFeedProviders.cs" />

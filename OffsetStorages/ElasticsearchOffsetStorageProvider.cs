@@ -1,7 +1,6 @@
 ﻿using Elasticsearch.Net;
 using JetBrains.Annotations;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
-using SKBKontur.Catalogue.Core.EventFeeds.Receipes;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {

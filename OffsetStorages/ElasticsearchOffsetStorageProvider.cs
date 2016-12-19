@@ -16,7 +16,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         [NotNull]
         public IOffsetStorage<TOffset> OffsetStorage<TOffset>([NotNull] string key, [NotNull] ElasticsearchStorageSettings settings)
         {
-            return new ElasticsearchGenericOffsetInfoStorage<TOffset>(key, settings, GetClient(settings));
+            return new ElasticsearchGenericOffsetInfoStorage<TOffset>(key + "Offset", settings, GetClient(settings));
         }
 
         private IElasticsearchClient GetClient(ElasticsearchStorageSettings s)

@@ -71,7 +71,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsFireRaiser Create()
+        private IEventFeedsFireRaiser Create()
         {
             var eventFeedBlades = blades
                 .Pipe(blade => blade.WithOffsetFactory(offsetStorageFactory).AndLeaderElectionBehavior(leaderElectionRequired))
@@ -87,6 +87,23 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             return createEventFeeds(key, eventFeedBlades);
         }
 
+        [NotNull]
+        public IEventFeedsBuilder<TEvent, TOffset> NoParallel()
+        {
+            this.noParallel = true;
+            return this;
+        }
+
+        [NotNull]
+        public IEventFeedsFireRaiser FirePeriodicTasks()
+        {
+            var fireRaiser = Create();
+            if(noParallel)
+                fireRaiser = fireRaiser.NoParallel();
+            fireRaiser.FirePeriodicTasks();
+            return fireRaiser;
+        }
+
         private readonly string key;
         private readonly IGlobalTicksHolder globalTicksHolder;
         private readonly ICatalogueGraphiteClient graphiteClient;
@@ -98,5 +115,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage;
         private UnprocessedEventsBladeConfigurator<TEvent> unprocessedBladeConfigurator;
         private bool leaderElectionRequired;
+        private bool noParallel;
     }
 }

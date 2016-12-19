@@ -1,5 +1,7 @@
 ﻿using System;
+
 using JetBrains.Annotations;
+
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Firing;
 
@@ -26,6 +28,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired();
 
         [NotNull]
-        IEventFeedsFireRaiser Create();
+        IEventFeedsBuilder<TEvent, TOffset> NoParallel();
+
+        [NotNull]
+        IEventFeedsFireRaiser FirePeriodicTasks();
     }
 }

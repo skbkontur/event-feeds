@@ -68,7 +68,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private IEventFeedsFireRaiser Create()
         {
             var eventFeedBlades = blades
-                .Pipe(blade => blade.WithOffsetFactory(offsetStorageFactory).AndLeaderElectionBehavior(leaderElectionRequired))
+                .Pipe(blade => blade
+                    .WithOffsetFactory(offsetStorageFactory)
+                    .AndLeaderElectionBehavior(leaderElectionRequired)
+                    .AndSendLagToGraphitePath(DefaultGetGraphitePath))
                 .Select(c => c.Create(globalTicksHolder, eventSource, consumer, graphiteClient))
                 .ToList();
             return createEventFeeds(key, eventFeedBlades);
@@ -89,6 +92,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
                 fireRaiser = fireRaiser.NoParallel();
             fireRaiser.FirePeriodicTasks();
             return fireRaiser;
+        }
+
+        private static string DefaultGetGraphitePath([NotNull] IBladeConfigurationContext bladeContext)
+        {
+            return string.Format("EDI.SubSystem.EventFeeds.ActualizationLag.{0}.{1}", Environment.MachineName, bladeContext.BladeKey);
         }
 
         private readonly string key;

@@ -7,8 +7,5 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
     {
         [NotNull]
         IBladeConfigurator<TOffset> WithDelay(TimeSpan delay);
-
-        [NotNull]
-        IBladeConfigurator<TOffset> AndSendLagToGraphitePath([NotNull] Func<IBladeConfigurationContext, string> getGraphitePath);
     }
 }

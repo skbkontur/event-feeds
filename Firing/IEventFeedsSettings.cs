@@ -6,7 +6,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
     public interface IEventFeedsSettings
     {
         TimeSpan ActualizeInterval { get; }
-        string UnprocessedEventsLocation { get; }
     }
 
     public class EventFeedsSettings : IEventFeedsSettings
@@ -14,10 +13,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         public EventFeedsSettings(IApplicationSettings applicationSettings)
         {
             ActualizeInterval = applicationSettings.GetTimeSpan("EventFeeds.ActualizeInterval");
-            UnprocessedEventsLocation = applicationSettings.GetString("EventFeeds.UnprocessedEventsLocation");
         }
 
         public TimeSpan ActualizeInterval { get; private set; }
-        public string UnprocessedEventsLocation { get; private set; }
     }
 }

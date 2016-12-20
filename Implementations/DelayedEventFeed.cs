@@ -23,7 +23,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             [NotNull] IEventSource<TEvent> eventSource,
             [NotNull] IOffsetStorage<long> offsetStorage,
             [NotNull] IEventConsumer<TEvent> consumer,
-            [NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage,
             [NotNull] ICatalogueGraphiteClient graphiteClient,
             [NotNull] EventFeedGraphitePaths graphitePaths,
             TimeSpan delay,
@@ -33,7 +32,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.eventSource = eventSource;
             this.offsetStorage = offsetStorage;
             this.consumer = consumer;
-            this.unprocessedEventsStorage = unprocessedEventsStorage;
             this.graphiteClient = graphiteClient;
             this.graphitePaths = graphitePaths;
             this.delay = delay;
@@ -67,7 +65,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             result.AppendLine("Initialized delayed single razor feed with:");
             result.AppendFormat("  EventSource            : {0}", eventSource.GetDescription()).AppendLine();
             result.AppendFormat("  OffsetStorage          : {0}", offsetStorage.GetDescription()).AppendLine();
-            result.AppendFormat("  UnprocessedEventStorage: {0}", unprocessedEventsStorage.GetDescription()).AppendLine();
             return result.ToString();
         }
 
@@ -132,14 +129,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     {
                         var eventsBatch = eventSource.GetEvents(offset, range.UpperBound, 1000);
                         eventsBatch.Events.SelectMany(SplitToElementaryEvents).Batch(2000, Enumerable.ToArray).ForEach(ProcessElementaryEvents);
-                        unprocessedEventsStorage.Flush();
                         SetLastEventInfo(eventsBatch.LastOffset);
                         offset = eventsBatch.LastOffset;
                         if(eventsBatch.NoMoreEventsInSource)
                             break;
                     }
                 }
-                unprocessedEventsStorage.Flush();
                 SetLastEventInfo(useDelay ? (feedingStartTicks - delay.Ticks) : feedingStartTicks);
                 SendStatsToGraphite();
                 logger.InfoFormat("End processing events");
@@ -194,9 +189,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 eventFeedStopped = true;
                 ThrowHasEventsWithoutProcessingMarker();
             }
-
-            unprocessedEventsStorage.AddEvents(objectMutationEvents.Where(x => !x.IsProcessed.Value).Select(x => x.Event));
-            unprocessedEventsStorage.RemoveEvents(objectMutationEvents.Where(x => x.IsProcessed.Value).Select(x => x.Event));
         }
 
         [NotNull]
@@ -226,7 +218,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly IEventSource<TEvent> eventSource;
         private readonly IOffsetStorage<long> offsetStorage;
         private readonly IEventConsumer<TEvent> consumer;
-        private readonly IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage;
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly EventFeedGraphitePaths graphitePaths;
         private readonly TimeSpan delay;

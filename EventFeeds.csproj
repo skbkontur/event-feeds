@@ -70,7 +70,6 @@
     <Compile Include="Building\IBladeConfigurationContext.cs" />
     <Compile Include="Building\IBladeConfigurator.cs" />
     <Compile Include="Building\IEventFeedsBuilder.cs" />
-    <Compile Include="Building\UnprocessedEventsBladeConfigurator.cs" />
     <Compile Include="EventConsumers\EventConsumerErrorReportingToGraphiteWrapper.cs" />
     <Compile Include="EventConsumers\GraphiteEventFeedUtilities.cs" />
     <Compile Include="EventConsumers\GraphiteEventFeedUtilitiesExtensions.cs" />
@@ -93,10 +92,8 @@
     <Compile Include="Implementations\CompositeEventFeed.cs" />
     <Compile Include="Implementations\ObjectMutationEvent.cs" />
     <Compile Include="Implementations\DelayedEventFeed.cs" />
-    <Compile Include="Implementations\UnprocessedEventsFeed.cs" />
     <Compile Include="IObjectMutationEvent.cs" />
     <Compile Include="IOffsetStorage.cs" />
-    <Compile Include="IUnprocessedEventsStorage.cs" />
     <Compile Include="MultiRazorEventFeedFactory.cs" />
     <Compile Include="OffsetStorages\BusinessObjectOffsetStorageProvider.cs" />
     <Compile Include="OffsetStorages\BusinessObjectStorageOffsetContainer.cs" />
@@ -110,10 +107,7 @@
     <Compile Include="OffsetStorages\RollbackOnEmptyOffsetStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OffsetStorages\ElasticsearchIdentifiersConversionExtensions.cs" />
-    <Compile Include="UnprocessedEvents\FileSystemUnprocessedEventsStorageProvider.cs" />
-    <Compile Include="UnprocessedEvents\FileSystemUnprocessedEventsStorage.cs" />
-    <Compile Include="UnprocessedEvents\InMemoryEventFeedProviders.cs" />
-    <Compile Include="UnprocessedEvents\InMemoryUnprocessedEventsStorage.cs" />
+    <Compile Include="OffsetStorages\InMemoryOffsetStorageProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CassandraStorageCore\CassandraStorageCore.csproj">

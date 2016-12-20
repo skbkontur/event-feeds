@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using JetBrains.Annotations;
+
 using MoreLinq;
+
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Firing;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
-using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
@@ -56,14 +58,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> AndUnprocessedEvents([NotNull] IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage)
-        {
-            this.unprocessedEventsStorage = unprocessedEventsStorage;
-            unprocessedBladeConfigurator = new UnprocessedEventsBladeConfigurator<TEvent>(key + "_UnprocessedEvents");
-            return this;
-        }
-
-        [NotNull]
         public IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired()
         {
             this.leaderElectionRequired = true;
@@ -75,15 +69,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         {
             var eventFeedBlades = blades
                 .Pipe(blade => blade.WithOffsetFactory(offsetStorageFactory).AndLeaderElectionBehavior(leaderElectionRequired))
-                .Select(c => c.Create(globalTicksHolder, eventSource, consumer, graphiteClient, unprocessedEventsStorage))
+                .Select(c => c.Create(globalTicksHolder, eventSource, consumer, graphiteClient))
                 .ToList();
-            if(unprocessedBladeConfigurator != null)
-            {
-                if (unprocessedEventsStorage == null)
-                    throw new InvalidProgramStateException("UnprocessedBladeConfigurator exists, but unprocessedEventsStorage is null");
-                unprocessedBladeConfigurator.WithUnprocessedEventsStorage(unprocessedEventsStorage).AndLeaderElectionBehavior(leaderElectionRequired);
-                eventFeedBlades.Add(unprocessedBladeConfigurator.Create(consumer, globalTicksHolder));
-            }
             return createEventFeeds(key, eventFeedBlades);
         }
 
@@ -112,8 +99,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private IEventConsumer<TEvent> consumer;
         private Func<IBladeConfigurationContext, IOffsetStorage<TOffset>> offsetStorageFactory;
         private readonly List<BladeConfigurator<TOffset>> blades = new List<BladeConfigurator<TOffset>>();
-        private IUnprocessedEventsStorage<TEvent> unprocessedEventsStorage;
-        private UnprocessedEventsBladeConfigurator<TEvent> unprocessedBladeConfigurator;
         private bool leaderElectionRequired;
         private bool noParallel;
     }

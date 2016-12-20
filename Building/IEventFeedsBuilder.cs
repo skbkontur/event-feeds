@@ -25,7 +25,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired();
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> NoParallel();
+        IEventFeedsBuilder<TEvent, TOffset> InParallel();
 
         [NotNull]
         IEventFeedsFireRaiser FirePeriodicTasks();

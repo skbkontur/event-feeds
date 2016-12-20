@@ -75,9 +75,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> NoParallel()
+        public IEventFeedsBuilder<TEvent, TOffset> InParallel()
         {
-            this.noParallel = true;
+            this.inParallel = true;
             return this;
         }
 
@@ -85,7 +85,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public IEventFeedsFireRaiser FirePeriodicTasks()
         {
             var fireRaiser = Create();
-            if(noParallel)
+            if (!inParallel)
                 fireRaiser = fireRaiser.NoParallel();
             fireRaiser.FirePeriodicTasks();
             return fireRaiser;
@@ -100,6 +100,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private Func<IBladeConfigurationContext, IOffsetStorage<TOffset>> offsetStorageFactory;
         private readonly List<BladeConfigurator<TOffset>> blades = new List<BladeConfigurator<TOffset>>();
         private bool leaderElectionRequired;
-        private bool noParallel;
+        private bool inParallel;
     }
 }

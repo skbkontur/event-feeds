@@ -83,7 +83,6 @@
     <Compile Include="EventsQueryResult.cs" />
     <Compile Include="Firing\EventFeedsFireRaiser.cs" />
     <Compile Include="Firing\IEventFeedsFireRaiser.cs" />
-    <Compile Include="Firing\IEventFeedsSettings.cs" />
     <Compile Include="HttpAccess\GenericEventFeedHttpHandler.cs" />
     <Compile Include="IEventConsumer.cs" />
     <Compile Include="IEventFeed.cs" />

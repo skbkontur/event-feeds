@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
@@ -14,7 +15,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         [NotNull]
         IEventFeedsFireRaiser NoParallel();
 
-        void FirePeriodicTasks();
+        void FirePeriodicTasks(TimeSpan actualizeInterval);
 
         void ExtinguishPeriodicTasks();
     }

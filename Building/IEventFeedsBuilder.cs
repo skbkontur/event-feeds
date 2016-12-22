@@ -28,6 +28,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> InParallel();
 
         [NotNull]
-        IEventFeedsFireRaiser FirePeriodicTasks();
+        IEventFeedsFireRaiser FirePeriodicTasks(TimeSpan actualizeInterval);
     }
 }

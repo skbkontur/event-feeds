@@ -13,14 +13,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             [NotNull] string key,
             [NotNull] List<IEventFeed> feeds,
             [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection,
-            [NotNull] IPeriodicTaskRunner periodicTaskRunner,
-            [NotNull] IEventFeedsSettings eventFeedsSettings)
+            [NotNull] IPeriodicTaskRunner periodicTaskRunner)
         {
             if(feeds.Count == 0)
                 throw new InvalidProgramStateException(string.Format("EventFeedsFireRaiser (key = {0}) can't be created without feeds", key));
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             this.periodicTaskRunner = periodicTaskRunner;
-            this.eventFeedsSettings = eventFeedsSettings;
             this.feeds = feeds;
             Key = key;
         }
@@ -40,22 +38,21 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             if(feeds.Count == 1)
                 return this;
             var compositeFeed = new CompositeEventFeed(Key, feeds);
-            return new EventFeedsFireRaiser(Key, new List<IEventFeed> {compositeFeed}, periodicJobRunnerWithLeaderElection, periodicTaskRunner, eventFeedsSettings);
+            return new EventFeedsFireRaiser(Key, new List<IEventFeed> {compositeFeed}, periodicJobRunnerWithLeaderElection, periodicTaskRunner);
         }
 
-        public void FirePeriodicTasks()
+        public void FirePeriodicTasks(TimeSpan actualizeInterval)
         {
             foreach(var eventFeed in feeds)
             {
                 EventFeedsRegistry.Register(eventFeed);
                 var feed = eventFeed;
                 if(eventFeed.LeaderElectionRequired)
-                    periodicJobRunnerWithLeaderElection.RunPeriodicJob(feed.Key + "Indexer", eventFeedsSettings.ActualizeInterval, feed.ExecuteFeeding, feed.Initialize, feed.Shutdown);
+                    periodicJobRunnerWithLeaderElection.RunPeriodicJob(feed.Key + "Indexer", actualizeInterval, feed.ExecuteFeeding, feed.Initialize, feed.Shutdown);
                 else
                 {
                     var initialized = false;
-                    periodicTaskRunner.Register(feed.Key + "Indexer",
-                                                eventFeedsSettings.ActualizeInterval, () =>
+                    periodicTaskRunner.Register(feed.Key + "Indexer", actualizeInterval, () =>
                                                     {
                                                         if(!initialized)
                                                         {
@@ -83,7 +80,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
-        private readonly IEventFeedsSettings eventFeedsSettings;
 
         private readonly List<IEventFeed> feeds;
     }

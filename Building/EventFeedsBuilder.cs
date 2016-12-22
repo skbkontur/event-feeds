@@ -85,12 +85,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsFireRaiser FirePeriodicTasks()
+        public IEventFeedsFireRaiser FirePeriodicTasks(TimeSpan actualizeInterval)
         {
             var fireRaiser = Create();
             if (!inParallel)
                 fireRaiser = fireRaiser.NoParallel();
-            fireRaiser.FirePeriodicTasks();
+            fireRaiser.FirePeriodicTasks(actualizeInterval);
             return fireRaiser;
         }
 

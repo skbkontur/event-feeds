@@ -56,7 +56,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired()
+        public IEventFeedsBuilder<TEvent, TOffset> WithLeaderElection()
         {
             this.leaderElectionRequired = true;
             return this;

@@ -22,7 +22,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay);
         
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired();
+        IEventFeedsBuilder<TEvent, TOffset> WithLeaderElection();
 
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> InParallel();

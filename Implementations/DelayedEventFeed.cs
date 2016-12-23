@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -116,9 +117,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
                 var feedingStartTicks = globalTicksHolder.GetNowTicks();
                 var currentOffset = GetCurrentOffset();
-
                 var range = Range.OfOrEmpty(currentOffset, useDelay ? feedingStartTicks - bladeId.Delay.Ticks : feedingStartTicks);
-
+                
+                logger.InfoFormat("Start processing events by blade {0}. FeedingStartTicks = {1}, CurrentOffset = {2}, Range = {3}", 
+                    bladeId, feedingStartTicks, currentOffset, range);
+                var stopwatch = Stopwatch.StartNew();
+                var events = 0;
                 if(!range.IsEmpty)
                 {
                     var offset = range.LowerBound;
@@ -127,14 +131,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                         var eventsBatch = eventSource.GetEvents(offset, range.UpperBound, 1000);
                         eventsBatch.Events.SelectMany(SplitToElementaryEvents).Batch(2000, Enumerable.ToArray).ForEach(ProcessElementaryEvents);
                         SetLastEventInfo(eventsBatch.LastOffset);
+                        SendStatsToGraphite();
                         offset = eventsBatch.LastOffset;
+                        events += eventsBatch.Events.Count;
                         if(eventsBatch.NoMoreEventsInSource)
                             break;
                     }
                 }
                 SetLastEventInfo(useDelay ? (feedingStartTicks - bladeId.Delay.Ticks) : feedingStartTicks);
                 SendStatsToGraphite();
-                logger.InfoFormat("End processing events");
+                logger.InfoFormat("End processing events by blade {0}. Processed {1} events in {2}", bladeId, events, stopwatch.Elapsed);
             }
         }
 

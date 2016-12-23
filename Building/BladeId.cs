@@ -16,5 +16,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public string Key { get; private set; }
 
         public TimeSpan Delay { get; private set; }
+
+        public override string ToString()
+        {
+            return string.Format("[Key: {0}, Delay: {1}]", Key, Delay);
+        }
     }
 }

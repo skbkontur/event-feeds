@@ -43,9 +43,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             feeds.ForEach(feed => feed.ExecuteForcedFeeding());
         }
 
-        public bool AreEventsProcessedAt(DateTime dateTime)
+        public bool AreEventsProcessedAt(Timestamp timestamp)
         {
-            return feeds.All(feed => feed.AreEventsProcessedAt(dateTime));
+            return feeds.All(feed => feed.AreEventsProcessedAt(timestamp));
         }
 
         public TimeSpan? GetCurrentActualizationLag()

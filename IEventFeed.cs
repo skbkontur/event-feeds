@@ -1,6 +1,8 @@
 using System;
 using JetBrains.Annotations;
 
+using SKBKontur.Catalogue.Objects;
+
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     public interface IEventFeed
@@ -13,7 +15,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         void ExecuteFeeding();
         void ExecuteForcedFeeding();
 
-        bool AreEventsProcessedAt(DateTime dateTime);
+        bool AreEventsProcessedAt(Timestamp timestamp);
         TimeSpan? GetCurrentActualizationLag();
         void Initialize();
         void Shutdown();

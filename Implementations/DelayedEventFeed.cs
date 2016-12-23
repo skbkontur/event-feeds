@@ -88,9 +88,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             ExecuteFeedingInternal(false);
         }
 
-        public bool AreEventsProcessedAt(DateTime dateTime)
+        public bool AreEventsProcessedAt(Timestamp timestamp)
         {
-            return GetCurrentOffset() >= dateTime.Ticks;
+            return GetCurrentOffset() >= timestamp.Ticks;
         }
 
         public TimeSpan? GetCurrentActualizationLag()

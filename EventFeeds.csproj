@@ -65,10 +65,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Building\BladeConfigurator.cs" />
-    <Compile Include="Building\EventFeedGraphitePaths.cs" />
+    <Compile Include="Building\BladeId.cs" />
     <Compile Include="Building\EventFeedsBuilder.cs" />
-    <Compile Include="Building\IBladeConfigurationContext.cs" />
-    <Compile Include="Building\IBladeConfigurator.cs" />
     <Compile Include="Building\IEventFeedsBuilder.cs" />
     <Compile Include="EventConsumers\EventConsumerErrorReportingToGraphiteWrapper.cs" />
     <Compile Include="EventConsumers\GraphiteEventFeedUtilities.cs" />

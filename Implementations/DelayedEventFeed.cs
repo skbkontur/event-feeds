@@ -18,14 +18,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
     internal class DelayedEventFeed<TEvent> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
     {
         public DelayedEventFeed(
-            [NotNull] string key,
             [NotNull] IGlobalTicksHolder globalTicksHolder,
             [NotNull] IEventSource<TEvent> eventSource,
             [NotNull] IOffsetStorage<long> offsetStorage,
             [NotNull] IEventConsumer<TEvent> consumer,
             [NotNull] ICatalogueGraphiteClient graphiteClient,
-            [NotNull] EventFeedGraphitePaths graphitePaths,
-            TimeSpan delay,
+            [NotNull] BladeId bladeId,
             bool leaderElectionRequired)
         {
             this.globalTicksHolder = globalTicksHolder;
@@ -33,11 +31,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.offsetStorage = offsetStorage;
             this.consumer = consumer;
             this.graphiteClient = graphiteClient;
-            this.graphitePaths = graphitePaths;
-            this.delay = delay;
+            this.bladeId = bladeId;
             logger.Info(GetComponentsDescription());
-            Key = key;
             LeaderElectionRequired = leaderElectionRequired;
+            actualizationLagPath = string.Format("EDI.SubSystem.EventFeeds.ActualizationLag.{0}.{1}", Environment.MachineName, bladeId.Key);
         }
 
         private long? LocalOffset
@@ -102,7 +99,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         [NotNull]
-        public string Key { get; private set; }
+        public string Key { get { return bladeId.Key; } }
 
         public bool LeaderElectionRequired { get; private set; }
 
@@ -120,7 +117,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 var feedingStartTicks = globalTicksHolder.GetNowTicks();
                 var currentOffset = GetCurrentOffset();
 
-                var range = Range.OfOrEmpty(currentOffset, useDelay ? feedingStartTicks - delay.Ticks : feedingStartTicks);
+                var range = Range.OfOrEmpty(currentOffset, useDelay ? feedingStartTicks - bladeId.Delay.Ticks : feedingStartTicks);
 
                 if(!range.IsEmpty)
                 {
@@ -135,7 +132,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                             break;
                     }
                 }
-                SetLastEventInfo(useDelay ? (feedingStartTicks - delay.Ticks) : feedingStartTicks);
+                SetLastEventInfo(useDelay ? (feedingStartTicks - bladeId.Delay.Ticks) : feedingStartTicks);
                 SendStatsToGraphite();
                 logger.InfoFormat("End processing events");
             }
@@ -202,8 +199,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             if(lastSendToGraphiteTime.HasValue && DateTime.UtcNow < lastSendToGraphiteTime.Value + TimeSpan.FromMinutes(1))
                 return;
             var lag = GetCurrentActualizationLag();
-            if (lag.HasValue && graphitePaths.ActualizationLag != null)
-                graphiteClient.Send(graphitePaths.ActualizationLag, (long) lag.Value.TotalMilliseconds, DateTime.UtcNow);
+            if (lag.HasValue)
+                graphiteClient.Send(actualizationLagPath, (long) lag.Value.TotalMilliseconds, DateTime.UtcNow);
             lastSendToGraphiteTime = DateTime.UtcNow;
         }
 
@@ -219,7 +216,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly IOffsetStorage<long> offsetStorage;
         private readonly IEventConsumer<TEvent> consumer;
         private readonly ICatalogueGraphiteClient graphiteClient;
-        private readonly EventFeedGraphitePaths graphitePaths;
-        private readonly TimeSpan delay;
+        private readonly BladeId bladeId;
+        private readonly string actualizationLagPath;
     }
 }

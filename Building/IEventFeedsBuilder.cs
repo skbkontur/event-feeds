@@ -16,10 +16,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent> eventConsumer);
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<IBladeConfigurationContext, IOffsetStorage<TOffset>> createOffsetStorage);
+        IEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage);
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, [NotNull] Action<IBladeConfigurator<TOffset>> bladeConfigurator);
+        IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay);
         
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> AndLeaderElectionRequired();

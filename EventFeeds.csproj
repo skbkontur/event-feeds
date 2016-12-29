@@ -72,9 +72,6 @@
     <Compile Include="EventConsumers\GraphiteEventFeedUtilities.cs" />
     <Compile Include="EventConsumers\GraphiteEventFeedUtilitiesExtensions.cs" />
     <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
-    <Compile Include="EventSources\CompositeSortedEventSource.cs" />
-    <Compile Include="EventSources\EnumerableMergeSortedExtensions.cs" />
-    <Compile Include="EventSources\EventLogEventSourceExtensions.cs" />
     <Compile Include="EventSources\UnorderedArrayEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventLogRepositoryGenericExtensions.cs" />

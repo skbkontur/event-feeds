@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+
+using MoreLinq;
+
 using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
@@ -31,6 +34,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public string Key { get; private set; }
 
+        public TimeSpan Delay { get { return feeds.Min(feed => feed.Delay); } }
+
         public bool LeaderElectionRequired { get { return feeds.First().LeaderElectionRequired; } }
 
         public void ExecuteFeeding()
@@ -38,9 +43,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             feeds.ForEach(feed => feed.ExecuteFeeding());
         }
 
-        public void ExecuteForcedFeeding()
+        public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
-            feeds.ForEach(feed => feed.ExecuteForcedFeeding());
+            feeds.Where(feed => feed.Delay <= delayUpperBound).ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
         }
 
         public bool AreEventsProcessedAt(Timestamp timestamp)

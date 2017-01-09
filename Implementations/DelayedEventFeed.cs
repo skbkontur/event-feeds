@@ -83,8 +83,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             LocalOffset = null;
         }
 
-        public void ExecuteForcedFeeding()
+        public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
+            if(Delay > delayUpperBound)
+                throw new InvalidProgramStateException(string.Format("It is not alloweed to force feeding for smaller delay ({0}) than {1}", delayUpperBound, Delay));
             ExecuteFeedingInternal(false);
         }
 
@@ -101,6 +103,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         [NotNull]
         public string Key { get { return bladeId.Key; } }
+
+        public TimeSpan Delay { get { return bladeId.Delay; }  }
 
         public bool LeaderElectionRequired { get; private set; }
 

@@ -1,4 +1,7 @@
-﻿using MoreLinq;
+﻿using System;
+using System.Linq;
+
+using MoreLinq;
 using SKBKontur.Catalogue.ServiceLib.HttpHandlers;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
@@ -8,13 +11,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
         [HttpMethod]
         public void UpdateAndFlush(string eventFeedKey)
         {
-            EventFeedsRegistry.GetByKey(eventFeedKey).ExecuteForcedFeeding();
+            EventFeedsRegistry.GetByKey(eventFeedKey).ExecuteForcedFeeding(TimeSpan.MaxValue);
         }
 
         [HttpMethod]
-        public void UpdateAndFlushAll()
+        public void UpdateAndFlushAll(TimeSpan delayUpperBound)
         {
-            EventFeedsRegistry.GetAll().ForEach(feed => feed.ExecuteForcedFeeding());
+            EventFeedsRegistry.GetAll().Where(feed => feed.Delay <= delayUpperBound).ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
         }
     }
 }

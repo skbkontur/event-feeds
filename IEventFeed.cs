@@ -10,10 +10,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         [NotNull]
         string Key { get; }
 
+        TimeSpan Delay { get; }
+
         bool LeaderElectionRequired { get; }
 
         void ExecuteFeeding();
-        void ExecuteForcedFeeding();
+        void ExecuteForcedFeeding(TimeSpan delayUpperBound);
 
         bool AreEventsProcessedAt(Timestamp timestamp);
         TimeSpan? GetCurrentActualizationLag();

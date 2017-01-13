@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using MoreLinq;
 
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
-using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Firing;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
@@ -15,7 +14,7 @@ using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    public class EventFeedsBuilder<TEvent, TOffset> : IEventFeedsBuilder<TEvent, TOffset> where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+    public class EventFeedsBuilder<TEvent, TOffset> : IEventFeedsBuilder<TEvent, TOffset>
     {
         public EventFeedsBuilder(
             [NotNull] string key,
@@ -76,9 +75,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         {
             var eventFeedBlades = blades
                 .Pipe(blade => blade
-                    .WithOffsetFactory(offsetStorageFactory)
-                    .WithOffsetInterpreter(GetOffsetInterpreter())
-                    .AndLeaderElectionBehavior(leaderElectionRequired))
+                                   .WithOffsetFactory(offsetStorageFactory)
+                                   .WithOffsetInterpreter(GetOffsetInterpreter())
+                                   .AndLeaderElectionBehavior(leaderElectionRequired))
                 .Select(c => c.Create(globalTicksHolder, eventSource, consumer, graphiteClient))
                 .ToList();
             return createEventFeeds(key, eventFeedBlades);
@@ -95,7 +94,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public IEventFeedsFireRaiser FirePeriodicTasks(TimeSpan actualizeInterval)
         {
             var fireRaiser = Create();
-            if (!inParallel)
+            if(!inParallel)
                 fireRaiser = fireRaiser.NoParallel();
             fireRaiser.FirePeriodicTasks(actualizeInterval);
             return fireRaiser;
@@ -104,10 +103,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [NotNull]
         private IOffsetInterpreter<TOffset> GetOffsetInterpreter()
         {
-            if (offsetInterpreter != null)
+            if(offsetInterpreter != null)
                 return offsetInterpreter;
             if(typeof(TOffset) == typeof(long))
-                return (IOffsetInterpreter<TOffset>) StandardTicksOffsetInterpreter.Instance;
+                return (IOffsetInterpreter<TOffset>)StandardTicksOffsetInterpreter.Instance;
             throw new InvalidProgramStateException(string.Format("OffsetInterpreter has not set, but for type {0} there is no default interpreter", typeof(TOffset).FullName));
         }
 
@@ -118,7 +117,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private IEventSource<TEvent, TOffset> eventSource;
         private IEventConsumer<TEvent> consumer;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;
-        private IOffsetInterpreter<TOffset> offsetInterpreter; 
+        private IOffsetInterpreter<TOffset> offsetInterpreter;
         private readonly List<BladeConfigurator<TOffset>> blades = new List<BladeConfigurator<TOffset>>();
         private bool leaderElectionRequired;
         private bool inParallel;

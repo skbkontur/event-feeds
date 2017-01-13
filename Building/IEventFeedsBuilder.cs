@@ -2,12 +2,11 @@
 
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Firing;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    public interface IEventFeedsBuilder<TEvent, TOffset> where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+    public interface IEventFeedsBuilder<TEvent, TOffset>
     {
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent, TOffset> eventSource);
@@ -20,7 +19,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay);
-        
+
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> WithLeaderElection();
 

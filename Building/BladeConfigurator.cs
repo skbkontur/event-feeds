@@ -3,7 +3,6 @@ using System;
 using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
-using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 
@@ -42,19 +41,18 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             [NotNull] IGlobalTicksHolder globalTicksHolder,
             [NotNull] IEventSource<TEvent, TOffset> eventSource,
             [NotNull] IEventConsumer<TEvent> consumer,
-            [NotNull] ICatalogueGraphiteClient graphiteClient) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+            [NotNull] ICatalogueGraphiteClient graphiteClient)
         {
             return new DelayedEventFeed<TEvent, TOffset>(
                 globalTicksHolder, eventSource,
                 createOffsetStorage(bladeId),
-                offsetInterpreter, 
+                offsetInterpreter,
                 consumer,
                 graphiteClient,
                 bladeId,
                 leaderElectionRequired);
         }
 
-        
         private Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage;
         private bool leaderElectionRequired;
         private readonly BladeId bladeId;

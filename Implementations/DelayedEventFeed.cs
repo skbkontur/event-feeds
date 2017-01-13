@@ -11,7 +11,6 @@ using log4net;
 using MoreLinq;
 
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
-using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Building;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 using SKBKontur.Catalogue.Objects;
@@ -20,7 +19,7 @@ using SKBKontur.Catalogue.Ranges;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    internal class DelayedEventFeed<TEvent, TOffset> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+    internal class DelayedEventFeed<TEvent, TOffset> : IEventFeed
     {
         public DelayedEventFeed(
             [NotNull] IGlobalTicksHolder globalTicksHolder,
@@ -144,7 +143,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     while(true)
                     {
                         var eventsBatch = eventSource.GetEvents(offset, range.UpperBound, 1000);
-                        eventsBatch.Events.SelectMany(SplitToElementaryEvents).Batch(2000, Enumerable.ToArray).ForEach(ProcessElementaryEvents);
+                        eventsBatch.Events.Batch(2000, Enumerable.ToArray).ForEach(ProcessElementaryEvents);
                         SetLastEventInfo(eventsBatch.LastOffset);
                         SendStatsToGraphite();
                         offset = eventsBatch.LastOffset;
@@ -202,12 +201,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 eventFeedStopped = true;
                 ThrowHasEventsWithoutProcessingMarker();
             }
-        }
-
-        [NotNull]
-        private static IEnumerable<TEvent> SplitToElementaryEvents([NotNull] TEvent eventObject)
-        {
-            return eventObject.SplitToElementary();
         }
 
         private void SendStatsToGraphite()

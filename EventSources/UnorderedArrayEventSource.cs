@@ -6,7 +6,7 @@ using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
-    internal class UnorderedArrayEventSource : IEventSource<ArrayEvent>
+    internal class UnorderedArrayEventSource : IEventSource<ArrayEvent, long>
     {
         public UnorderedArrayEventSource(
             [NotNull] Type businessObjectType,

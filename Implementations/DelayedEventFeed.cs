@@ -1,27 +1,32 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Text;
+
 using JetBrains.Annotations;
+
 using log4net;
+
 using MoreLinq;
+
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 using SKBKontur.Catalogue.Core.EventFeeds.Building;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 using SKBKontur.Catalogue.Objects;
+using SKBKontur.Catalogue.Objects.Comparing;
 using SKBKontur.Catalogue.Ranges;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    internal class DelayedEventFeed<TEvent> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
+    internal class DelayedEventFeed<TEvent, TOffset> : IEventFeed where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
     {
         public DelayedEventFeed(
             [NotNull] IGlobalTicksHolder globalTicksHolder,
-            [NotNull] IEventSource<TEvent> eventSource,
-            [NotNull] IOffsetStorage<long> offsetStorage,
+            [NotNull] IEventSource<TEvent, TOffset> eventSource,
+            [NotNull] IOffsetStorage<TOffset> offsetStorage,
+            [NotNull] IOffsetInterpreter<TOffset> offsetInterpreter,
             [NotNull] IEventConsumer<TEvent> consumer,
             [NotNull] ICatalogueGraphiteClient graphiteClient,
             [NotNull] BladeId bladeId,
@@ -30,6 +35,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.globalTicksHolder = globalTicksHolder;
             this.eventSource = eventSource;
             this.offsetStorage = offsetStorage;
+            this.offsetInterpreter = offsetInterpreter;
             this.consumer = consumer;
             this.graphiteClient = graphiteClient;
             this.bladeId = bladeId;
@@ -38,7 +44,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             actualizationLagPath = string.Format("EDI.SubSystem.EventFeeds.ActualizationLag.{0}.{1}", Environment.MachineName, bladeId.Key);
         }
 
-        private long? LocalOffset
+        private TOffset LocalOffset
         {
             get
             {
@@ -52,6 +58,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 lock(localOffsetLockObject)
                 {
                     localOffset = value;
+                    localOffsetWasSet = true;
                 }
             }
         }
@@ -80,7 +87,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         private void ResetLocalCaches()
         {
-            LocalOffset = null;
+            LocalOffset = default(TOffset);
+            localOffsetWasSet = false;
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
@@ -92,19 +100,21 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public bool AreEventsProcessedAt(Timestamp timestamp)
         {
-            return GetCurrentOffset() >= timestamp.Ticks;
+            return offsetInterpreter.ToTimestamp(GetCurrentOffset()) >= timestamp;
         }
 
         public TimeSpan? GetCurrentActualizationLag()
         {
-            var currentOffset = GetCurrentOffset();
-            return currentOffset > 0 ? TimeSpan.FromTicks(DateTime.UtcNow.Ticks - currentOffset) : (TimeSpan?)null;
+            var currentOffsetTimestamp = offsetInterpreter.ToTimestamp(GetCurrentOffset());
+            if(currentOffsetTimestamp == null || currentOffsetTimestamp <= Timestamp.MinValue)
+                return null;
+            return TimeSpan.FromTicks(Timestamp.Now.Ticks - currentOffsetTimestamp.Ticks);
         }
 
         [NotNull]
         public string Key { get { return bladeId.Key; } }
 
-        public TimeSpan Delay { get { return bladeId.Delay; }  }
+        public TimeSpan Delay { get { return bladeId.Delay; } }
 
         public bool LeaderElectionRequired { get; private set; }
 
@@ -121,10 +131,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
                 var feedingStartTicks = globalTicksHolder.GetNowTicks();
                 var currentOffset = GetCurrentOffset();
-                var range = Range.OfOrEmpty(currentOffset, useDelay ? feedingStartTicks - bladeId.Delay.Ticks : feedingStartTicks);
-                
-                logger.InfoFormat("Start processing events by blade {0}. FeedingStartTicks = {1}, CurrentOffset = {2}, Range = {3}", 
-                    bladeId, feedingStartTicks, currentOffset, range);
+                var rightBound = offsetInterpreter.FromTimestamp(new Timestamp(useDelay ? feedingStartTicks - bladeId.Delay.Ticks : feedingStartTicks));
+                var range = Range.OfOrEmpty(currentOffset, rightBound, offsetInterpreter);
+
+                logger.InfoFormat("Start processing events by blade {0}. FeedingStartTicks = {1}, CurrentOffset = {2}, Range = {3}",
+                                  bladeId, feedingStartTicks, currentOffset, range);
                 var stopwatch = Stopwatch.StartNew();
                 var events = 0;
                 if(!range.IsEmpty)
@@ -142,7 +153,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                             break;
                     }
                 }
-                SetLastEventInfo(useDelay ? (feedingStartTicks - bladeId.Delay.Ticks) : feedingStartTicks);
+                SetLastEventInfo(rightBound);
                 SendStatsToGraphite();
                 logger.InfoFormat("End processing events by blade {0}. Processed {1} events in {2}", bladeId, events, stopwatch.Elapsed);
             }
@@ -159,27 +170,22 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             throw new InvalidProgramStateException("Event feed stopped due to forgotten processing marker in one or more events. Consumer did not call MarkAsProcessed or MarkAsUnprocessed methods on IObjectMutationEvent");
         }
 
-        private long GetCurrentOffset()
+        private TOffset GetCurrentOffset()
         {
-            return LocalOffset ?? offsetStorage.Read(null);
+            return localOffsetWasSet ? LocalOffset : offsetStorage.Read(null);
         }
 
-        private void SetLastEventInfo(long lastEventInfo)
+        private void SetLastEventInfo(TOffset lastEventInfo)
         {
-            LocalOffset = Math.Max(LocalOffset ?? 0, lastEventInfo);
+            LocalOffset = offsetInterpreter.Max(LocalOffset, lastEventInfo);
             var offsetInStorage = offsetStorage.Read(null);
             logger.InfoFormat("SetLastEventInfo: {0}, LocalOffset: {1}, OffsetStorage: {2}", FormatOffset(lastEventInfo), FormatOffset(LocalOffset), FormatOffset(offsetInStorage));
-            offsetStorage.Write(null, Math.Max(offsetInStorage, lastEventInfo));
+            offsetStorage.Write(null, offsetInterpreter.Max(offsetInStorage, lastEventInfo));
         }
 
-        private static string FormatOffset(long? currentOffset)
+        private string FormatOffset(TOffset currentOffset)
         {
-            if(!currentOffset.HasValue)
-                return "NULL";
-            var minDate = new DateTime(1990, 01, 01);
-            if(currentOffset < minDate.Ticks)
-                return currentOffset.ToString();
-            return new DateTime(currentOffset.Value).ToString(CultureInfo.InvariantCulture) + " (" + currentOffset + ")";
+            return offsetInterpreter.Format(currentOffset);
         }
 
         private void ProcessElementaryEvents([NotNull] IEnumerable<TEvent> elementaryWriteEvents)
@@ -209,21 +215,23 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             if(lastSendToGraphiteTime.HasValue && DateTime.UtcNow < lastSendToGraphiteTime.Value + TimeSpan.FromMinutes(1))
                 return;
             var lag = GetCurrentActualizationLag();
-            if (lag.HasValue)
-                graphiteClient.Send(actualizationLagPath, (long) lag.Value.TotalMilliseconds, DateTime.UtcNow);
+            if(lag.HasValue)
+                graphiteClient.Send(actualizationLagPath, (long)lag.Value.TotalMilliseconds, DateTime.UtcNow);
             lastSendToGraphiteTime = DateTime.UtcNow;
         }
 
         private DateTime? lastSendToGraphiteTime;
         private readonly object localOffsetLockObject = new object();
-        private long? localOffset;
+        private TOffset localOffset;
+        private bool localOffsetWasSet;
         private bool eventFeedStopped;
 
         private readonly object lockObject = new object();
-        private readonly ILog logger = LogManager.GetLogger(typeof(DelayedEventFeed<TEvent>));
+        private readonly ILog logger = LogManager.GetLogger(typeof(DelayedEventFeed<TEvent, TOffset>));
         private readonly IGlobalTicksHolder globalTicksHolder;
-        private readonly IEventSource<TEvent> eventSource;
-        private readonly IOffsetStorage<long> offsetStorage;
+        private readonly IEventSource<TEvent, TOffset> eventSource;
+        private readonly IOffsetStorage<TOffset> offsetStorage;
+        private readonly IOffsetInterpreter<TOffset> offsetInterpreter;
         private readonly IEventConsumer<TEvent> consumer;
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly BladeId bladeId;

@@ -23,21 +23,31 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             return this;
         }
 
+        [NotNull]
         public BladeConfigurator<TOffset> WithOffsetFactory(Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
         {
             this.createOffsetStorage = createOffsetStorage;
             return this;
         }
 
+        [NotNull]
+        public BladeConfigurator<TOffset> WithOffsetInterpreter([NotNull] IOffsetInterpreter<TOffset> offsetInterpreter)
+        {
+            this.offsetInterpreter = offsetInterpreter;
+            return this;
+        }
+
+        [NotNull]
         public IEventFeed Create<TEvent>(
             [NotNull] IGlobalTicksHolder globalTicksHolder,
-            [NotNull] IEventSource<TEvent> eventSource,
+            [NotNull] IEventSource<TEvent, TOffset> eventSource,
             [NotNull] IEventConsumer<TEvent> consumer,
             [NotNull] ICatalogueGraphiteClient graphiteClient) where TEvent : GenericEvent, ICanSplitToElementary<TEvent>
         {
-            return new DelayedEventFeed<TEvent>(
+            return new DelayedEventFeed<TEvent, TOffset>(
                 globalTicksHolder, eventSource,
-                (IOffsetStorage<long>)createOffsetStorage(bladeId),
+                createOffsetStorage(bladeId),
+                offsetInterpreter, 
                 consumer,
                 graphiteClient,
                 bladeId,
@@ -48,5 +58,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage;
         private bool leaderElectionRequired;
         private readonly BladeId bladeId;
+        private IOffsetInterpreter<TOffset> offsetInterpreter;
     }
 }

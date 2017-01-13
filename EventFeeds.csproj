@@ -84,6 +84,8 @@
     <Compile Include="EventFeedsRegistry.cs" />
     <Compile Include="IEventSource.cs" />
     <Compile Include="Implementations\CompositeEventFeed.cs" />
+    <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
+    <Compile Include="IOffsetInterpreter.cs" />
     <Compile Include="Implementations\ObjectMutationEvent.cs" />
     <Compile Include="Implementations\DelayedEventFeed.cs" />
     <Compile Include="IObjectMutationEvent.cs" />

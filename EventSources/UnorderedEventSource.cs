@@ -6,7 +6,7 @@ using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 {
-    internal class UnorderedEventSource : IEventSource<Event, long>
+    internal class UnorderedEventSource : IEventSource<Event, long?>
     {
         public UnorderedEventSource(
             [NotNull] Type businessObjectType,
@@ -23,9 +23,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
             return string.Format("EventLog based event source: BusinessObjectType: {0}, Type identifier: {1}", businessObjectType.Name, typeIdentifier);
         }
 
-        public EventsQueryResult<Event, long> GetEvents(long fromOffsetExclusive, long toOffsetInclusive, int estimatedCount)
+        public EventsQueryResult<Event, long?> GetEvents(long? fromOffsetExclusive, long? toOffsetInclusive, int estimatedCount)
         {
-            return unorderedEventLog.GetEvents<Event>(typeIdentifier, fromOffsetExclusive, toOffsetInclusive, estimatedCount);
+            return unorderedEventLog.GetEvents<Event>(typeIdentifier, fromOffsetExclusive ?? 0, toOffsetInclusive ?? 0, estimatedCount);
         }
 
         private readonly Type businessObjectType;

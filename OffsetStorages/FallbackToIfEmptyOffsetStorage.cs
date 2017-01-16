@@ -4,10 +4,10 @@ using log4net;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
-    internal class FallbackToIfEmptyOffsetStorage : IOffsetStorage<long>
+    internal class FallbackToIfEmptyOffsetStorage : IOffsetStorage<long?>
     {
         public FallbackToIfEmptyOffsetStorage(
-            [NotNull] IOffsetStorage<long> innerStorage,
+            [NotNull] IOffsetStorage<long?> innerStorage,
             long offsetTicks
             )
         {
@@ -20,10 +20,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return string.Format("{0} and set value to {1} if empty", innerStorage.GetDescription(), new DateTime(offsetTicks, DateTimeKind.Utc));
         }
 
-        public long Read(string key)
+        public long? Read(string key)
         {
             var result = innerStorage.Read(key);
-            if(result <= 0)
+            if(!result.HasValue || result <= 0)
             {
                 var fallbackTime = new DateTime(offsetTicks, DateTimeKind.Utc);
                 logger.InfoFormat("Set offset to {0}", fallbackTime);
@@ -33,12 +33,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return result;
         }
 
-        public void Write(string key, long offset)
+        public void Write(string key, long? offset)
         {
             innerStorage.Write(key, offset);
         }
 
-        private readonly IOffsetStorage<long> innerStorage;
+        private readonly IOffsetStorage<long?> innerStorage;
         private static readonly ILog logger = LogManager.GetLogger(typeof(RollbackOnEmptyOffsetStorage));
         private readonly long offsetTicks;
     }

@@ -4,10 +4,10 @@ using log4net;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
-    internal class RollbackOnEmptyOffsetStorage : IOffsetStorage<long>
+    internal class RollbackOnEmptyOffsetStorage : IOffsetStorage<long?>
     {
         public RollbackOnEmptyOffsetStorage(
-            [NotNull] IOffsetStorage<long> innerStorage,
+            [NotNull] IOffsetStorage<long?> innerStorage,
             long rollbackTicks
             )
         {
@@ -20,10 +20,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return string.Format("{0} and rollback if empty for {1}", innerStorage.GetDescription(), TimeSpan.FromTicks(rollbackTicks));
         }
 
-        public long Read(string key)
+        public long? Read(string key)
         {
             var result = innerStorage.Read(key);
-            if(result <= 0)
+            if(!result.HasValue || result <= 0)
             {
                 var rolledBackTime = DateTime.UtcNow.AddTicks(-rollbackTicks);
                 logger.InfoFormat("Rolled back offset to {0}", rolledBackTime);
@@ -33,12 +33,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return result;
         }
 
-        public void Write(string key, long offset)
+        public void Write(string key, long? offset)
         {
             innerStorage.Write(key, offset);
         }
 
-        private readonly IOffsetStorage<long> innerStorage;
+        private readonly IOffsetStorage<long?> innerStorage;
         private readonly long rollbackTicks;
         private static readonly ILog logger = LogManager.GetLogger(typeof(RollbackOnEmptyOffsetStorage));
     }

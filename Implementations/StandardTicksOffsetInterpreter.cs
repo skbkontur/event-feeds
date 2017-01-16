@@ -1,40 +1,48 @@
-﻿using System.Collections.Generic;
-
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    public class StandardTicksOffsetInterpreter : IOffsetInterpreter<long>
+    public class StandardTicksOffsetInterpreter : IOffsetInterpreter<long?>
     {
         private StandardTicksOffsetInterpreter()
         {
         }
 
-        public int Compare(long x, long y)
+        [NotNull]
+        public string Format([CanBeNull] long? offset)
         {
-            return Comparer<long>.Default.Compare(x, y);
-        }
-
-        public string Format(long offset)
-        {
+            if(offset == null)
+                return "(null)";
             if(offset < Timestamp.MinValue.Ticks || offset > Timestamp.MaxValue.Ticks)
                 return offset.ToString();
-            return new Timestamp(offset).ToString();
+            return new Timestamp(offset.Value).ToString();
         }
 
         [CanBeNull]
-        public Timestamp ToTimestamp(long offset)
+        public Timestamp ToTimestamp([CanBeNull] long? offset)
         {
-            if(offset < Timestamp.MinValue.Ticks || offset > Timestamp.MaxValue.Ticks)
+            if(offset == null || offset < Timestamp.MinValue.Ticks || offset > Timestamp.MaxValue.Ticks)
                 return null;
-            return new Timestamp(offset);
+            return new Timestamp(offset.Value);
         }
 
-        public long FromTimestamp([CanBeNull] Timestamp timestamp)
+        [CanBeNull]
+        public long? FromTimestamp([CanBeNull] Timestamp timestamp)
         {
-            return timestamp == null ? 0 : timestamp.Ticks;
+            return timestamp == null ? (long?)null : timestamp.Ticks;
+        }
+
+        public int Compare([CanBeNull] long? x, [CanBeNull] long? y)
+        {
+            if(!x.HasValue && !y.HasValue)
+                return 0;
+            if(!x.HasValue)
+                return -1;
+            if(!y.HasValue)
+                return 1;
+            return x.Value.CompareTo(y.Value);
         }
 
         public static readonly StandardTicksOffsetInterpreter Instance = new StandardTicksOffsetInterpreter();

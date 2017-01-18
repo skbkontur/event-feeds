@@ -68,6 +68,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             var result = new StringBuilder();
             result.AppendLine("Initialized delayed single razor feed with:");
             result.AppendFormat("  EventSource            : {0}", eventSource.GetDescription()).AppendLine();
+            result.AppendFormat("  EventConsumer          : {0}", consumer.GetDescription()).AppendLine();
             result.AppendFormat("  OffsetStorage          : {0}", offsetStorage.GetDescription()).AppendLine();
             return result.ToString();
         }

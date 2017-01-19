@@ -8,8 +8,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         string GetDescription();
 
         [CanBeNull]
-        TOffset Read([CanBeNull] string key);
+        TOffset Read();
 
-        void Write([CanBeNull] string key, [CanBeNull] TOffset minEventInfo);
+        void Write([CanBeNull] TOffset newOffset);
     }
 }

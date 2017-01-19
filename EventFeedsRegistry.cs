@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using JetBrains.Annotations;
+
 using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds
@@ -15,7 +17,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
 
         public static void Unregister([NotNull] string key)
         {
-            if (!feeds.ContainsKey(key))
+            if(!feeds.ContainsKey(key))
                 throw new InvalidProgramStateException(string.Format("Feed with key {0} is not registered", key));
             feeds.Remove(key);
         }

@@ -2,14 +2,12 @@ using JetBrains.Annotations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
-    public interface IEventConsumer<in TEvent>
+    public interface IEventConsumer<TEvent, TOffset>
     {
         [NotNull]
         string GetDescription();
 
-        void ProcessEvents([NotNull] IObjectMutationEvent<TEvent>[] modificationEvents);
-
-        void Initialize();
-        void Shutdown();
+        [NotNull]
+        EventsProcessingResult<TOffset> ProcessEvents([NotNull] EventsQueryResult<TEvent, TOffset> eventsQueryResult);
     }
 }

@@ -9,8 +9,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
     [PublicAPI]
     public class MultiRazorEventFeedFactory
     {
-        public MultiRazorEventFeedFactory(
-            [NotNull] IContainer container)
+        public MultiRazorEventFeedFactory([NotNull] IContainer container)
         {
             this.container = container;
         }

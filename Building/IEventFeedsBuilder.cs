@@ -12,21 +12,21 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent, TOffset> eventSource);
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent> eventConsumer);
+        IEventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent, TOffset> eventConsumer);
 
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage);
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay);
+        IEventFeedsBuilder<TEvent, TOffset> WithOffsetInterpreter([NotNull] IOffsetInterpreter<TOffset> offsetInterpreter);
 
         [NotNull]
-        IEventFeedsBuilder<TEvent, TOffset> WithLeaderElection();
+        IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay);
 
         [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> InParallel();
 
         [NotNull]
-        IEventFeedsFireRaiser FirePeriodicTasks(TimeSpan actualizeInterval);
+        IEventFeedsRunner RunFeeds(TimeSpan actualizeInterval);
     }
 }

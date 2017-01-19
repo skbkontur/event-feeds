@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
+﻿namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     public class InMemoryOffsetStorage<TOffset> : IOffsetStorage<TOffset>
     {
@@ -9,25 +7,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return string.Format("In memory generic offset storage. Offset type: {0}", typeof(TOffset).Name);
         }
 
-        public TOffset Read(string key)
+        public TOffset Read()
         {
-            if(key == null)
-                return defaultOffset;
-            TOffset result;
-            return lastEventInfo.TryGetValue(key, out result) ? result : default(TOffset);
+            return offset;
         }
 
-        public void Write(string key, TOffset newlastEventInfo)
+        public void Write(TOffset newOffset)
         {
-            if(key == null)
-            {
-                defaultOffset = newlastEventInfo;
-                return;
-            }
-            lastEventInfo.AddOrUpdate(key, x => newlastEventInfo, (x, y) => newlastEventInfo);
+            offset = newOffset;
         }
 
-        private TOffset defaultOffset;
-        private readonly ConcurrentDictionary<string, TOffset> lastEventInfo = new ConcurrentDictionary<string, TOffset>();
+        private TOffset offset;
     }
 }

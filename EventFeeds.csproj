@@ -58,7 +58,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -68,16 +67,15 @@
     <Compile Include="Building\BladeId.cs" />
     <Compile Include="Building\EventFeedsBuilder.cs" />
     <Compile Include="Building\IEventFeedsBuilder.cs" />
-    <Compile Include="EventConsumers\EventConsumerErrorReportingToGraphiteWrapper.cs" />
-    <Compile Include="EventConsumers\GraphiteEventFeedUtilities.cs" />
-    <Compile Include="EventConsumers\GraphiteEventFeedUtilitiesExtensions.cs" />
     <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
     <Compile Include="EventSources\UnorderedArrayEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventLogRepositoryGenericExtensions.cs" />
+    <Compile Include="EventsProcessingResult.cs" />
     <Compile Include="EventsQueryResult.cs" />
-    <Compile Include="Firing\EventFeedsFireRaiser.cs" />
-    <Compile Include="Firing\IEventFeedsFireRaiser.cs" />
+    <Compile Include="EventWithOffset.cs" />
+    <Compile Include="Firing\EventFeedsRunner.cs" />
+    <Compile Include="Firing\IEventFeedsRunner.cs" />
     <Compile Include="HttpAccess\GenericEventFeedHttpHandler.cs" />
     <Compile Include="IEventConsumer.cs" />
     <Compile Include="IEventFeed.cs" />
@@ -86,9 +84,7 @@
     <Compile Include="Implementations\CompositeEventFeed.cs" />
     <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
     <Compile Include="IOffsetInterpreter.cs" />
-    <Compile Include="Implementations\ObjectMutationEvent.cs" />
     <Compile Include="Implementations\DelayedEventFeed.cs" />
-    <Compile Include="IObjectMutationEvent.cs" />
     <Compile Include="IOffsetStorage.cs" />
     <Compile Include="MultiRazorEventFeedFactory.cs" />
     <Compile Include="OffsetStorages\BusinessObjectOffsetStorageProvider.cs" />
@@ -118,10 +114,6 @@
       <Project>{95b2ccb1-0c83-4a9b-a33f-ea8b13fd099b}</Project>
       <Name>Commons</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Configuration.Settings\Configuration.Settings.csproj">
-      <Project>{de7b1fa9-c38e-4798-b0dd-048eaadadcfd}</Project>
-      <Name>Configuration.Settings</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ElasticsearchClientExtensions\ElasticsearchClientExtensions.csproj">
       <Project>{988abfe1-2caf-4493-9d61-3d0e8760d0c2}</Project>
       <Name>ElasticsearchClientExtensions</Name>
@@ -129,10 +121,6 @@
     <ProjectReference Include="..\Graphite.Client\Graphite.Client.csproj">
       <Project>{fccbee89-0b3c-4046-baf3-a99b0d10b3f5}</Project>
       <Name>Graphite.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LocalPersistentStoring\LocalPersistentStoring.csproj">
-      <Project>{3d73f5e1-e9b3-492a-8702-ae8c78bed7d1}</Project>
-      <Name>LocalPersistentStoring</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServiceLib\ServiceLib.csproj">
       <Project>{2f8f38dc-3cda-48bb-9798-7b6f75b02bc8}</Project>

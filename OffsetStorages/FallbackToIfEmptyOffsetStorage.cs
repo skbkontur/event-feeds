@@ -6,10 +6,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     internal class FallbackToIfEmptyOffsetStorage : IOffsetStorage<long?>
     {
-        public FallbackToIfEmptyOffsetStorage(
-            [NotNull] IOffsetStorage<long?> innerStorage,
-            long offsetTicks
-            )
+        public FallbackToIfEmptyOffsetStorage([NotNull] IOffsetStorage<long?> innerStorage, long offsetTicks)
         {
             this.innerStorage = innerStorage;
             this.offsetTicks = offsetTicks;
@@ -20,22 +17,22 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return string.Format("{0} and set value to {1} if empty", innerStorage.GetDescription(), new DateTime(offsetTicks, DateTimeKind.Utc));
         }
 
-        public long? Read(string key)
+        public long? Read()
         {
-            var result = innerStorage.Read(key);
+            var result = innerStorage.Read();
             if(!result.HasValue || result <= 0)
             {
                 var fallbackTime = new DateTime(offsetTicks, DateTimeKind.Utc);
                 logger.InfoFormat("Set offset to {0}", fallbackTime);
-                Write(key, offsetTicks);
-                result = innerStorage.Read(key);
+                Write(offsetTicks);
+                result = innerStorage.Read();
             }
             return result;
         }
 
-        public void Write(string key, long? offset)
+        public void Write(long? newOffset)
         {
-            innerStorage.Write(key, offset);
+            innerStorage.Write(newOffset);
         }
 
         private readonly IOffsetStorage<long?> innerStorage;

@@ -6,10 +6,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     internal class RollbackOnEmptyOffsetStorage : IOffsetStorage<long?>
     {
-        public RollbackOnEmptyOffsetStorage(
-            [NotNull] IOffsetStorage<long?> innerStorage,
-            long rollbackTicks
-            )
+        public RollbackOnEmptyOffsetStorage([NotNull] IOffsetStorage<long?> innerStorage, long rollbackTicks)
         {
             this.innerStorage = innerStorage;
             this.rollbackTicks = rollbackTicks;
@@ -20,22 +17,22 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             return string.Format("{0} and rollback if empty for {1}", innerStorage.GetDescription(), TimeSpan.FromTicks(rollbackTicks));
         }
 
-        public long? Read(string key)
+        public long? Read()
         {
-            var result = innerStorage.Read(key);
+            var result = innerStorage.Read();
             if(!result.HasValue || result <= 0)
             {
                 var rolledBackTime = DateTime.UtcNow.AddTicks(-rollbackTicks);
                 logger.InfoFormat("Rolled back offset to {0}", rolledBackTime);
-                Write(key, rolledBackTime.Ticks);
-                result = innerStorage.Read(key);
+                Write(rolledBackTime.Ticks);
+                result = innerStorage.Read();
             }
             return result;
         }
 
-        public void Write(string key, long? offset)
+        public void Write(long? newOffset)
         {
-            innerStorage.Write(key, offset);
+            innerStorage.Write(newOffset);
         }
 
         private readonly IOffsetStorage<long?> innerStorage;

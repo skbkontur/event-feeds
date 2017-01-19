@@ -1,10 +1,13 @@
 using Elasticsearch.Net;
+
 using JetBrains.Annotations;
+
 using log4net;
-using Newtonsoft.Json;
+
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions.Responses.Get;
 using SKBKontur.Catalogue.Objects;
+using SKBKontur.Catalogue.Objects.Json;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
@@ -20,28 +23,28 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             this.elasticsearchClient = elasticsearchClient;
         }
 
-        public void Write(string localKey, TOffset offset)
-        {
-            elasticsearchClient.Index(
-                settings.IndexName,
-                settings.TypeName,
-                key + (localKey ?? ""),
-                new EventInfoStorageElement
-                    {
-                        Offset = offset
-                    }
-                ).ProcessResponse();
-        }
-
         public string GetDescription()
         {
             return string.Format("Offset in elasticsearch index storage: Offset type: {3} Index: {0}, Type: {1}, Key: {2} ", settings.IndexName, settings.TypeName, key, typeof(TOffset).Name);
         }
 
-        public TOffset Read(string localKey)
+        public void Write(TOffset newOffset)
         {
-            var elasticsearchResponse = elasticsearchClient.Get<GetResponse<EventInfoStorageElement>>(settings.IndexName, settings.TypeName, key + (localKey ?? "")).ProcessResponse();
-            logger.InfoFormat("OffsetStorage: got elasticsearch response StatusCode: {0}, Response: {1}", elasticsearchResponse.HttpStatusCode, JsonConvert.SerializeObject(elasticsearchResponse.Response));
+            elasticsearchClient.Index(
+                settings.IndexName,
+                settings.TypeName,
+                key,
+                new EventInfoStorageElement
+                    {
+                        Offset = newOffset
+                    }
+                ).ProcessResponse();
+        }
+
+        public TOffset Read()
+        {
+            var elasticsearchResponse = elasticsearchClient.Get<GetResponse<EventInfoStorageElement>>(settings.IndexName, settings.TypeName, key).ProcessResponse();
+            logger.InfoFormat("OffsetStorage got elasticsearch response: {0}", elasticsearchResponse.ToPrettyJson());
             return elasticsearchResponse
                 .With(x => x.Response)
                 .If(x => x.Found)

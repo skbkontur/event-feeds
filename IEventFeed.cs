@@ -1,4 +1,5 @@
 using System;
+
 using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Objects;
@@ -12,14 +13,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
 
         TimeSpan Delay { get; }
 
-        bool LeaderElectionRequired { get; }
+        void ResetLocalOffset();
 
         void ExecuteFeeding();
         void ExecuteForcedFeeding(TimeSpan delayUpperBound);
 
-        bool AreEventsProcessedAt(Timestamp timestamp);
-        TimeSpan? GetCurrentActualizationLag();
-        void Initialize();
-        void Shutdown();
+        bool AreEventsProcessedAt([NotNull] Timestamp timestamp);
     }
 }

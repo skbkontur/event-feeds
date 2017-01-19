@@ -1,114 +1,46 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 
 using JetBrains.Annotations;
 
 using log4net;
 
-using MoreLinq;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Building;
-using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.Objects.Comparing;
-using SKBKontur.Catalogue.Ranges;
+using SKBKontur.Catalogue.ServiceLib.Logging;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    internal class DelayedEventFeed<TEvent, TOffset> : IEventFeed
+    public class DelayedEventFeed<TEvent, TOffset> : IEventFeed
     {
-        public DelayedEventFeed(
-            [NotNull] IGlobalTicksHolder globalTicksHolder,
-            [NotNull] IEventSource<TEvent, TOffset> eventSource,
-            [NotNull] IOffsetStorage<TOffset> offsetStorage,
-            [NotNull] IOffsetInterpreter<TOffset> offsetInterpreter,
-            [NotNull] IEventConsumer<TEvent> consumer,
-            [NotNull] ICatalogueGraphiteClient graphiteClient,
-            [NotNull] BladeId bladeId,
-            bool leaderElectionRequired)
+        public DelayedEventFeed(BladeId bladeId,
+                                IGlobalTicksHolder globalTicksHolder,
+                                IEventSource<TEvent, TOffset> eventSource,
+                                IOffsetStorage<TOffset> offsetStorage,
+                                IOffsetInterpreter<TOffset> offsetInterpreter,
+                                IEventConsumer<TEvent, TOffset> eventConsumer)
         {
+            this.bladeId = bladeId;
             this.globalTicksHolder = globalTicksHolder;
             this.eventSource = eventSource;
-            this.offsetStorage = offsetStorage;
             this.offsetInterpreter = offsetInterpreter;
-            this.consumer = consumer;
-            this.graphiteClient = graphiteClient;
-            this.bladeId = bladeId;
-            logger.Info(GetComponentsDescription());
-            LeaderElectionRequired = leaderElectionRequired;
-            actualizationLagPath = string.Format("EDI.SubSystem.EventFeeds.ActualizationLag.{0}.{1}", Environment.MachineName, bladeId.Key);
-        }
-
-        private TOffset LocalOffset
-        {
-            get
-            {
-                lock(localOffsetLockObject)
-                {
-                    return localOffset;
-                }
-            }
-            set
-            {
-                lock(localOffsetLockObject)
-                {
-                    localOffset = value;
-                    localOffsetWasSet = true;
-                }
-            }
+            this.eventConsumer = eventConsumer;
+            logger.Info(GetComponentsDescription(offsetStorage));
+            localOffsetHolder = new LocalOffsetHolder(offsetStorage, offsetInterpreter);
         }
 
         [NotNull]
-        private string GetComponentsDescription()
+        private string GetComponentsDescription(IOffsetStorage<TOffset> offsetStorage)
         {
             var result = new StringBuilder();
             result.AppendLine("Initialized delayed single razor feed with:");
-            result.AppendFormat("  EventSource            : {0}", eventSource.GetDescription()).AppendLine();
-            result.AppendFormat("  EventConsumer          : {0}", consumer.GetDescription()).AppendLine();
-            result.AppendFormat("  OffsetStorage          : {0}", offsetStorage.GetDescription()).AppendLine();
+            result.AppendFormat("  EventSource  : {0}", eventSource.GetDescription()).AppendLine();
+            result.AppendFormat("  EventConsumer: {0}", eventConsumer.GetDescription()).AppendLine();
+            result.AppendFormat("  OffsetStorage: {0}", offsetStorage.GetDescription()).AppendLine();
             return result.ToString();
-        }
-
-        public void Initialize()
-        {
-            ResetLocalCaches();
-            consumer.Initialize();
-        }
-
-        public void Shutdown()
-        {
-            consumer.Shutdown();
-            ResetLocalCaches();
-        }
-
-        private void ResetLocalCaches()
-        {
-            LocalOffset = default(TOffset);
-            localOffsetWasSet = false;
-        }
-
-        public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
-        {
-            if(Delay > delayUpperBound)
-                throw new InvalidProgramStateException(string.Format("It is not alloweed to force feeding for smaller delay ({0}) than {1}", delayUpperBound, Delay));
-            ExecuteFeedingInternal(false);
-        }
-
-        public bool AreEventsProcessedAt(Timestamp timestamp)
-        {
-            return offsetInterpreter.ToTimestamp(GetCurrentOffset()) >= timestamp;
-        }
-
-        public TimeSpan? GetCurrentActualizationLag()
-        {
-            var currentOffsetTimestamp = offsetInterpreter.ToTimestamp(GetCurrentOffset());
-            if(currentOffsetTimestamp == null || currentOffsetTimestamp <= Timestamp.MinValue)
-                return null;
-            return TimeSpan.FromTicks(Timestamp.Now.Ticks - currentOffsetTimestamp.Ticks);
         }
 
         [NotNull]
@@ -116,119 +48,119 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public TimeSpan Delay { get { return bladeId.Delay; } }
 
-        public bool LeaderElectionRequired { get; private set; }
+        public void ResetLocalOffset()
+        {
+            localOffsetHolder.Reset();
+        }
+
+        [CanBeNull]
+        public Timestamp GetLocalOffsetTimestamp()
+        {
+            return offsetInterpreter.ToTimestamp(localOffsetHolder.GetLocalOffset());
+        }
 
         public void ExecuteFeeding()
         {
-            ExecuteFeedingInternal(true);
+            ExecuteFeedingInternal(useDelay : true);
+        }
+
+        public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
+        {
+            if(delayUpperBound < bladeId.Delay)
+                throw new InvalidProgramStateException(string.Format("It is not allowed to force feeding for delay {0} which is smaller than bladeId.Delay ({1})", delayUpperBound, bladeId.Delay));
+            ExecuteFeedingInternal(useDelay : false);
+        }
+
+        public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
+        {
+            var localOffset = localOffsetHolder.GetLocalOffset();
+            return offsetInterpreter.ToTimestamp(localOffset) >= timestamp;
         }
 
         private void ExecuteFeedingInternal(bool useDelay)
         {
-            lock(lockObject)
+            lock(locker)
             {
-                CheckEventFeedState();
-
-                var feedingStartTicks = globalTicksHolder.GetNowTicks();
-                var currentOffset = GetCurrentOffset();
-                var rightBound = offsetInterpreter.FromTimestamp(new Timestamp(useDelay ? feedingStartTicks - bladeId.Delay.Ticks : feedingStartTicks));
-                var range = Range.OfOrEmpty(currentOffset, rightBound, offsetInterpreter);
-
-                logger.InfoFormat("Start processing events by blade {0}. FeedingStartTicks = {1}, CurrentOffset = {2}, Range = {3}",
-                                  bladeId, feedingStartTicks, currentOffset, range);
-                var stopwatch = Stopwatch.StartNew();
-                var events = 0;
-                if(!range.IsEmpty)
+                var localOffset = localOffsetHolder.GetLocalOffset();
+                var globalNowTimestamp = new Timestamp(globalTicksHolder.GetNowTicks());
+                var toOffsetInclusive = offsetInterpreter.FromTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
+                if(offsetInterpreter.Compare(toOffsetInclusive, localOffset) <= 0)
                 {
-                    var offset = range.LowerBound;
-                    while(true)
-                    {
-                        var eventsBatch = eventSource.GetEvents(offset, range.UpperBound, 1000);
-                        eventsBatch.Events.Batch(2000, Enumerable.ToArray).ForEach(ProcessElementaryEvents);
-                        SetLastEventInfo(eventsBatch.LastOffset);
-                        SendStatsToGraphite();
-                        offset = eventsBatch.LastOffset;
-                        events += eventsBatch.Events.Count;
-                        if(eventsBatch.NoMoreEventsInSource)
-                            break;
-                    }
+                    logger.InfoFormat("Skip processing events by blade {0} because toOffsetInclusive ({1}) <= localOffset ({2}) ", bladeId, toOffsetInclusive, localOffset);
+                    return;
                 }
-                SetLastEventInfo(rightBound);
-                SendStatsToGraphite();
-                logger.InfoFormat("End processing events by blade {0}. Processed {1} events in {2}", bladeId, events, stopwatch.Elapsed);
-            }
-        }
-
-        private void CheckEventFeedState()
-        {
-            if(eventFeedStopped)
-                ThrowHasEventsWithoutProcessingMarker();
-        }
-
-        private static void ThrowHasEventsWithoutProcessingMarker()
-        {
-            throw new InvalidProgramStateException("Event feed stopped due to forgotten processing marker in one or more events. Consumer did not call MarkAsProcessed or MarkAsUnprocessed methods on IObjectMutationEvent");
-        }
-
-        private TOffset GetCurrentOffset()
-        {
-            return localOffsetWasSet ? LocalOffset : offsetStorage.Read(null);
-        }
-
-        private void SetLastEventInfo(TOffset lastEventInfo)
-        {
-            LocalOffset = offsetInterpreter.Max(LocalOffset, lastEventInfo);
-            var offsetInStorage = offsetStorage.Read(null);
-            logger.InfoFormat("SetLastEventInfo: {0}, LocalOffset: {1}, OffsetStorage: {2}", FormatOffset(lastEventInfo), FormatOffset(LocalOffset), FormatOffset(offsetInStorage));
-            offsetStorage.Write(null, offsetInterpreter.Max(offsetInStorage, lastEventInfo));
-        }
-
-        private string FormatOffset(TOffset currentOffset)
-        {
-            return offsetInterpreter.Format(currentOffset);
-        }
-
-        private void ProcessElementaryEvents([NotNull] IEnumerable<TEvent> elementaryWriteEvents)
-        {
-            var objectMutationEvents = elementaryWriteEvents.Select(x => new ObjectMutationEvent<TEvent>
+                logger.InfoFormat("Start processing events by blade {0}. GlobalNowTimestamp = {1}, LocalOffset = {2}, ToOffsetInclusive = {3}", bladeId, globalNowTimestamp, localOffset, toOffsetInclusive);
+                var sw = Stopwatch.StartNew();
+                var eventsProcessed = 0;
+                var fromOffsetExclusive = localOffset;
+                EventsQueryResult<TEvent, TOffset> eventsQueryResult;
+                do
                 {
-                    Event = x
-                }).ToArray();
-
-            consumer.ProcessEvents(objectMutationEvents.Cast<IObjectMutationEvent<TEvent>>().ToArray());
-
-            if(objectMutationEvents.Any(x => !x.IsProcessed.HasValue))
-            {
-                eventFeedStopped = true;
-                ThrowHasEventsWithoutProcessingMarker();
+                    eventsQueryResult = eventSource.GetEvents(fromOffsetExclusive, toOffsetInclusive, estimatedCount : 5000);
+                    var eventsProcessingResult = eventConsumer.ProcessEvents(eventsQueryResult);
+                    if(eventsProcessingResult.CommitOffset)
+                        localOffsetHolder.UpdateLocalOffset(eventsProcessingResult.OffsetToCommit);
+                    fromOffsetExclusive = eventsQueryResult.LastOffset;
+                    eventsProcessed += eventsQueryResult.Events.Count;
+                } while(!eventsQueryResult.NoMoreEventsInSource);
+                logger.InfoFormat("End processing events by blade {0}. Processed {1} events in {2}", bladeId, eventsProcessed, sw.Elapsed);
             }
         }
 
-        private void SendStatsToGraphite()
-        {
-            if(lastSendToGraphiteTime.HasValue && DateTime.UtcNow < lastSendToGraphiteTime.Value + TimeSpan.FromMinutes(1))
-                return;
-            var lag = GetCurrentActualizationLag();
-            if(lag.HasValue)
-                graphiteClient.Send(actualizationLagPath, (long)lag.Value.TotalMilliseconds, DateTime.UtcNow);
-            lastSendToGraphiteTime = DateTime.UtcNow;
-        }
-
-        private DateTime? lastSendToGraphiteTime;
-        private readonly object localOffsetLockObject = new object();
-        private TOffset localOffset;
-        private bool localOffsetWasSet;
-        private bool eventFeedStopped;
-
-        private readonly object lockObject = new object();
-        private readonly ILog logger = LogManager.GetLogger(typeof(DelayedEventFeed<TEvent, TOffset>));
+        private readonly object locker = new object();
+        private readonly ILog logger = Log.For("DelayedEventFeed");
+        private readonly BladeId bladeId;
         private readonly IGlobalTicksHolder globalTicksHolder;
         private readonly IEventSource<TEvent, TOffset> eventSource;
-        private readonly IOffsetStorage<TOffset> offsetStorage;
         private readonly IOffsetInterpreter<TOffset> offsetInterpreter;
-        private readonly IEventConsumer<TEvent> consumer;
-        private readonly ICatalogueGraphiteClient graphiteClient;
-        private readonly BladeId bladeId;
-        private readonly string actualizationLagPath;
+        private readonly IEventConsumer<TEvent, TOffset> eventConsumer;
+        private readonly LocalOffsetHolder localOffsetHolder;
+
+        private class LocalOffsetHolder
+        {
+            public LocalOffsetHolder(IOffsetStorage<TOffset> offsetStorage, IOffsetInterpreter<TOffset> offsetInterpreter)
+            {
+                this.offsetStorage = offsetStorage;
+                this.offsetInterpreter = offsetInterpreter;
+            }
+
+            public void Reset()
+            {
+                lock(locker)
+                {
+                    localOffset = default(TOffset);
+                    localOffsetWasSet = false;
+                }
+            }
+
+            public TOffset GetLocalOffset()
+            {
+                lock(locker)
+                    return localOffsetWasSet ? localOffset : offsetStorage.Read();
+            }
+
+            public void UpdateLocalOffset(TOffset newOffset)
+            {
+                lock(locker)
+                {
+                    localOffset = offsetInterpreter.Max(localOffset, newOffset);
+                    localOffsetWasSet = true;
+                    var offsetInStorage = offsetStorage.Read();
+                    Log.For("DelayedEventFeed").InfoFormat("NewOffset: {0}, LocalOffset: {1}, OffsetInStorage: {2}", FormatOffset(newOffset), FormatOffset(localOffset), FormatOffset(offsetInStorage));
+                    offsetStorage.Write(offsetInterpreter.Max(localOffset, offsetInStorage));
+                }
+            }
+
+            private string FormatOffset(TOffset offset)
+            {
+                return offsetInterpreter.Format(offset);
+            }
+
+            private TOffset localOffset;
+            private bool localOffsetWasSet;
+            private readonly object locker = new object();
+            private readonly IOffsetStorage<TOffset> offsetStorage;
+            private readonly IOffsetInterpreter<TOffset> offsetInterpreter;
+        }
     }
 }

@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
-using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
@@ -13,13 +12,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public BladeConfigurator([NotNull] string key, TimeSpan delay)
         {
             bladeId = new BladeId(key, delay);
-        }
-
-        [NotNull]
-        public BladeConfigurator<TOffset> AndLeaderElectionBehavior(bool leaderElectionRequired)
-        {
-            this.leaderElectionRequired = leaderElectionRequired;
-            return this;
         }
 
         [NotNull]
@@ -37,25 +29,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeed Create<TEvent>(
-            [NotNull] IGlobalTicksHolder globalTicksHolder,
-            [NotNull] IEventSource<TEvent, TOffset> eventSource,
-            [NotNull] IEventConsumer<TEvent> consumer,
-            [NotNull] ICatalogueGraphiteClient graphiteClient)
+        public DelayedEventFeed<TEvent, TOffset> Create<TEvent>([NotNull] IGlobalTicksHolder globalTicksHolder, [NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
         {
-            return new DelayedEventFeed<TEvent, TOffset>(
-                globalTicksHolder, eventSource,
-                createOffsetStorage(bladeId),
-                offsetInterpreter,
-                consumer,
-                graphiteClient,
-                bladeId,
-                leaderElectionRequired);
+            var offsetStorage = createOffsetStorage(bladeId);
+            return new DelayedEventFeed<TEvent, TOffset>(bladeId, globalTicksHolder, eventSource, offsetStorage, offsetInterpreter, eventConsumer);
         }
 
-        private Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage;
-        private bool leaderElectionRequired;
         private readonly BladeId bladeId;
+        private Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage;
         private IOffsetInterpreter<TOffset> offsetInterpreter;
     }
 }

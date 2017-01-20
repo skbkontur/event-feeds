@@ -82,12 +82,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 
         private void ReportActualizationLagToGraphite([NotNull] string graphitePathPrefix, [NotNull] DelayedEventFeed<TEvent, TOffset> blade)
         {
-            var localOffsetTimestamp = blade.GetLocalOffsetTimestamp();
-            if(localOffsetTimestamp != null)
+            var currentGlobalOffsetTimestamp = blade.GetCurrentGlobalOffsetTimestamp();
+            if(currentGlobalOffsetTimestamp != null)
             {
                 var now = Timestamp.Now;
                 var graphitePath = string.Format("{0}.{1}", graphitePathPrefix, blade.Key);
-                graphiteClient.Send(graphitePath, (long)(now - localOffsetTimestamp).TotalMilliseconds, now.ToDateTime());
+                graphiteClient.Send(graphitePath, (long)(now - currentGlobalOffsetTimestamp).TotalMilliseconds, now.ToDateTime());
             }
         }
 

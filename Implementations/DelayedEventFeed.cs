@@ -26,21 +26,21 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.bladeId = bladeId;
             this.globalTicksHolder = globalTicksHolder;
             this.eventSource = eventSource;
+            this.offsetStorage = offsetStorage;
             this.offsetInterpreter = offsetInterpreter;
             this.eventConsumer = eventConsumer;
-            logger.Info(GetComponentsDescription(offsetStorage));
-            localOffsetHolder = new LocalOffsetHolder(offsetStorage, offsetInterpreter);
+            LogComponentsDescription();
+            offsetHolder = new OffsetHolder(offsetStorage, offsetInterpreter);
         }
 
-        [NotNull]
-        private string GetComponentsDescription(IOffsetStorage<TOffset> offsetStorage)
+        private void LogComponentsDescription()
         {
-            var result = new StringBuilder();
-            result.AppendLine("Initialized delayed single razor feed with:");
-            result.AppendFormat("  EventSource  : {0}", eventSource.GetDescription()).AppendLine();
-            result.AppendFormat("  EventConsumer: {0}", eventConsumer.GetDescription()).AppendLine();
-            result.AppendFormat("  OffsetStorage: {0}", offsetStorage.GetDescription()).AppendLine();
-            return result.ToString();
+            var sb = new StringBuilder();
+            sb.AppendLine("Initialized delayed single razor feed with:");
+            sb.AppendFormat("  EventSource  : {0}", eventSource.GetDescription()).AppendLine();
+            sb.AppendFormat("  EventConsumer: {0}", eventConsumer.GetDescription()).AppendLine();
+            sb.AppendFormat("  OffsetStorage: {0}", offsetStorage.GetDescription()).AppendLine();
+            logger.Info(sb.ToString());
         }
 
         [NotNull]
@@ -50,13 +50,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ResetLocalOffset()
         {
-            localOffsetHolder.Reset();
+            offsetHolder.Reset();
         }
 
         [CanBeNull]
-        public Timestamp GetLocalOffsetTimestamp()
+        public Timestamp GetCurrentGlobalOffsetTimestamp()
         {
-            return offsetInterpreter.ToTimestamp(localOffsetHolder.GetLocalOffset());
+            return offsetInterpreter.ToTimestamp(offsetStorage.Read());
         }
 
         public void ExecuteFeeding()
@@ -73,7 +73,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
         {
-            var localOffset = localOffsetHolder.GetLocalOffset();
+            var localOffset = offsetHolder.GetLocalOffset();
             return offsetInterpreter.ToTimestamp(localOffset) >= timestamp;
         }
 
@@ -81,7 +81,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             lock(locker)
             {
-                var localOffset = localOffsetHolder.GetLocalOffset();
+                var localOffset = offsetHolder.GetLocalOffset();
                 var globalNowTimestamp = new Timestamp(globalTicksHolder.GetNowTicks());
                 var toOffsetInclusive = offsetInterpreter.FromTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
                 if(offsetInterpreter.Compare(toOffsetInclusive, localOffset) <= 0)
@@ -99,7 +99,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     eventsQueryResult = eventSource.GetEvents(fromOffsetExclusive, toOffsetInclusive, estimatedCount : 5000);
                     var eventsProcessingResult = eventConsumer.ProcessEvents(eventsQueryResult);
                     if(eventsProcessingResult.CommitOffset)
-                        localOffsetHolder.UpdateLocalOffset(eventsProcessingResult.OffsetToCommit);
+                        offsetHolder.UpdateLocalOffset(eventsProcessingResult.OffsetToCommit);
                     fromOffsetExclusive = eventsQueryResult.LastOffset;
                     eventsProcessed += eventsQueryResult.Events.Count;
                 } while(!eventsQueryResult.NoMoreEventsInSource);
@@ -112,13 +112,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly BladeId bladeId;
         private readonly IGlobalTicksHolder globalTicksHolder;
         private readonly IEventSource<TEvent, TOffset> eventSource;
+        private readonly IOffsetStorage<TOffset> offsetStorage;
         private readonly IOffsetInterpreter<TOffset> offsetInterpreter;
         private readonly IEventConsumer<TEvent, TOffset> eventConsumer;
-        private readonly LocalOffsetHolder localOffsetHolder;
+        private readonly OffsetHolder offsetHolder;
 
-        private class LocalOffsetHolder
+        private class OffsetHolder
         {
-            public LocalOffsetHolder(IOffsetStorage<TOffset> offsetStorage, IOffsetInterpreter<TOffset> offsetInterpreter)
+            public OffsetHolder(IOffsetStorage<TOffset> offsetStorage, IOffsetInterpreter<TOffset> offsetInterpreter)
             {
                 this.offsetStorage = offsetStorage;
                 this.offsetInterpreter = offsetInterpreter;

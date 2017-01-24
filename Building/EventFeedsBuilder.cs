@@ -69,13 +69,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsRunner RunFeeds(TimeSpan actualizeInterval)
+        public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations)
         {
             var eventFeeds = blades.Select(x => x.WithOffsetFactory(offsetStorageFactory)
                                                  .WithOffsetInterpreter(GetOffsetInterpreter())
                                                  .Create(globalTicksHolder, eventSource, eventConsumer))
                                    .ToList();
-            return new EventFeedsRunner<TEvent, TOffset>(key, inParallel, actualizeInterval, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
+            return new EventFeedsRunner<TEvent, TOffset>(key, inParallel, delayBetweenIterations, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
         }
 
         [NotNull]

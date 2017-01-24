@@ -15,7 +15,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
     {
         public EventFeedsRunner([NotNull] string key,
                                 bool inParallel,
-                                TimeSpan actualizeInterval,
+                                TimeSpan delayBetweenIterations,
                                 List<DelayedEventFeed<TEvent, TOffset>> blades,
                                 ICatalogueGraphiteClient graphiteClient,
                                 IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
@@ -23,13 +23,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             reportActualizationLagJobName = string.Format("{0}-ReportActualizationLagJob", key);
-            RunFeeds(key, inParallel, actualizeInterval, blades);
+            RunFeeds(key, inParallel, delayBetweenIterations, blades);
         }
 
         [NotNull]
         public List<IEventFeed> RunningFeeds { get; private set; }
 
-        private void RunFeeds([NotNull] string key, bool inParallel, TimeSpan actualizeInterval, [NotNull] List<DelayedEventFeed<TEvent, TOffset>> blades)
+        private void RunFeeds([NotNull] string key, bool inParallel, TimeSpan delayBetweenIterations, [NotNull] List<DelayedEventFeed<TEvent, TOffset>> blades)
         {
             if(!blades.Any())
                 throw new InvalidProgramStateException("No feeds to run");
@@ -38,14 +38,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             if(!inParallel)
             {
                 var eventFeed = new CompositeEventFeed<TEvent, TOffset>(key, blades);
-                RunFeed(eventFeed, actualizeInterval);
+                RunFeed(eventFeed, delayBetweenIterations);
                 RunningFeeds.Add(eventFeed);
             }
             else
             {
                 foreach(var eventFeed in blades)
                 {
-                    RunFeed(eventFeed, actualizeInterval);
+                    RunFeed(eventFeed, delayBetweenIterations);
                     RunningFeeds.Add(eventFeed);
                 }
             }
@@ -58,10 +58,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
                 });
         }
 
-        private void RunFeed([NotNull] IEventFeed eventFeed, TimeSpan actualizeInterval)
+        private void RunFeed([NotNull] IEventFeed eventFeed, TimeSpan delayBetweenIterations)
         {
             EventFeedsRegistry.Register(eventFeed);
-            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), actualizeInterval, eventFeed.ExecuteFeeding, eventFeed.ResetLocalState, eventFeed.ResetLocalState);
+            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.ResetLocalState, eventFeed.ResetLocalState);
         }
 
         public void StopFeeds()

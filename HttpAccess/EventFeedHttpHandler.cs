@@ -6,7 +6,7 @@ using SKBKontur.Catalogue.ServiceLib.HttpHandlers;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
 {
-    public class GenericEventFeedHttpHandler : IHttpHandler
+    public sealed class EventFeedHttpHandler : IHttpHandler
     {
         [HttpMethod]
         public void UpdateAndFlush(string eventFeedKey)
@@ -16,6 +16,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
 
         [HttpMethod]
         public void UpdateAndFlushAll(TimeSpan delayUpperBound)
+        {
+            ExecuteForcedFeeding(delayUpperBound);
+        }
+
+        public static void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             EventFeedsRegistry.GetAll().Where(feed => feed.Delay <= delayUpperBound).ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
         }

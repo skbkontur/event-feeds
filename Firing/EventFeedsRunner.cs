@@ -61,7 +61,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         private void RunFeed([NotNull] IEventFeed eventFeed, TimeSpan delayBetweenIterations)
         {
             EventFeedsRegistry.Register(eventFeed);
-            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.ResetLocalState, eventFeed.ResetLocalState);
+            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.Initialize, eventFeed.Shutdown);
         }
 
         public void StopFeeds()

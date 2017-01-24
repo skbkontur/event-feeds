@@ -2,6 +2,7 @@
 using System.Linq;
 
 using MoreLinq;
+
 using SKBKontur.Catalogue.ServiceLib.HttpHandlers;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
@@ -16,11 +17,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
 
         [HttpMethod]
         public void UpdateAndFlushAll(TimeSpan delayUpperBound)
-        {
-            ExecuteForcedFeeding(delayUpperBound);
-        }
-
-        public static void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             EventFeedsRegistry.GetAll().Where(feed => feed.Delay <= delayUpperBound).ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
         }

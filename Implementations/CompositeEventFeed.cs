@@ -22,9 +22,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public TimeSpan Delay { get { return feeds.Min(feed => feed.Delay); } }
 
-        public void ResetLocalOffset()
+        public void ResetLocalState()
         {
-            feeds.ForEach(feed => feed.ResetLocalOffset());
+            feeds.ForEach(feed => feed.ResetLocalState());
         }
 
         public void ExecuteFeeding()

@@ -12,9 +12,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         string Format([CanBeNull] TOffset offset);
 
         [CanBeNull]
-        Timestamp ToTimestamp([CanBeNull] TOffset offset);
+        Timestamp GetTimestampFromOffset([CanBeNull] TOffset offset);
 
-        [CanBeNull]
-        TOffset FromTimestamp([CanBeNull] Timestamp timestamp);
+        [NotNull]
+        TOffset GetMaxOffsetForTimestamp([NotNull] Timestamp timestamp);
     }
 }

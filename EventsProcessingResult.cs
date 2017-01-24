@@ -20,6 +20,19 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         public TOffset OffsetToCommit { get; private set; }
 
         [NotNull]
+        public TOffset GetOffsetToCommit()
+        {
+            if(OffsetToCommit == null)
+                throw new InvalidProgramStateException("OffsetToCommit is null");
+            return OffsetToCommit;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("CommitOffset: {0}, OffsetToCommit: {1}", CommitOffset, OffsetToCommit);
+        }
+
+        [NotNull]
         public static EventsProcessingResult<TOffset> DoNotCommitOffset()
         {
             return new EventsProcessingResult<TOffset>(commitOffset : false, offsetToCommit : default(TOffset));

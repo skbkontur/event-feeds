@@ -2,16 +2,12 @@ using System.Collections.Generic;
 
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Objects;
-
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     public class EventsQueryResult<TEvent, TOffset>
     {
-        public EventsQueryResult([NotNull] List<EventWithOffset<TEvent, TOffset>> events, [NotNull] TOffset lastOffset, bool noMoreEventsInSource)
+        public EventsQueryResult([NotNull] List<EventWithOffset<TEvent, TOffset>> events, [CanBeNull] TOffset lastOffset, bool noMoreEventsInSource)
         {
-            if(lastOffset == null)
-                throw new InvalidProgramStateException("LastOffset is null");
             Events = events;
             LastOffset = lastOffset;
             NoMoreEventsInSource = noMoreEventsInSource;
@@ -20,9 +16,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         [NotNull]
         public List<EventWithOffset<TEvent, TOffset>> Events { get; private set; }
 
-        [NotNull]
+        [CanBeNull]
         public TOffset LastOffset { get; private set; }
 
         public bool NoMoreEventsInSource { get; private set; }
+
+        public override string ToString()
+        {
+            return string.Format("Events.Count: {0}, LastOffset: {1}, NoMoreEventsInSource: {2}", Events.Count, LastOffset, NoMoreEventsInSource);
+        }
     }
 }

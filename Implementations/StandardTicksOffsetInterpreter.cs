@@ -21,17 +21,17 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         [CanBeNull]
-        public Timestamp ToTimestamp([CanBeNull] long? offset)
+        public Timestamp GetTimestampFromOffset([CanBeNull] long? offset)
         {
             if(offset == null || offset < Timestamp.MinValue.Ticks || offset > Timestamp.MaxValue.Ticks)
                 return null;
             return new Timestamp(offset.Value);
         }
 
-        [CanBeNull]
-        public long? FromTimestamp([CanBeNull] Timestamp timestamp)
+        [NotNull]
+        public long? GetMaxOffsetForTimestamp([NotNull] Timestamp timestamp)
         {
-            return timestamp == null ? (long?)null : timestamp.Ticks;
+            return timestamp.Ticks;
         }
 
         public int Compare([CanBeNull] long? x, [CanBeNull] long? y)

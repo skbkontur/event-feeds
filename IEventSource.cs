@@ -8,6 +8,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         string GetDescription();
 
         [NotNull]
-        EventsQueryResult<TEvent, TOffset> GetEvents(TOffset fromOffsetExclusive, TOffset toOffsetInclusive, int estimatedCount);
+        EventsQueryResult<TEvent, TOffset> GetEvents([CanBeNull] TOffset fromOffsetExclusive, [NotNull] TOffset toOffsetInclusive, int estimatedCount);
     }
 }

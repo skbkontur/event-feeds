@@ -7,6 +7,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         [NotNull]
         string GetDescription();
 
+        void ResetLocalState();
+
         [NotNull]
         EventsProcessingResult<TOffset> ProcessEvents([NotNull] EventsQueryResult<TEvent, TOffset> eventsQueryResult);
     }

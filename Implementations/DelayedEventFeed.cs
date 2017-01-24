@@ -48,15 +48,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public TimeSpan Delay { get { return bladeId.Delay; } }
 
-        public void ResetLocalOffset()
+        public void ResetLocalState()
         {
             offsetHolder.Reset();
+            eventConsumer.ResetLocalState();
         }
 
         [CanBeNull]
         public Timestamp GetCurrentGlobalOffsetTimestamp()
         {
-            return offsetInterpreter.ToTimestamp(offsetStorage.Read());
+            return offsetInterpreter.GetTimestampFromOffset(offsetStorage.Read());
         }
 
         public void ExecuteFeeding()
@@ -74,7 +75,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
         {
             var localOffset = offsetHolder.GetLocalOffset();
-            return offsetInterpreter.ToTimestamp(localOffset) >= timestamp;
+            return offsetInterpreter.GetTimestampFromOffset(localOffset) >= timestamp;
         }
 
         private void ExecuteFeedingInternal(bool useDelay)
@@ -83,7 +84,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             {
                 var localOffset = offsetHolder.GetLocalOffset();
                 var globalNowTimestamp = new Timestamp(globalTicksHolder.GetNowTicks());
-                var toOffsetInclusive = offsetInterpreter.FromTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
+                var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
                 if(offsetInterpreter.Compare(toOffsetInclusive, localOffset) <= 0)
                 {
                     logger.InfoFormat("Skip processing events by blade {0} because toOffsetInclusive ({1}) <= localOffset ({2}) ", bladeId, toOffsetInclusive, localOffset);
@@ -99,7 +100,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     eventsQueryResult = eventSource.GetEvents(fromOffsetExclusive, toOffsetInclusive, estimatedCount : 5000);
                     var eventsProcessingResult = eventConsumer.ProcessEvents(eventsQueryResult);
                     if(eventsProcessingResult.CommitOffset)
-                        offsetHolder.UpdateLocalOffset(eventsProcessingResult.OffsetToCommit);
+                        offsetHolder.UpdateLocalOffset(eventsProcessingResult.GetOffsetToCommit());
                     fromOffsetExclusive = eventsQueryResult.LastOffset;
                     eventsProcessed += eventsQueryResult.Events.Count;
                 } while(!eventsQueryResult.NoMoreEventsInSource);
@@ -134,13 +135,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 }
             }
 
+            [CanBeNull]
             public TOffset GetLocalOffset()
             {
                 lock(locker)
                     return localOffsetWasSet ? localOffset : offsetStorage.Read();
             }
 
-            public void UpdateLocalOffset(TOffset newOffset)
+            public void UpdateLocalOffset([NotNull] TOffset newOffset)
             {
                 lock(locker)
                 {

@@ -19,5 +19,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
 
         [NotNull]
         public TOffset Offset { get; private set; }
+
+        public override string ToString()
+        {
+            return string.Format("Event: {0}, Offset: {1}", Event, Offset);
+        }
     }
 }

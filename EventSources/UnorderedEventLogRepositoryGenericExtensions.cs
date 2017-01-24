@@ -24,7 +24,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
                     return new EventsQueryResult<TEvent, long?>(Split(resultEvents.Take(i).ToList()), resultEvents[i - 1].Ticks, noMoreEventsInSource : false);
             }
             if(resultEvents.Count == 0)
-                return new EventsQueryResult<TEvent, long?>(resultEvents.Select(x => new EventWithOffset<TEvent, long?>(x, x.Ticks)).ToList(), toOffsetInclusive, noMoreEventsInSource : true);
+                return new EventsQueryResult<TEvent, long?>(new List<EventWithOffset<TEvent, long?>>(), toOffsetInclusive, noMoreEventsInSource : true);
             return new EventsQueryResult<TEvent, long?>(Split(resultEvents), resultEvents.Last().Ticks, noMoreEventsInSource : true);
         }
 

@@ -79,7 +79,9 @@
     <Compile Include="IEventFeed.cs" />
     <Compile Include="EventFeedsRegistry.cs" />
     <Compile Include="IEventSource.cs" />
+    <Compile Include="IGlobalTimeProvider.cs" />
     <Compile Include="Implementations\CompositeEventFeed.cs" />
+    <Compile Include="Implementations\DefaultGlobalTimeProvider.cs" />
     <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
     <Compile Include="IOffsetInterpreter.cs" />
     <Compile Include="Implementations\DelayedEventFeed.cs" />

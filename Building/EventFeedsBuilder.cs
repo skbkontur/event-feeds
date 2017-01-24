@@ -16,14 +16,21 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
     public class EventFeedsBuilder<TEvent, TOffset> : IEventFeedsBuilder<TEvent, TOffset>
     {
         public EventFeedsBuilder([NotNull] string key,
-                                 [NotNull] IGlobalTicksHolder globalTicksHolder,
+                                 [NotNull] Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
                                  [NotNull] ICatalogueGraphiteClient graphiteClient,
                                  [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.key = key;
-            this.globalTicksHolder = globalTicksHolder;
+            this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
+        }
+
+        [NotNull]
+        public IEventFeedsBuilder<TEvent, TOffset> WithGlobalTimeProvider([NotNull] IGlobalTimeProvider globalTimeProvider)
+        {
+            this.globalTimeProvider = globalTimeProvider;
+            return this;
         }
 
         [NotNull]
@@ -71,9 +78,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [NotNull]
         public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations)
         {
+            var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
             var eventFeeds = blades.Select(x => x.WithOffsetFactory(offsetStorageFactory)
                                                  .WithOffsetInterpreter(GetOffsetInterpreter())
-                                                 .Create(globalTicksHolder, eventSource, eventConsumer))
+                                                 .Create(theGlobalTimeProvider, eventSource, eventConsumer))
                                    .ToList();
             return new EventFeedsRunner<TEvent, TOffset>(key, inParallel, delayBetweenIterations, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
         }
@@ -88,15 +96,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             throw new InvalidProgramStateException(string.Format("OffsetInterpreter has not set and for type {0} there is no default interpreter", typeof(TOffset).FullName));
         }
 
-        private readonly string key;
-        private readonly IGlobalTicksHolder globalTicksHolder;
-        private readonly ICatalogueGraphiteClient graphiteClient;
-        private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
+        private bool inParallel;
+        private IGlobalTimeProvider globalTimeProvider;
         private IEventSource<TEvent, TOffset> eventSource;
         private IEventConsumer<TEvent, TOffset> eventConsumer;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;
         private IOffsetInterpreter<TOffset> offsetInterpreter;
-        private bool inParallel;
+        private readonly string key;
+        private readonly Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder;
+        private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private readonly List<BladeConfigurator<TOffset>> blades = new List<BladeConfigurator<TOffset>>();
     }
 }

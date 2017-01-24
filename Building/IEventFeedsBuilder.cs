@@ -9,6 +9,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
     public interface IEventFeedsBuilder<TEvent, TOffset>
     {
         [NotNull]
+        IEventFeedsBuilder<TEvent, TOffset> WithGlobalTimeProvider([NotNull] IGlobalTimeProvider globalTimeProvider);
+
+        [NotNull]
         IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent, TOffset> eventSource);
 
         [NotNull]

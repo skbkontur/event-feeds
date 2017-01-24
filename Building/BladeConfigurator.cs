@@ -2,7 +2,6 @@ using System;
 
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
@@ -29,10 +28,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public DelayedEventFeed<TEvent, TOffset> Create<TEvent>([NotNull] IGlobalTicksHolder globalTicksHolder, [NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
+        public DelayedEventFeed<TEvent, TOffset> Create<TEvent>([NotNull] IGlobalTimeProvider globalTimeProvider, [NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             var offsetStorage = createOffsetStorage(bladeId);
-            return new DelayedEventFeed<TEvent, TOffset>(bladeId, globalTicksHolder, eventSource, offsetStorage, offsetInterpreter, eventConsumer);
+            return new DelayedEventFeed<TEvent, TOffset>(bladeId, globalTimeProvider, eventSource, offsetStorage, offsetInterpreter, eventConsumer);
         }
 
         private readonly BladeId bladeId;

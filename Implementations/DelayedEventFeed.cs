@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 
 using log4net;
 
-using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Building;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.Objects.Comparing;
@@ -17,14 +16,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
     public class DelayedEventFeed<TEvent, TOffset> : IEventFeed
     {
         public DelayedEventFeed(BladeId bladeId,
-                                IGlobalTicksHolder globalTicksHolder,
+                                IGlobalTimeProvider globalTimeProvider,
                                 IEventSource<TEvent, TOffset> eventSource,
                                 IOffsetStorage<TOffset> offsetStorage,
                                 IOffsetInterpreter<TOffset> offsetInterpreter,
                                 IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             this.bladeId = bladeId;
-            this.globalTicksHolder = globalTicksHolder;
+            this.globalTimeProvider = globalTimeProvider;
             this.eventSource = eventSource;
             this.offsetStorage = offsetStorage;
             this.offsetInterpreter = offsetInterpreter;
@@ -83,7 +82,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             lock(locker)
             {
                 var localOffset = offsetHolder.GetLocalOffset();
-                var globalNowTimestamp = new Timestamp(globalTicksHolder.GetNowTicks());
+                var globalNowTimestamp = globalTimeProvider.GetNowTimestamp();
                 var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
                 if(offsetInterpreter.Compare(toOffsetInclusive, localOffset) <= 0)
                 {
@@ -111,7 +110,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly object locker = new object();
         private readonly ILog logger = Log.For("DelayedEventFeed");
         private readonly BladeId bladeId;
-        private readonly IGlobalTicksHolder globalTicksHolder;
+        private readonly IGlobalTimeProvider globalTimeProvider;
         private readonly IEventSource<TEvent, TOffset> eventSource;
         private readonly IOffsetStorage<TOffset> offsetStorage;
         private readonly IOffsetInterpreter<TOffset> offsetInterpreter;

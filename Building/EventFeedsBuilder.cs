@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,7 +13,7 @@ using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    public class EventFeedsBuilder<TEvent, TOffset> : IEventFeedsBuilder<TEvent, TOffset>
+    public class EventFeedsBuilder<TEvent, TOffset> : ICanStartFeeds
     {
         public EventFeedsBuilder([NotNull] string key,
                                  [NotNull] Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
@@ -27,49 +27,49 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithGlobalTimeProvider([NotNull] IGlobalTimeProvider globalTimeProvider)
+        public EventFeedsBuilder<TEvent, TOffset> WithGlobalTimeProvider([NotNull] IGlobalTimeProvider globalTimeProvider)
         {
             this.globalTimeProvider = globalTimeProvider;
             return this;
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent, TOffset> eventSource)
+        public EventFeedsBuilder<TEvent, TOffset> WithEventSource([NotNull] IEventSource<TEvent, TOffset> eventSource)
         {
             this.eventSource = eventSource;
             return this;
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
+        public EventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             this.eventConsumer = eventConsumer;
             return this;
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
+        public EventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
         {
             this.offsetStorageFactory = createOffsetStorage;
             return this;
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithOffsetInterpreter([NotNull] IOffsetInterpreter<TOffset> offsetInterpreter)
+        public EventFeedsBuilder<TEvent, TOffset> WithOffsetInterpreter([NotNull] IOffsetInterpreter<TOffset> offsetInterpreter)
         {
             this.offsetInterpreter = offsetInterpreter;
             return this;
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay)
+        public EventFeedsBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay)
         {
             blades.Add(new BladeConfigurator<TOffset>(bladeKey, delay));
             return this;
         }
 
         [NotNull]
-        public IEventFeedsBuilder<TEvent, TOffset> InParallel()
+        public EventFeedsBuilder<TEvent, TOffset> InParallel()
         {
             this.inParallel = true;
             return this;

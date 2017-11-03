@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+
+using JetBrains.Annotations;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Arrays;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Simple;
@@ -22,13 +24,25 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
         [NotNull]
         public IEventSource<Event, long?> ForBusinessObject<TBusinessObject>() where TBusinessObject : BusinessObject
         {
-            return new UnorderedEventSource(typeof(TBusinessObject), typeIdentifierProvider, eventLogRepositoryFactory);
+            return ForBusinessObject(typeof(TBusinessObject));
         }
 
         [NotNull]
         public IEventSource<ArrayEvent, long?> ForBusinessArrayObject<TBusinessObject>() where TBusinessObject : IBusinessArrayObject
         {
-            return new UnorderedArrayEventSource(typeof(TBusinessObject), typeIdentifierProvider, arrayEventLogRepositoryFactory);
+            return ForBusinessArrayObject(typeof(TBusinessObject));
+        }
+
+        [NotNull]
+        public IEventSource<Event, long?> ForBusinessObject([NotNull] Type businessObjectType)
+        {
+            return new UnorderedEventSource(businessObjectType, typeIdentifierProvider, eventLogRepositoryFactory);
+        }
+
+        [NotNull]
+        public IEventSource<ArrayEvent, long?> ForBusinessArrayObject([NotNull] Type businessArrayObjectType)
+        {
+            return new UnorderedArrayEventSource(businessArrayObjectType, typeIdentifierProvider, arrayEventLogRepositoryFactory);
         }
 
         private readonly ITypeIdentifierProvider typeIdentifierProvider;

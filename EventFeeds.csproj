@@ -58,8 +58,10 @@
   <ItemGroup>
     <Compile Include="Building\BladeConfigurator.cs" />
     <Compile Include="Building\BladeId.cs" />
+    <Compile Include="Building\ConcurrentEventFeedsBuilder.cs" />
     <Compile Include="Building\EventFeedsBuilder.cs" />
-    <Compile Include="Building\IEventFeedsBuilder.cs" />
+    <Compile Include="Building\ICanStartFeeds.cs" />
+    <Compile Include="Building\SingleSourceEventFeedBuilder.cs" />
     <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
     <Compile Include="EventSources\UnorderedArrayEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventSource.cs" />

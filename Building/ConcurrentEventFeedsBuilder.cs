@@ -24,7 +24,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
-            concurringFeeds = new List<SingleSourceEventFeedBuilder<TEvent, TOffset>>();
+            concurringFeeds = new List<ConcurringEventFeedBuilder<TEvent, TOffset>>();
         }
 
         [NotNull]
@@ -49,7 +49,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithConcurringFeed([NotNull] SingleSourceEventFeedBuilder<TEvent, TOffset> builder)
+        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithConcurringFeed([NotNull] ConcurringEventFeedBuilder<TEvent, TOffset> builder)
         {
             concurringFeeds.Add(builder);
             return this;
@@ -86,6 +86,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [CanBeNull]
         private IOffsetInterpreter<TOffset> offsetInterpreter;
 
-        private readonly List<SingleSourceEventFeedBuilder<TEvent, TOffset>> concurringFeeds;
+        private readonly List<ConcurringEventFeedBuilder<TEvent, TOffset>> concurringFeeds;
     }
 }

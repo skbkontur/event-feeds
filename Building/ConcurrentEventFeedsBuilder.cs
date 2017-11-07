@@ -42,13 +42,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithConsumer([NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
-        {
-            this.eventConsumer = eventConsumer;
-            return this;
-        }
-
-        [NotNull]
         public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
         {
             offsetStorageFactory = createOffsetStorage;
@@ -68,7 +61,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
             var eventFeeds = concurringFeeds.SelectMany(feed => feed.Blades.Select(blade => blade.WithOffsetFactory(offsetStorageFactory)
                                                                                                  .WithOffsetInterpreter(GetOffsetInterpreter())
-                                                                                                 .Create(theGlobalTimeProvider, feed.EventSource, eventConsumer)))
+                                                                                                 .Create(theGlobalTimeProvider, feed.EventSource, feed.EventConsumer)))
                                             .ToList();
             return new EventFeedsRunner<TEvent, TOffset>(key, false, delayBetweenIterations, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
         }
@@ -88,7 +81,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private IGlobalTimeProvider globalTimeProvider;
-        private IEventConsumer<TEvent, TOffset> eventConsumer;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;
 
         [CanBeNull]

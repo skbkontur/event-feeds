@@ -7,9 +7,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class SingleSourceEventFeedBuilder<TEvent, TOffset>
     {
-        public SingleSourceEventFeedBuilder([NotNull] IEventSource<TEvent, TOffset> eventSource)
+        public SingleSourceEventFeedBuilder([NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             EventSource = eventSource;
+            EventConsumer = eventConsumer;
             blades = new List<BladeConfigurator<TOffset>>();
         }
 
@@ -22,6 +23,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 
         [NotNull]
         public IEventSource<TEvent, TOffset> EventSource { get; }
+
+        [NotNull]
+        public IEventConsumer<TEvent, TOffset> EventConsumer { get; }
 
         [NotNull, ItemNotNull]
         private readonly List<BladeConfigurator<TOffset>> blades;

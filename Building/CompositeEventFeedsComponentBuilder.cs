@@ -5,9 +5,9 @@ using JetBrains.Annotations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    public class ConcurringEventFeedBuilder<TEvent, TOffset>
+    public class CompositeEventFeedsComponentBuilder<TEvent, TOffset>
     {
-        public ConcurringEventFeedBuilder([NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
+        public CompositeEventFeedsComponentBuilder([NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             EventSource = eventSource;
             EventConsumer = eventConsumer;
@@ -15,7 +15,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public ConcurringEventFeedBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay)
+        public CompositeEventFeedsComponentBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay)
         {
             blades.Add(new BladeConfigurator<TOffset>(bladeKey, delay));
             return this;

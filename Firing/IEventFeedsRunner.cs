@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
 {
     public interface IEventFeedsRunner
     {
         [NotNull]
-        List<IEventFeed> RunningFeeds { get; }
+        ICompositeEventFeed RunningFeed { get; }
 
-        void StopFeeds();
+        void StopFeed();
     }
 }

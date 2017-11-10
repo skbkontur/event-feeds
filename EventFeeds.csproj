@@ -58,10 +58,9 @@
   <ItemGroup>
     <Compile Include="Building\BladeConfigurator.cs" />
     <Compile Include="Building\BladeId.cs" />
-    <Compile Include="Building\ConcurrentEventFeedsBuilder.cs" />
-    <Compile Include="Building\EventFeedsBuilder.cs" />
+    <Compile Include="Building\CompositeEventFeedsBuilder.cs" />
     <Compile Include="Building\ICanStartFeeds.cs" />
-    <Compile Include="Building\ConcurringEventFeedBuilder.cs" />
+    <Compile Include="Building\CompositeEventFeedsComponentBuilder.cs" />
     <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
     <Compile Include="EventSources\UnorderedArrayEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventSource.cs" />
@@ -73,13 +72,16 @@
     <Compile Include="Firing\IEventFeedsRunner.cs" />
     <Compile Include="HttpAccess\EventFeedHttpClientBase.cs" />
     <Compile Include="HttpAccess\EventFeedHttpHandler.cs" />
+    <Compile Include="ICompositeEventFeed.cs" />
     <Compile Include="IEventConsumer.cs" />
     <Compile Include="IEventFeed.cs" />
     <Compile Include="EventFeedsRegistry.cs" />
     <Compile Include="IEventSource.cs" />
     <Compile Include="IGlobalTimeProvider.cs" />
-    <Compile Include="Implementations\CompositeEventFeed.cs" />
+    <Compile Include="Implementations\ConsequentEventFeed.cs" />
     <Compile Include="Implementations\DefaultGlobalTimeProvider.cs" />
+    <Compile Include="Implementations\CompositeEventFeedBase.cs" />
+    <Compile Include="Implementations\ParallelEventFeed.cs" />
     <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
     <Compile Include="IOffsetInterpreter.cs" />
     <Compile Include="Implementations\DelayedEventFeed.cs" />

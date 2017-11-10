@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
@@ -78,6 +78,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             var localOffset = offsetHolder.GetLocalOffset();
             return offsetInterpreter.GetTimestampFromOffset(localOffset) >= timestamp;
+        }
+
+        public void StopFeed()
+        {
+            throw new NotImplementedException();
         }
 
         public void ExecuteFeeding()

@@ -15,15 +15,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         }
 
         [NotNull]
-        public EventFeedsBuilder<TEvent, TOffset> Feed<TEvent, TOffset>([NotNull] string key)
+        public CompositeEventFeedsBuilder<TEvent, TOffset> CompositeFeed<TEvent, TOffset>([NotNull] string key)
         {
-            return container.Create<string, EventFeedsBuilder<TEvent, TOffset>>(key);
-        }
-
-        [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> ConcurrentFeed<TEvent, TOffset>([NotNull] string key)
-        {
-            return container.Create<string, ConcurrentEventFeedsBuilder<TEvent, TOffset>>(key);
+            return container.Create<string, CompositeEventFeedsBuilder<TEvent, TOffset>>(key);
         }
 
         [NotNull]

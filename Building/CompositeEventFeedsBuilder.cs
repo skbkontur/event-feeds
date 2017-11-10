@@ -13,9 +13,9 @@ using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    public class ConcurrentEventFeedsBuilder<TEvent, TOffset> : ICanStartFeeds
+    public class CompositeEventFeedsBuilder<TEvent, TOffset> : ICanStartFeeds
     {
-        public ConcurrentEventFeedsBuilder([NotNull] string key,
+        public CompositeEventFeedsBuilder([NotNull] string key,
                                            [NotNull] Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
                                            [NotNull] ICatalogueGraphiteClient graphiteClient,
                                            [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
@@ -24,34 +24,40 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
-            concurringFeeds = new List<ConcurringEventFeedBuilder<TEvent, TOffset>>();
+            components = new List<CompositeEventFeedsComponentBuilder<TEvent, TOffset>>();
         }
 
         [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithGlobalTimeProvider([NotNull] IGlobalTimeProvider globalTimeProvider)
+        public CompositeEventFeedsBuilder<TEvent, TOffset> WithGlobalTimeProvider([NotNull] IGlobalTimeProvider globalTimeProvider)
         {
             this.globalTimeProvider = globalTimeProvider;
             return this;
         }
 
         [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithOffsetInterpreter([NotNull] IOffsetInterpreter<TOffset> offsetInterpreter)
+        public CompositeEventFeedsBuilder<TEvent, TOffset> WithOffsetInterpreter([NotNull] IOffsetInterpreter<TOffset> offsetInterpreter)
         {
             this.offsetInterpreter = offsetInterpreter;
             return this;
         }
 
         [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
+        public CompositeEventFeedsBuilder<TEvent, TOffset> WithOffsetStorageFactory([NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
         {
             offsetStorageFactory = createOffsetStorage;
             return this;
         }
 
         [NotNull]
-        public ConcurrentEventFeedsBuilder<TEvent, TOffset> WithConcurringFeed([NotNull] ConcurringEventFeedBuilder<TEvent, TOffset> builder)
+        public CompositeEventFeedsBuilder<TEvent, TOffset> WithComponentFeed([NotNull] CompositeEventFeedsComponentBuilder<TEvent, TOffset> builder)
         {
-            concurringFeeds.Add(builder);
+            components.Add(builder);
+            return this;
+        }
+
+        public CompositeEventFeedsBuilder<TEvent, TOffset> InParallel()
+        {
+            parallel = true;
             return this;
         }
 
@@ -59,11 +65,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations)
         {
             var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
-            var eventFeeds = concurringFeeds.SelectMany(feed => feed.Blades.Select(blade => blade.WithOffsetFactory(offsetStorageFactory)
+            var eventFeeds = components.SelectMany(feed => feed.Blades.Select(blade => blade.WithOffsetFactory(offsetStorageFactory)
                                                                                                  .WithOffsetInterpreter(GetOffsetInterpreter())
                                                                                                  .Create(theGlobalTimeProvider, feed.EventSource, feed.EventConsumer)))
-                                            .ToList();
-            return new EventFeedsRunner<TEvent, TOffset>(key, false, delayBetweenIterations, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
+                                            .ToArray();
+            return new EventFeedsRunner<TEvent, TOffset>(key, parallel, delayBetweenIterations, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
         }
 
         [NotNull]
@@ -86,6 +92,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [CanBeNull]
         private IOffsetInterpreter<TOffset> offsetInterpreter;
 
-        private readonly List<ConcurringEventFeedBuilder<TEvent, TOffset>> concurringFeeds;
+        private readonly List<CompositeEventFeedsComponentBuilder<TEvent, TOffset>> components;
+        private bool parallel;
     }
 }

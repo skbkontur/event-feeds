@@ -55,6 +55,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             return this;
         }
 
+        [NotNull]
         public CompositeEventFeedsBuilder<TEvent, TOffset> InParallel()
         {
             parallel = true;
@@ -88,11 +89,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private IGlobalTimeProvider globalTimeProvider;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;
-
-        [CanBeNull]
-        private IOffsetInterpreter<TOffset> offsetInterpreter;
-
-        private readonly List<CompositeEventFeedsComponentBuilder<TEvent, TOffset>> components;
         private bool parallel;
+        private IOffsetInterpreter<TOffset> offsetInterpreter;
+        private readonly List<CompositeEventFeedsComponentBuilder<TEvent, TOffset>> components;
     }
 }

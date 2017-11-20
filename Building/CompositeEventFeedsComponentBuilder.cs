@@ -11,13 +11,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         {
             EventSource = eventSource;
             EventConsumer = eventConsumer;
-            blades = new List<BladeConfigurator<TOffset>>();
+            Blades = new List<BladeConfigurator<TOffset>>();
         }
 
         [NotNull]
         public CompositeEventFeedsComponentBuilder<TEvent, TOffset> WithBlade([NotNull] string bladeKey, TimeSpan delay)
         {
-            blades.Add(new BladeConfigurator<TOffset>(bladeKey, delay));
+            Blades.Add(new BladeConfigurator<TOffset>(bladeKey, delay));
             return this;
         }
 
@@ -28,8 +28,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public IEventConsumer<TEvent, TOffset> EventConsumer { get; }
 
         [NotNull, ItemNotNull]
-        private readonly List<BladeConfigurator<TOffset>> blades;
-
-        public IReadOnlyCollection<BladeConfigurator<TOffset>> Blades { get { return blades.ToArray(); } }
+        public List<BladeConfigurator<TOffset>> Blades { get; }
     }
 }

@@ -9,7 +9,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
     public class ParallelEventFeed<TEvent, TOffset> : CompositeEventFeedBase<TEvent, TOffset>
     {
         public ParallelEventFeed([NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection,
-                                 [NotNull] string key, [NotNull] DelayedEventFeed<TEvent, TOffset>[] feeds)
+                                 [NotNull] string key, [NotNull, ItemNotNull] DelayedEventFeed<TEvent, TOffset>[] feeds)
             : base(periodicJobRunnerWithLeaderElection, key, feeds)
         {
         }

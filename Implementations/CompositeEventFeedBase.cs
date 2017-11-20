@@ -13,7 +13,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
     public abstract class CompositeEventFeedBase<TEvent, TOffset> : ICompositeEventFeed
     {
         protected CompositeEventFeedBase([NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection,
-                                         [NotNull] string key, [NotNull] DelayedEventFeed<TEvent, TOffset>[] feeds)
+                                         [NotNull] string key, [NotNull, ItemNotNull] DelayedEventFeed<TEvent, TOffset>[] feeds)
         {
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             Feeds = feeds;
@@ -39,13 +39,18 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return Feeds.All(feed => feed.AreEventsProcessedAt(timestamp));
         }
 
+        public void ResetLocalState()
+        {
+            Feeds.ForEach(feed => feed.ResetLocalState());
+        }
+
         [NotNull]
         protected static string FormatJobName([NotNull] string key)
         {
             return $"{key}-PeriodicJob";
         }
 
-        [NotNull]
+        [NotNull, ItemNotNull]
         protected DelayedEventFeed<TEvent, TOffset>[] Feeds { get; }
 
         [NotNull]

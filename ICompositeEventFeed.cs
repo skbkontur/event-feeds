@@ -13,5 +13,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         void StopFeed();
 
         void RunFeed(TimeSpan delayBetweenIterations);
+
+        void ResetLocalState();
     }
 }

@@ -15,9 +15,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
         public EventFeedsRunner([NotNull] string key,
                                 bool inParallel,
                                 TimeSpan delayBetweenIterations,
-                                DelayedEventFeed<TEvent, TOffset>[] blades,
-                                ICatalogueGraphiteClient graphiteClient,
-                                IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
+                                [NotNull, ItemNotNull] DelayedEventFeed<TEvent, TOffset>[] blades,
+                                [NotNull] ICatalogueGraphiteClient graphiteClient,
+                                [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
@@ -25,10 +25,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             RunFeeds(key, inParallel, delayBetweenIterations, blades);
         }
 
-        [NotNull]
-        public ICompositeEventFeed RunningFeed { get; private set; }
+        public void StopFeed()
+        {
+            periodicJobRunnerWithLeaderElection.StopPeriodicJob(reportActualizationLagJobName);
+            RunningFeed.StopFeed();
+        }
 
-        private void RunFeeds([NotNull] string key, bool inParallel, TimeSpan delayBetweenIterations, [NotNull] DelayedEventFeed<TEvent, TOffset>[] blades)
+        private void RunFeeds([NotNull] string key, bool inParallel, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] DelayedEventFeed<TEvent, TOffset>[] blades)
         {
             if(!blades.Any())
                 throw new InvalidProgramStateException("No feeds to run");
@@ -43,19 +46,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             }
             RunningFeed.RunFeed(delayBetweenIterations);
 
-
             var actualizationLagGraphitePathPrefix = string.Format("EDI.SubSystem.EventFeeds.ActualizationLag.{0}", Environment.MachineName);
             periodicJobRunnerWithLeaderElection.RunPeriodicJob(reportActualizationLagJobName, TimeSpan.FromMinutes(1), () =>
                 {
                     foreach(var blade in blades)
                         ReportActualizationLagToGraphite(actualizationLagGraphitePathPrefix, blade);
                 });
-        }
-
-        public void StopFeed()
-        {
-            periodicJobRunnerWithLeaderElection.StopPeriodicJob(reportActualizationLagJobName);
-            RunningFeed.StopFeed();
         }
 
         private void ReportActualizationLagToGraphite([NotNull] string graphitePathPrefix, [NotNull] DelayedEventFeed<TEvent, TOffset> blade)
@@ -69,8 +65,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Firing
             }
         }
 
+        [NotNull]
+        public ICompositeEventFeed RunningFeed { get; private set; }
+
+        [NotNull]
         private readonly string reportActualizationLagJobName;
+
+        [NotNull]
         private readonly ICatalogueGraphiteClient graphiteClient;
+
+        [NotNull]
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
     }
 }

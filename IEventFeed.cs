@@ -12,5 +12,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         TimeSpan Delay { get; }
 
         void ExecuteForcedFeeding(TimeSpan delayUpperBound);
+
+        void ResetLocalState();
     }
 }

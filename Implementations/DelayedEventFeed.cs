@@ -80,11 +80,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return offsetInterpreter.GetTimestampFromOffset(localOffset) >= timestamp;
         }
 
-        public void StopFeed()
-        {
-            throw new NotImplementedException();
-        }
-
         public void ExecuteFeeding()
         {
             lock(locker)

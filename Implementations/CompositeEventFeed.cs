@@ -11,10 +11,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     public class CompositeEventFeed : IEventFeed
     {
-        public CompositeEventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IEventFeed[] feeds)
+        public CompositeEventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades)
         {
             FeedKey = feedKey;
-            this.feeds = feeds;
+            this.blades = blades;
         }
 
         [NotNull]
@@ -22,34 +22,34 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void Initialize()
         {
-            feeds.ForEach(feed => feed.Initialize());
+            blades.ForEach(feed => feed.Initialize());
         }
 
         public void Shutdown()
         {
-            feeds.ForEach(feed => feed.Shutdown());
+            blades.ForEach(feed => feed.Shutdown());
         }
 
         public void ExecuteFeeding()
         {
-            feeds.ForEach(feed => feed.ExecuteFeeding());
+            blades.ForEach(feed => feed.ExecuteFeeding());
         }
 
         public void ResetLocalState()
         {
-            feeds.ForEach(feed => feed.ResetLocalState());
+            blades.ForEach(feed => feed.ResetLocalState());
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
-            feeds.ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
+            blades.ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
         }
 
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
         {
-            return feeds.All(feed => feed.AreEventsProcessedAt(timestamp));
+            return blades.All(feed => feed.AreEventsProcessedAt(timestamp));
         }
 
-        private readonly IEventFeed[] feeds;
+        private readonly IBlade[] blades;
     }
 }

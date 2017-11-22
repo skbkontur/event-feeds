@@ -10,43 +10,44 @@ using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    public class EventFeedsRunner<TEvent, TOffset> : IEventFeedsRunner
+    public class EventFeedsRunner : IEventFeedsRunner
     {
-        public EventFeedsRunner([NotNull] string key,
-                                bool inParallel,
+        public EventFeedsRunner([CanBeNull] string compositeFeedKey,
                                 TimeSpan delayBetweenIterations,
-                                [NotNull, ItemNotNull] Blade<TEvent, TOffset>[] blades,
+                                [NotNull, ItemNotNull] IBlade[] blades,
                                 [NotNull] ICatalogueGraphiteClient graphiteClient,
                                 [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
-            reportActualizationLagJobName = $"{key}-ReportActualizationLagJob";
-            RunFeeds(key, inParallel, delayBetweenIterations, blades);
+            reportActualizationLagJobName = $"{compositeFeedKey ?? nameof(EventFeedsRunner)}-ReportActualizationLagJob";
+            RunFeeds(compositeFeedKey, delayBetweenIterations, blades);
         }
 
         [NotNull]
         public IEventFeed[] RunningFeeds { get; private set; }
 
-        private void RunFeeds([NotNull] string key, bool inParallel, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] Blade<TEvent, TOffset>[] blades)
+        private void RunFeeds([CanBeNull] string compositeFeedKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades)
         {
             if(!blades.Any())
                 throw new InvalidProgramStateException("No feeds to run");
 
             var runningFeeds = new List<IEventFeed>();
-            if(!inParallel)
+            if(string.IsNullOrEmpty(compositeFeedKey))
             {
-                var eventFeed = new CompositeEventFeed(key, blades.Cast<IEventFeed>().ToArray());
-                RunFeed(eventFeed, delayBetweenIterations);
-                runningFeeds.Add(eventFeed);
+                foreach(var blade in blades)
+                {
+                    EventFeedsRegistry.Register(blade);
+                    periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(blade), delayBetweenIterations, blade.ExecuteFeeding, blade.Initialize, blade.Shutdown);
+                    runningFeeds.Add(blade);
+                }
             }
             else
             {
-                foreach(var eventFeed in blades)
-                {
-                    RunFeed(eventFeed, delayBetweenIterations);
-                    runningFeeds.Add(eventFeed);
-                }
+                var eventFeed = new CompositeEventFeed(compositeFeedKey, blades);
+                EventFeedsRegistry.Register(eventFeed);
+                periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.Initialize, eventFeed.Shutdown);
+                runningFeeds.Add(eventFeed);
             }
             RunningFeeds = runningFeeds.ToArray();
 
@@ -56,12 +57,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     foreach(var blade in blades)
                         ReportActualizationLagToGraphite(actualizationLagGraphitePathPrefix, blade);
                 });
-        }
-
-        private void RunFeed([NotNull] IEventFeed eventFeed, TimeSpan delayBetweenIterations)
-        {
-            EventFeedsRegistry.Register(eventFeed);
-            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.Initialize, eventFeed.Shutdown);
         }
 
         public void Stop()
@@ -80,13 +75,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return $"{eventFeed.FeedKey}-PeriodicJob";
         }
 
-        private void ReportActualizationLagToGraphite([NotNull] string graphitePathPrefix, [NotNull] Blade<TEvent, TOffset> blade)
+        private void ReportActualizationLagToGraphite([NotNull] string graphitePathPrefix, [NotNull] IBlade blade)
         {
             var currentGlobalOffsetTimestamp = blade.GetCurrentGlobalOffsetTimestamp();
             if(currentGlobalOffsetTimestamp != null)
             {
                 var now = Timestamp.Now;
-                var graphitePath = $"{graphitePathPrefix}.{blade.FeedKey}";
+                var graphitePath = $"{graphitePathPrefix}.{blade.BladeId.BladeKey}";
                 graphiteClient.Send(graphitePath, (long)(now - currentGlobalOffsetTimestamp).TotalMilliseconds, now.ToDateTime());
             }
         }

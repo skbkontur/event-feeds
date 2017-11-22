@@ -11,10 +11,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         [NotNull]
         string FeedKey { get; }
 
-        void Initialize();
-        void Shutdown();
-        void ExecuteFeeding();
-
         void ResetLocalState();
 
         bool AreEventsProcessedAt([NotNull] Timestamp timestamp);

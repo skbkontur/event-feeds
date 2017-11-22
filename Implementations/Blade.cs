@@ -16,7 +16,7 @@ using SKBKontur.Catalogue.ServiceLib.Logging;
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
-    public class Blade<TEvent, TOffset> : IEventFeed
+    public class Blade<TEvent, TOffset> : IBlade
     {
         public Blade(BladeId bladeId,
                      IGlobalTimeProvider globalTimeProvider,
@@ -25,7 +25,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                      IOffsetInterpreter<TOffset> offsetInterpreter,
                      IEventConsumer<TEvent, TOffset> eventConsumer)
         {
-            this.bladeId = bladeId;
+            BladeId = bladeId;
             this.globalTimeProvider = globalTimeProvider;
             this.eventSource = eventSource;
             this.offsetStorage = offsetStorage;
@@ -39,7 +39,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             var sb = new StringBuilder();
             sb.AppendLine("Initialized blade with:");
-            sb.AppendFormat("  BladeId      : {0}", bladeId).AppendLine();
+            sb.AppendFormat("  BladeId      : {0}", BladeId).AppendLine();
             sb.AppendFormat("  EventSource  : {0}", eventSource.GetDescription()).AppendLine();
             sb.AppendFormat("  EventConsumer: {0}", eventConsumer.GetDescription()).AppendLine();
             sb.AppendFormat("  OffsetStorage: {0}", offsetStorage.GetDescription()).AppendLine();
@@ -47,7 +47,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         [NotNull]
-        public string FeedKey => bladeId.BladeKey;
+        public BladeId BladeId { get; }
+
+        [NotNull]
+        public string FeedKey => BladeId.BladeKey;
 
         public void Initialize()
         {
@@ -87,7 +90,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
-            if(delayUpperBound < bladeId.Delay)
+            if(delayUpperBound < BladeId.Delay)
                 return;
             lock(locker)
             {
@@ -108,13 +111,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             var fromOffsetExclusive = offsetHolder.GetLocalOffset();
             var globalNowTimestamp = globalTimeProvider.GetNowTimestamp();
-            var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
+            var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - BladeId.Delay : globalNowTimestamp);
             if(offsetInterpreter.Compare(fromOffsetExclusive, toOffsetInclusive) >= 0)
             {
-                logger.Info($"Skip processing events by blade {bladeId} because fromOffsetExclusive({FormatOffset(fromOffsetExclusive)}) >= toOffsetInclusive ({FormatOffset(toOffsetInclusive)}) ");
+                logger.Info($"Skip processing events by blade {BladeId} because fromOffsetExclusive({FormatOffset(fromOffsetExclusive)}) >= toOffsetInclusive ({FormatOffset(toOffsetInclusive)}) ");
                 return;
             }
-            logger.Info($"Start processing events by blade {bladeId}. GlobalNowTimestamp = {globalNowTimestamp}, FromOffsetExclusive = {FormatOffset(fromOffsetExclusive)}, ToOffsetInclusive = {FormatOffset(toOffsetInclusive)}");
+            logger.Info($"Start processing events by blade {BladeId}. GlobalNowTimestamp = {globalNowTimestamp}, FromOffsetExclusive = {FormatOffset(fromOffsetExclusive)}, ToOffsetInclusive = {FormatOffset(toOffsetInclusive)}");
             var eventsProcessed = 0;
             var sw = Stopwatch.StartNew();
             EventsQueryResult<TEvent, TOffset> eventsQueryResult;
@@ -127,7 +130,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 fromOffsetExclusive = eventsQueryResult.LastOffset;
                 eventsProcessed += eventsQueryResult.Events.Count;
             } while(!eventsQueryResult.NoMoreEventsInSource);
-            logger.Info($"End processing events by blade {bladeId}. Processed {eventsProcessed} events in {sw.Elapsed}");
+            logger.Info($"End processing events by blade {BladeId}. Processed {eventsProcessed} events in {sw.Elapsed}");
         }
 
         private string FormatOffset(TOffset offset)
@@ -138,7 +141,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly object locker = new object();
         private readonly ManualResetEventSlim feedIsRunningSignal = new ManualResetEventSlim(initialState : false);
         private readonly ILog logger = Log.For("DelayedEventFeed");
-        private readonly BladeId bladeId;
         private readonly IGlobalTimeProvider globalTimeProvider;
         private readonly IEventSource<TEvent, TOffset> eventSource;
         private readonly IOffsetStorage<TOffset> offsetStorage;

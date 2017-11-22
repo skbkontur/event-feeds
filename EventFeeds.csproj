@@ -52,11 +52,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Building\BladeConfigurator.cs" />
     <Compile Include="Building\BladeId.cs" />
-    <Compile Include="Building\CompositeEventFeedsBuilder.cs" />
+    <Compile Include="Building\EventFeedsBuilder.cs" />
     <Compile Include="Building\ICanStartFeeds.cs" />
-    <Compile Include="Building\CompositeEventFeedsComponentBuilder.cs" />
+    <Compile Include="Building\IBladesBuilder.cs" />
+    <Compile Include="Building\BladesBuilder.cs" />
     <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
     <Compile Include="EventSources\UnorderedArrayEventSource.cs" />
     <Compile Include="EventSources\UnorderedEventSource.cs" />
@@ -64,6 +64,7 @@
     <Compile Include="EventsProcessingResult.cs" />
     <Compile Include="EventsQueryResult.cs" />
     <Compile Include="EventWithOffset.cs" />
+    <Compile Include="Implementations\IBlade.cs" />
     <Compile Include="Implementations\EventFeedsRunner.cs" />
     <Compile Include="IEventFeedsRunner.cs" />
     <Compile Include="HttpAccess\EventFeedHttpClientBase.cs" />

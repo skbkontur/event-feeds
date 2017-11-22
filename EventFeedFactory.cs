@@ -15,9 +15,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         }
 
         [NotNull]
-        public CompositeEventFeedsBuilder<TEvent, TOffset> CompositeFeed<TEvent, TOffset>([NotNull] string key)
+        public EventFeedsBuilder<TOffset> WithOffsetType<TOffset>()
         {
-            return container.Create<string, CompositeEventFeedsBuilder<TEvent, TOffset>>(key);
+            return container.Create<EventFeedsBuilder<TOffset>>();
         }
 
         [NotNull]

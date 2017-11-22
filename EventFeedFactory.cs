@@ -20,7 +20,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
             return container.Create<EventFeedsBuilder<TOffset>>();
         }
 
-        [NotNull]
         private readonly IContainer container;
     }
 }

@@ -12,7 +12,7 @@ using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
-    public class EventFeedsBuilder<TOffset> : ICanStartFeeds
+    public class EventFeedsBuilder<TOffset>
     {
         public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder, ICatalogueGraphiteClient graphiteClient, IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {

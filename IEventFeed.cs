@@ -2,17 +2,23 @@
 
 using JetBrains.Annotations;
 
+using SKBKontur.Catalogue.Objects;
+
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     public interface IEventFeed
     {
         [NotNull]
-        string Key { get; }
+        string FeedKey { get; }
 
-        TimeSpan Delay { get; }
-
-        void ExecuteForcedFeeding(TimeSpan delayUpperBound);
+        void Initialize();
+        void Shutdown();
+        void ExecuteFeeding();
 
         void ResetLocalState();
+
+        bool AreEventsProcessedAt([NotNull] Timestamp timestamp);
+
+        void ExecuteForcedFeeding(TimeSpan delayUpperBound);
     }
 }

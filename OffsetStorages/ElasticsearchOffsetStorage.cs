@@ -1,4 +1,4 @@
-using Elasticsearch.Net;
+﻿using Elasticsearch.Net;
 
 using JetBrains.Annotations;
 
@@ -20,7 +20,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         [NotNull]
         public string GetDescription()
         {
-            return string.Format("ElasticsearchOffsetStorage<{0}> with IndexName: {1}, ElasticType: {2}, Key: {3} ", typeof(TOffset), indexName, elasticTypeName, key);
+            return $"ElasticsearchOffsetStorage<{typeof(TOffset)}> with IndexName: {indexName}, ElasticType: {elasticTypeName}, Key: {key}";
         }
 
         public void Write([CanBeNull] TOffset newOffset)

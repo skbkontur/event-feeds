@@ -7,9 +7,9 @@ using SKBKontur.Catalogue.Core.EventFeeds.Building;
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {
     [PublicAPI]
-    public class MultiRazorEventFeedFactory
+    public class EventFeedFactory
     {
-        public MultiRazorEventFeedFactory([NotNull] IContainer container)
+        public EventFeedFactory([NotNull] IContainer container)
         {
             this.container = container;
         }

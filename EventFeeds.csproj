@@ -36,10 +36,6 @@
     <Reference Include="GroboContainer">
       <HintPath>..\..\Assemblies\GroboContainer.dll</HintPath>
     </Reference>
-    <Reference Include="GroBuf, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Assemblies\GroBuf.dll</HintPath>
-    </Reference>
     <Reference Include="JetBrains.Annotations">
       <HintPath>..\..\Assemblies\JetBrains.Annotations.dll</HintPath>
     </Reference>
@@ -68,25 +64,22 @@
     <Compile Include="EventsProcessingResult.cs" />
     <Compile Include="EventsQueryResult.cs" />
     <Compile Include="EventWithOffset.cs" />
-    <Compile Include="Firing\EventFeedsRunner.cs" />
-    <Compile Include="Firing\IEventFeedsRunner.cs" />
+    <Compile Include="Implementations\EventFeedsRunner.cs" />
+    <Compile Include="IEventFeedsRunner.cs" />
     <Compile Include="HttpAccess\EventFeedHttpClientBase.cs" />
     <Compile Include="HttpAccess\EventFeedHttpHandler.cs" />
-    <Compile Include="ICompositeEventFeed.cs" />
     <Compile Include="IEventConsumer.cs" />
     <Compile Include="IEventFeed.cs" />
     <Compile Include="EventFeedsRegistry.cs" />
     <Compile Include="IEventSource.cs" />
     <Compile Include="IGlobalTimeProvider.cs" />
-    <Compile Include="Implementations\ConsequentEventFeed.cs" />
+    <Compile Include="Implementations\CompositeEventFeed.cs" />
     <Compile Include="Implementations\DefaultGlobalTimeProvider.cs" />
-    <Compile Include="Implementations\CompositeEventFeedBase.cs" />
-    <Compile Include="Implementations\ParallelEventFeed.cs" />
     <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
     <Compile Include="IOffsetInterpreter.cs" />
-    <Compile Include="Implementations\DelayedEventFeed.cs" />
+    <Compile Include="Implementations\Blade.cs" />
     <Compile Include="IOffsetStorage.cs" />
-    <Compile Include="MultiRazorEventFeedFactory.cs" />
+    <Compile Include="EventFeedFactory.cs" />
     <Compile Include="OffsetStorages\BusinessObjectOffsetStorageProvider.cs" />
     <Compile Include="OffsetStorages\BusinessObjectStorageOffsetContainer.cs" />
     <Compile Include="OffsetStorages\ElasticsearchOffsetStorage.cs" />

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 using JetBrains.Annotations;
 
@@ -8,9 +8,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class BladeConfigurator<TOffset>
     {
-        public BladeConfigurator([NotNull] string key, TimeSpan delay)
+        public BladeConfigurator([NotNull] string bladeKey, TimeSpan delay)
         {
-            bladeId = new BladeId(key, delay);
+            bladeId = new BladeId(bladeKey, delay);
         }
 
         [NotNull]
@@ -28,10 +28,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         [NotNull]
-        public DelayedEventFeed<TEvent, TOffset> Create<TEvent>([NotNull] IGlobalTimeProvider globalTimeProvider, [NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
+        public Blade<TEvent, TOffset> Create<TEvent>([NotNull] IGlobalTimeProvider globalTimeProvider, [NotNull] IEventSource<TEvent, TOffset> eventSource, [NotNull] IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             var offsetStorage = createOffsetStorage(bladeId);
-            return new DelayedEventFeed<TEvent, TOffset>(bladeId, globalTimeProvider, eventSource, offsetStorage, offsetInterpreter, eventConsumer);
+            return new Blade<TEvent, TOffset>(bladeId, globalTimeProvider, eventSource, offsetStorage, offsetInterpreter, eventConsumer);
         }
 
         private readonly BladeId bladeId;

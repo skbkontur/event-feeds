@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using MoreLinq;
 
@@ -7,18 +6,13 @@ using SKBKontur.Catalogue.ServiceLib.HttpHandlers;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
 {
+    // todo (andrew, 22.11.2017): get rid of this dirty static hack (EventFeedsRegistry)
     public sealed class EventFeedHttpHandler : IHttpHandler
     {
         [HttpMethod]
-        public void UpdateAndFlush(string eventFeedKey)
-        {
-            EventFeedsRegistry.GetByKey(eventFeedKey).ExecuteForcedFeeding(TimeSpan.MaxValue);
-        }
-
-        [HttpMethod]
         public void UpdateAndFlushAll(TimeSpan delayUpperBound)
         {
-            EventFeedsRegistry.GetAll().Where(feed => feed.Delay <= delayUpperBound).ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
+            EventFeedsRegistry.GetAll().ForEach(feed => feed.ExecuteForcedFeeding(delayUpperBound));
         }
     }
 }

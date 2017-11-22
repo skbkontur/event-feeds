@@ -7,6 +7,7 @@ using SKBKontur.Catalogue.ClientLib.Topology;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
 {
+    // todo (andrew, 22.11.2017): get rid of this dirty static hack (EventFeedsRegistry)
     public abstract class EventFeedHttpClientBase : HttpClientBase
     {
         protected EventFeedHttpClientBase(IDomainTopologyFactory domainTopologyFactory, IMethodDomainFactory methodDomainFactory, IHttpServiceClientConfiguration initialConfiguration)
@@ -14,11 +15,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.HttpAccess
         {
         }
 
-        public void UpdateAndFlush(string key)
-        {
-            Method("UpdateAndFlush").InvokeOnRandomReplica(key);
-        }
-        
         public void UpdateAndFlushAll(TimeSpan delayUpperBound)
         {
             Method("UpdateAndFlushAll").InvokeOnRandomReplica(delayUpperBound);

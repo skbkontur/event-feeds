@@ -5,7 +5,6 @@ using System.Linq;
 using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
-using SKBKontur.Catalogue.Core.EventFeeds.Firing;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
 using SKBKontur.Catalogue.Objects;
@@ -16,9 +15,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
     public class CompositeEventFeedsBuilder<TEvent, TOffset> : ICanStartFeeds
     {
         public CompositeEventFeedsBuilder([NotNull] string key,
-                                           [NotNull] Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
-                                           [NotNull] ICatalogueGraphiteClient graphiteClient,
-                                           [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
+                                          [NotNull] Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
+                                          [NotNull] ICatalogueGraphiteClient graphiteClient,
+                                          [NotNull] IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.key = key;
             this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
@@ -65,11 +64,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [NotNull]
         public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations)
         {
+            var theOffsetInterpreter = GetOffsetInterpreter();
             var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
             var eventFeeds = components.SelectMany(feed => feed.Blades.Select(blade => blade.WithOffsetFactory(offsetStorageFactory)
-                                                                                                 .WithOffsetInterpreter(GetOffsetInterpreter())
-                                                                                                 .Create(theGlobalTimeProvider, feed.EventSource, feed.EventConsumer)))
-                                            .ToArray();
+                                                                                            .WithOffsetInterpreter(theOffsetInterpreter)
+                                                                                            .Create(theGlobalTimeProvider, feed.EventSource, feed.EventConsumer)))
+                                       .ToArray();
             return new EventFeedsRunner<TEvent, TOffset>(key, parallel, delayBetweenIterations, eventFeeds, graphiteClient, periodicJobRunnerWithLeaderElection);
         }
 
@@ -80,7 +80,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
                 return offsetInterpreter;
             if(typeof(TOffset) == typeof(long?))
                 return (IOffsetInterpreter<TOffset>)StandardTicksOffsetInterpreter.Instance;
-            throw new InvalidProgramStateException(string.Format("OffsetInterpreter has not set and for type {0} there is no default interpreter", typeof(TOffset).FullName));
+            throw new InvalidProgramStateException($"OffsetInterpreter has not set and for type {typeof(TOffset).FullName} there is no default interpreter");
         }
 
         private readonly string key;

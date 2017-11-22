@@ -16,14 +16,14 @@ using SKBKontur.Catalogue.ServiceLib.Logging;
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
-    public class DelayedEventFeed<TEvent, TOffset> : IEventFeed
+    public class Blade<TEvent, TOffset> : IEventFeed
     {
-        public DelayedEventFeed(BladeId bladeId,
-                                IGlobalTimeProvider globalTimeProvider,
-                                IEventSource<TEvent, TOffset> eventSource,
-                                IOffsetStorage<TOffset> offsetStorage,
-                                IOffsetInterpreter<TOffset> offsetInterpreter,
-                                IEventConsumer<TEvent, TOffset> eventConsumer)
+        public Blade(BladeId bladeId,
+                     IGlobalTimeProvider globalTimeProvider,
+                     IEventSource<TEvent, TOffset> eventSource,
+                     IOffsetStorage<TOffset> offsetStorage,
+                     IOffsetInterpreter<TOffset> offsetInterpreter,
+                     IEventConsumer<TEvent, TOffset> eventConsumer)
         {
             this.bladeId = bladeId;
             this.globalTimeProvider = globalTimeProvider;
@@ -38,7 +38,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private void LogComponentsDescription()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Initialized delayed single razor feed with:");
+            sb.AppendLine("Initialized blade with:");
+            sb.AppendFormat("  BladeId      : {0}", bladeId).AppendLine();
             sb.AppendFormat("  EventSource  : {0}", eventSource.GetDescription()).AppendLine();
             sb.AppendFormat("  EventConsumer: {0}", eventConsumer.GetDescription()).AppendLine();
             sb.AppendFormat("  OffsetStorage: {0}", offsetStorage.GetDescription()).AppendLine();
@@ -46,9 +47,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         [NotNull]
-        public string Key { get { return bladeId.Key; } }
-
-        public TimeSpan Delay { get { return bladeId.Delay; } }
+        public string FeedKey => bladeId.BladeKey;
 
         public void Initialize()
         {
@@ -89,7 +88,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             if(delayUpperBound < bladeId.Delay)
-                throw new InvalidProgramStateException(string.Format("It is not allowed to force feeding for delay {0} which is smaller than bladeId.Delay ({1})", delayUpperBound, bladeId.Delay));
+                return;
             lock(locker)
             {
                 feedIsRunningSignal.Wait();
@@ -112,10 +111,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - bladeId.Delay : globalNowTimestamp);
             if(offsetInterpreter.Compare(fromOffsetExclusive, toOffsetInclusive) >= 0)
             {
-                logger.InfoFormat("Skip processing events by blade {0} because fromOffsetExclusive({1}) >= toOffsetInclusive ({2}) ", bladeId, FormatOffset(fromOffsetExclusive), FormatOffset(toOffsetInclusive));
+                logger.Info($"Skip processing events by blade {bladeId} because fromOffsetExclusive({FormatOffset(fromOffsetExclusive)}) >= toOffsetInclusive ({FormatOffset(toOffsetInclusive)}) ");
                 return;
             }
-            logger.InfoFormat("Start processing events by blade {0}. GlobalNowTimestamp = {1}, FromOffsetExclusive = {2}, ToOffsetInclusive = {3}", bladeId, globalNowTimestamp, FormatOffset(fromOffsetExclusive), FormatOffset(toOffsetInclusive));
+            logger.Info($"Start processing events by blade {bladeId}. GlobalNowTimestamp = {globalNowTimestamp}, FromOffsetExclusive = {FormatOffset(fromOffsetExclusive)}, ToOffsetInclusive = {FormatOffset(toOffsetInclusive)}");
             var eventsProcessed = 0;
             var sw = Stopwatch.StartNew();
             EventsQueryResult<TEvent, TOffset> eventsQueryResult;
@@ -128,7 +127,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 fromOffsetExclusive = eventsQueryResult.LastOffset;
                 eventsProcessed += eventsQueryResult.Events.Count;
             } while(!eventsQueryResult.NoMoreEventsInSource);
-            logger.InfoFormat("End processing events by blade {0}. Processed {1} events in {2}", bladeId, eventsProcessed, sw.Elapsed);
+            logger.Info($"End processing events by blade {bladeId}. Processed {eventsProcessed} events in {sw.Elapsed}");
         }
 
         private string FormatOffset(TOffset offset)
@@ -178,7 +177,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     localOffset = offsetInterpreter.Max(localOffset, newOffset);
                     localOffsetWasSet = true;
                     var offsetInStorage = offsetStorage.Read();
-                    Log.For("DelayedEventFeed").InfoFormat("NewOffset: {0}, LocalOffset: {1}, OffsetInStorage: {2}", FormatOffset(newOffset), FormatOffset(localOffset), FormatOffset(offsetInStorage));
+                    Log.For("DelayedEventFeed").Info($"NewOffset: {FormatOffset(newOffset)}, LocalOffset: {FormatOffset(localOffset)}, OffsetInStorage: {FormatOffset(offsetInStorage)}");
                     offsetStorage.Write(offsetInterpreter.Max(localOffset, offsetInStorage));
                 }
             }

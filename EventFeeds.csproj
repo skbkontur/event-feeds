@@ -66,11 +66,8 @@
     <Compile Include="Implementations\IBlade.cs" />
     <Compile Include="Implementations\EventFeedsRunner.cs" />
     <Compile Include="IEventFeedsRunner.cs" />
-    <Compile Include="HttpAccess\EventFeedHttpClientBase.cs" />
-    <Compile Include="HttpAccess\EventFeedHttpHandler.cs" />
     <Compile Include="IEventConsumer.cs" />
     <Compile Include="IEventFeed.cs" />
-    <Compile Include="EventFeedsRegistry.cs" />
     <Compile Include="IEventSource.cs" />
     <Compile Include="IGlobalTimeProvider.cs" />
     <Compile Include="Implementations\CompositeEventFeed.cs" />

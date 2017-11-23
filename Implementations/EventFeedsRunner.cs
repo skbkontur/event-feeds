@@ -37,7 +37,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             {
                 foreach(var blade in blades)
                 {
-                    EventFeedsRegistry.Register(blade);
                     periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(blade), delayBetweenIterations, blade.ExecuteFeeding, blade.Initialize, blade.Shutdown);
                     runningFeeds.Add(blade);
                 }
@@ -45,7 +44,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             else
             {
                 var eventFeed = new CompositeEventFeed(compositeFeedKey, blades);
-                EventFeedsRegistry.Register(eventFeed);
                 periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.Initialize, eventFeed.Shutdown);
                 runningFeeds.Add(eventFeed);
             }
@@ -65,7 +63,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             foreach(var eventFeed in RunningFeeds)
             {
                 periodicJobRunnerWithLeaderElection.StopPeriodicJob(FormatFeedJobName(eventFeed));
-                EventFeedsRegistry.Unregister(eventFeed.FeedKey);
             }
         }
 

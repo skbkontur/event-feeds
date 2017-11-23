@@ -20,7 +20,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             this.graphiteClient = graphiteClient;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
-            reportActualizationLagJobName = $"{compositeFeedKey ?? nameof(EventFeedsRunner)}-ReportActualizationLagJob";
+            reportActualizationLagJobName = $"{compositeFeedKey ?? $"{nameof(EventFeedsRunner)}-{Guid.NewGuid()}"}-ReportActualizationLagJob";
             RunFeeds(compositeFeedKey, delayBetweenIterations, blades);
         }
 

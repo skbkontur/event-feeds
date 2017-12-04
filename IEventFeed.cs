@@ -13,8 +13,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
 
         void ResetLocalState();
 
-        bool AreEventsProcessedAt([NotNull] Timestamp timestamp);
-
         void ExecuteForcedFeeding(TimeSpan delayUpperBound);
+
+        bool AreEventsProcessedAt([NotNull] Timestamp timestamp);
     }
 }

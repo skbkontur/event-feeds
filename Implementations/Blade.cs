@@ -49,9 +49,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         [NotNull]
         public BladeId BladeId { get; }
 
-        [NotNull]
-        public string FeedKey => BladeId.BladeKey;
-
         public void Initialize()
         {
             ResetLocalState();

@@ -14,10 +14,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class EventFeedsBuilder<TOffset>
     {
-        public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder, ICatalogueGraphiteClient graphiteClient, IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
+        public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder, ICatalogueGraphiteClient graphiteClient, IPeriodicTaskRunner periodicTaskRunner, IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
             this.graphiteClient = graphiteClient;
+            this.periodicTaskRunner = periodicTaskRunner;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             bladesBuilders = new List<IBladesBuilder<TOffset>>();
         }
@@ -63,7 +64,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             var theOffsetInterpreter = GetOffsetInterpreter();
             var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
             var blades = bladesBuilders.SelectMany(x => x.CreateBlades(theGlobalTimeProvider, theOffsetInterpreter, offsetStorageFactory)).ToArray();
-            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, graphiteClient, periodicJobRunnerWithLeaderElection);
+            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, graphiteClient, periodicTaskRunner, periodicJobRunnerWithLeaderElection);
         }
 
         [NotNull]
@@ -79,6 +80,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private string compositeFeedKey;
         private readonly Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder;
         private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private IGlobalTimeProvider globalTimeProvider;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;

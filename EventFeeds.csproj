@@ -70,7 +70,7 @@
     <Compile Include="IEventFeed.cs" />
     <Compile Include="IEventSource.cs" />
     <Compile Include="IGlobalTimeProvider.cs" />
-    <Compile Include="Implementations\CompositeEventFeed.cs" />
+    <Compile Include="Implementations\EventFeed.cs" />
     <Compile Include="Implementations\DefaultGlobalTimeProvider.cs" />
     <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
     <Compile Include="IOffsetInterpreter.cs" />

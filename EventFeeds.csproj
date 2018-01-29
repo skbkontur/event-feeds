@@ -93,10 +93,6 @@
       <Project>{3e5b30ef-0a43-459d-8c09-0bbb1ce62a63}</Project>
       <Name>CassandraStorageCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ClientLib\ClientLib.csproj">
-      <Project>{200756E7-F230-4549-B37E-17571B3F6258}</Project>
-      <Name>ClientLib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CommonBusinessObjects\CommonBusinessObjects.csproj">
       <Project>{3a5bb480-8709-4130-ae27-bf31750123f8}</Project>
       <Name>CommonBusinessObjects</Name>

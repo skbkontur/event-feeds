@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions.Responses.Get;
-using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
@@ -31,8 +30,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         [CanBeNull]
         public TOffset Read()
         {
-            var elasticsearchResponse = elasticsearchClient.Get<GetResponse<OffsetStorageElement>>(indexName, elasticTypeName, key).ProcessResponse();
-            return elasticsearchResponse?.Response.If(x => x.Found).With(x => x.Source)?.Offset ?? GetDefaultOffset();
+            var elasticsearchResponse = elasticsearchClient.Get<GetResponse<OffsetStorageElement>>(indexName, elasticTypeName, key).ProcessResponse().Response;
+            if(elasticsearchResponse?.Source != null && elasticsearchResponse.Found)
+                return elasticsearchResponse.Source.Offset;
+            return GetDefaultOffset();
         }
 
         [CanBeNull]

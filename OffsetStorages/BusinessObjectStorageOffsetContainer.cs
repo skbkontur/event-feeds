@@ -1,6 +1,5 @@
 ﻿using JetBrains.Annotations;
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
-using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
@@ -15,12 +14,15 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         public string GetDescription()
         {
-            return string.Format("OffsetStorage for {0} in BusinessObject of type {1}", typeof(TOffset).Name, typeof(TBusinessObject).Name);
+            return $"OffsetStorage for {typeof(TOffset).Name} in BusinessObject of type {typeof(TBusinessObject).Name}";
         }
 
         public TOffset Read()
         {
-            return businessObjectStorage.InScope(key).TryRead(key)?.Offset ?? default(TOffset);
+            var businessObject = businessObjectStorage.InScope(key).TryRead(key);
+            if(businessObject != null)
+                return businessObject.Offset;
+            return default(TOffset);
         }
 
         public void Write(TOffset newOffset)

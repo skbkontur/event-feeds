@@ -20,7 +20,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         public TOffset Read()
         {
-            return businessObjectStorage.InScope(key).TryRead(key).Return(x => x.Offset, default(TOffset));
+            return businessObjectStorage.InScope(key).TryRead(key)?.Offset ?? default(TOffset);
         }
 
         public void Write(TOffset newOffset)

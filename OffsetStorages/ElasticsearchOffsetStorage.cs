@@ -32,7 +32,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         public TOffset Read()
         {
             var elasticsearchResponse = elasticsearchClient.Get<GetResponse<OffsetStorageElement>>(indexName, elasticTypeName, key).ProcessResponse();
-            return elasticsearchResponse.With(x => x.Response).If(x => x.Found).With(x => x.Source).Return(x => x.Offset, GetDefaultOffset());
+            return elasticsearchResponse?.Response.If(x => x.Found).With(x => x.Source)?.Offset ?? GetDefaultOffset();
         }
 
         [CanBeNull]

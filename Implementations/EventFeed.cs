@@ -34,8 +34,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void Initialize()
         {
-            blades.ForEach(blade => blade.Initialize());
-            periodicTaskRunner.Register(LagReportingTaskId, period : TimeSpan.FromMinutes(1), taskAction : () => blades.ForEach(ReportActualizationLagToGraphite));
+            lock(locker)
+            {
+                blades.ForEach(blade => blade.Initialize());
+                periodicTaskRunner.Register(LagReportingTaskId, period : TimeSpan.FromMinutes(1), taskAction : () => blades.ForEach(ReportActualizationLagToGraphite));
+            }
         }
 
         private void ReportActualizationLagToGraphite([NotNull] IBlade blade)
@@ -51,33 +54,49 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void Shutdown()
         {
-            periodicTaskRunner.Unregister(LagReportingTaskId, timeout : 15000);
-            blades.ForEach(blade => blade.Shutdown());
+            lock(locker)
+            {
+                periodicTaskRunner.Unregister(LagReportingTaskId, timeout : 15000);
+                blades.ForEach(blade => blade.Shutdown());
+            }
         }
 
         public void ExecuteFeeding()
         {
-            blades.ForEach(blade => blade.ExecuteFeeding());
+            lock(locker)
+            {
+                blades.ForEach(blade => blade.ExecuteFeeding());
+            }
         }
 
         public void ResetLocalState()
         {
-            blades.ForEach(blade => blade.ResetLocalState());
+            lock(locker)
+            {
+                blades.ForEach(blade => blade.ResetLocalState());
+            }
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
-            blades.ForEach(blade => blade.ExecuteForcedFeeding(delayUpperBound));
+            lock(locker)
+            {
+                blades.ForEach(blade => blade.ExecuteForcedFeeding(delayUpperBound));
+            }
         }
 
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
         {
-            return blades.All(blade => blade.AreEventsProcessedAt(timestamp));
+            lock(locker)
+            {
+                return blades.All(blade => blade.AreEventsProcessedAt(timestamp));
+            }
         }
 
         private readonly IBlade[] blades;
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly string graphitePathPrefix = $"EDI.SubSystem.EventFeeds.ActualizationLag.{Environment.MachineName}";
+        private readonly object locker = new object();
     }
 }

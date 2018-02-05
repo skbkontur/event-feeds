@@ -39,10 +39,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             var sb = new StringBuilder();
             sb.AppendLine("Initialized blade with:");
-            sb.AppendFormat("  BladeId      : {0}", BladeId).AppendLine();
-            sb.AppendFormat("  EventSource  : {0}", eventSource.GetDescription()).AppendLine();
-            sb.AppendFormat("  EventConsumer: {0}", eventConsumer.GetDescription()).AppendLine();
-            sb.AppendFormat("  OffsetStorage: {0}", offsetStorage.GetDescription()).AppendLine();
+            sb.Append($"  BladeId      : {BladeId}").AppendLine();
+            sb.Append($"  EventSource  : {eventSource.GetDescription()}").AppendLine();
+            sb.Append($"  EventConsumer: {eventConsumer.GetDescription()}").AppendLine();
+            sb.Append($"  OffsetStorage: {offsetStorage.GetDescription()}").AppendLine();
             logger.Info(sb.ToString());
         }
 
@@ -81,26 +81,22 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ExecuteFeeding()
         {
-            lock(locker)
-                DoExecuteFeeding(useDelay : true);
+            DoExecuteFeeding(useDelay : true);
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             if(delayUpperBound < BladeId.Delay)
                 return;
-            lock(locker)
+            feedIsRunningSignal.Wait();
+            try
             {
-                feedIsRunningSignal.Wait();
-                try
-                {
-                    DoExecuteFeeding(useDelay : false);
-                }
-                catch(Exception)
-                {
-                    Shutdown();
-                    throw;
-                }
+                DoExecuteFeeding(useDelay : false);
+            }
+            catch(Exception)
+            {
+                Shutdown();
+                throw;
             }
         }
 
@@ -135,7 +131,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return offsetInterpreter.Format(offset);
         }
 
-        private readonly object locker = new object();
         private readonly ManualResetEventSlim feedIsRunningSignal = new ManualResetEventSlim(initialState : false);
         private readonly ILog logger = Log.For("DelayedEventFeed");
         private readonly IGlobalTimeProvider globalTimeProvider;

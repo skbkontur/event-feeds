@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -33,6 +32,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.eventConsumer = eventConsumer;
             LogComponentsDescription();
             offsetHolder = new OffsetHolder(offsetStorage, offsetInterpreter);
+            feedIsRunning = false;
         }
 
         private void LogComponentsDescription()
@@ -52,12 +52,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         public void Initialize()
         {
             ResetLocalState();
-            feedIsRunningSignal.Set();
+            lastException = null;
+            feedIsRunning = true;
         }
 
         public void Shutdown()
         {
-            feedIsRunningSignal.Reset();
+            feedIsRunning = false;
             ResetLocalState();
         }
 
@@ -81,20 +82,29 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ExecuteFeeding()
         {
-            DoExecuteFeeding(useDelay : true);
+            TryExecuteFeeding(useDelay : true);
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             if(delayUpperBound < BladeId.Delay)
                 return;
-            feedIsRunningSignal.Wait();
+            TryExecuteFeeding(useDelay: false);
+        }
+
+        private void TryExecuteFeeding(bool useDelay)
+        {
+            if(lastException != null)
+                throw new InvalidProgramStateException($"Blade with id '{BladeId}' is broken", lastException);
+            if(!feedIsRunning)
+                throw new InvalidProgramStateException($"Blade with id '{BladeId}' is not running");
             try
             {
-                DoExecuteFeeding(useDelay : false);
+                DoExecuteFeeding(useDelay : useDelay);
             }
-            catch(Exception)
+            catch(Exception e)
             {
+                lastException = e;
                 Shutdown();
                 throw;
             }
@@ -131,7 +141,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return offsetInterpreter.Format(offset);
         }
 
-        private readonly ManualResetEventSlim feedIsRunningSignal = new ManualResetEventSlim(initialState : false);
+        private Exception lastException;
+        private bool feedIsRunning;
         private readonly ILog logger = Log.For("DelayedEventFeed");
         private readonly IGlobalTimeProvider globalTimeProvider;
         private readonly IEventSource<TEvent, TOffset> eventSource;

@@ -34,63 +34,49 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void Initialize()
         {
-            lock(locker)
-            {
-                blades.ForEach(blade => blade.Initialize());
-                periodicTaskRunner.Register(LagReportingTaskId, period : TimeSpan.FromMinutes(1), taskAction : () => blades.ForEach(ReportActualizationLagToGraphite));
-            }
+            blades.ForEach(blade => blade.Initialize());
+            periodicTaskRunner.Register(LagReportingTaskId, period : TimeSpan.FromMinutes(1), taskAction : ReportActualizationLagToGraphite);
         }
 
-        private void ReportActualizationLagToGraphite([NotNull] IBlade blade)
+        private void ReportActualizationLagToGraphite()
         {
-            var currentGlobalOffsetTimestamp = blade.GetCurrentGlobalOffsetTimestamp();
-            if(currentGlobalOffsetTimestamp != null)
+            var offsetsToReport = blades.Select(x => (bladeKey: x.BladeId.BladeKey, currentGlobalOffsetTimestamp: x.GetCurrentGlobalOffsetTimestamp()))
+                                        .Where(t => t.currentGlobalOffsetTimestamp != null)
+                                        .ToArray();
+            var now = Timestamp.Now;
+            foreach(var t in offsetsToReport)
             {
-                var now = Timestamp.Now;
-                var graphitePath = $"{graphitePathPrefix}.{blade.BladeId.BladeKey}";
-                graphiteClient.Send(graphitePath, (long)(now - currentGlobalOffsetTimestamp).TotalMilliseconds, now.ToDateTime());
+                var graphitePath = $"{graphitePathPrefix}.{t.bladeKey}";
+                graphiteClient.Send(graphitePath, (long)(now - t.currentGlobalOffsetTimestamp).TotalMilliseconds, now.ToDateTime());
             }
         }
 
         public void Shutdown()
         {
-            lock(locker)
-            {
-                periodicTaskRunner.Unregister(LagReportingTaskId, timeout : 15000);
-                blades.ForEach(blade => blade.Shutdown());
-            }
+            periodicTaskRunner.Unregister(LagReportingTaskId, timeout : 15000);
+            blades.ForEach(blade => blade.Shutdown());
         }
 
         public void ExecuteFeeding()
         {
             lock(locker)
-            {
                 blades.ForEach(blade => blade.ExecuteFeeding());
-            }
         }
 
         public void ResetLocalState()
         {
-            lock(locker)
-            {
-                blades.ForEach(blade => blade.ResetLocalState());
-            }
+            blades.ForEach(blade => blade.ResetLocalState());
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             lock(locker)
-            {
                 blades.ForEach(blade => blade.ExecuteForcedFeeding(delayUpperBound));
-            }
         }
 
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
         {
-            lock(locker)
-            {
-                return blades.All(blade => blade.AreEventsProcessedAt(timestamp));
-            }
+            return blades.All(blade => blade.AreEventsProcessedAt(timestamp));
         }
 
         private readonly IBlade[] blades;

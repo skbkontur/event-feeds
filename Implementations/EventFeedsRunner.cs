@@ -25,15 +25,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             RunFeeds(compositeFeedKey, delayBetweenIterations, blades);
         }
 
-        [NotNull]
-        public IEventFeed[] RunningFeeds { get; private set; }
-
         private void RunFeeds([CanBeNull] string compositeFeedKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades)
         {
             if(!blades.Any())
                 throw new InvalidProgramStateException("No feeds to run");
 
-            var runningFeeds = new List<IEventFeed>();
             if(string.IsNullOrEmpty(compositeFeedKey))
             {
                 foreach(var blade in blades)
@@ -49,22 +45,58 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                 RunFeed(eventFeed, delayBetweenIterations);
                 runningFeeds.Add(eventFeed);
             }
-            RunningFeeds = runningFeeds.ToArray();
         }
 
         private void RunFeed([NotNull] EventFeed eventFeed, TimeSpan delayBetweenIterations)
         {
-            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, eventFeed.ExecuteFeeding, eventFeed.Initialize, eventFeed.Shutdown);
+            periodicJobRunnerWithLeaderElection.RunPeriodicJob(FormatFeedJobName(eventFeed), delayBetweenIterations, () => ExecuteFeeding(eventFeed), eventFeed.Initialize, eventFeed.Shutdown);
+        }
+
+        private static void ExecuteFeeding([NotNull] EventFeed eventFeed)
+        {
+            lock(eventFeed)
+                eventFeed.ExecuteFeeding();
+        }
+
+        private static void ExecuteForcedFeeding([NotNull] EventFeed eventFeed, TimeSpan delayUpperBound)
+        {
+            try
+            {
+                lock(eventFeed)
+                    eventFeed.ExecuteForcedFeeding(delayUpperBound);
+            }
+            catch(Exception)
+            {
+                eventFeed.Shutdown();
+                throw;
+            }
+        }
+
+        public void ResetLocalState()
+        {
+            foreach(var eventFeed in runningFeeds)
+                eventFeed.ResetLocalState();
+        }
+
+        public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
+        {
+            foreach(var eventFeed in runningFeeds)
+                ExecuteForcedFeeding(eventFeed, delayUpperBound);
+        }
+
+        public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
+        {
+            return runningFeeds.All(eventFeed => eventFeed.AreEventsProcessedAt(timestamp));
         }
 
         public void Stop()
         {
-            foreach(var eventFeed in RunningFeeds)
+            foreach(var eventFeed in runningFeeds)
                 periodicJobRunnerWithLeaderElection.StopPeriodicJob(FormatFeedJobName(eventFeed));
         }
 
         [NotNull]
-        private static string FormatFeedJobName([NotNull] IEventFeed eventFeed)
+        private static string FormatFeedJobName([NotNull] EventFeed eventFeed)
         {
             return $"{eventFeed.FeedKey}-PeriodicJob";
         }
@@ -72,5 +104,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
+        private readonly List<EventFeed> runningFeeds = new List<EventFeed>();
     }
 }

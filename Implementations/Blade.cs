@@ -32,7 +32,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.eventConsumer = eventConsumer;
             LogComponentsDescription();
             offsetHolder = new OffsetHolder(offsetStorage, offsetInterpreter);
-            feedIsRunning = false;
         }
 
         private void LogComponentsDescription()
@@ -52,7 +51,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         public void Initialize()
         {
             ResetLocalState();
-            lastException = null;
             feedIsRunning = true;
         }
 
@@ -82,36 +80,20 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ExecuteFeeding()
         {
-            TryExecuteFeeding(useDelay : true);
+            DoExecuteFeeding(useDelay : true);
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             if(delayUpperBound < BladeId.Delay)
                 return;
-            TryExecuteFeeding(useDelay: false);
-        }
-
-        private void TryExecuteFeeding(bool useDelay)
-        {
-            if(lastException != null)
-                throw new InvalidProgramStateException($"Blade with id '{BladeId}' is broken", lastException);
-            if(!feedIsRunning)
-                throw new InvalidProgramStateException($"Blade with id '{BladeId}' is not running");
-            try
-            {
-                DoExecuteFeeding(useDelay : useDelay);
-            }
-            catch(Exception e)
-            {
-                lastException = e;
-                Shutdown();
-                throw;
-            }
+            DoExecuteFeeding(useDelay : false);
         }
 
         private void DoExecuteFeeding(bool useDelay)
         {
+            if(!feedIsRunning)
+                throw new InvalidProgramStateException($"Blade with id '{BladeId}' is not running");
             var fromOffsetExclusive = offsetHolder.GetLocalOffset();
             var globalNowTimestamp = globalTimeProvider.GetNowTimestamp();
             var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - BladeId.Delay : globalNowTimestamp);
@@ -141,7 +123,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return offsetInterpreter.Format(offset);
         }
 
-        private Exception lastException;
         private bool feedIsRunning;
         private readonly ILog logger = Log.For("DelayedEventFeed");
         private readonly IGlobalTimeProvider globalTimeProvider;

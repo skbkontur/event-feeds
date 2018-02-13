@@ -11,7 +11,7 @@ using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
-    public class EventFeed : IEventFeed
+    public class EventFeed
     {
         public EventFeed([NotNull] IBlade blade, ICatalogueGraphiteClient graphiteClient, IPeriodicTaskRunner periodicTaskRunner)
             : this(blade.BladeId.BladeKey, new[] {blade}, graphiteClient, periodicTaskRunner)
@@ -59,8 +59,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ExecuteFeeding()
         {
-            lock(locker)
-                blades.ForEach(blade => blade.ExecuteFeeding());
+            blades.ForEach(blade => blade.ExecuteFeeding());
         }
 
         public void ResetLocalState()
@@ -70,8 +69,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
-            lock(locker)
-                blades.ForEach(blade => blade.ExecuteForcedFeeding(delayUpperBound));
+            blades.ForEach(blade => blade.ExecuteForcedFeeding(delayUpperBound));
         }
 
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
@@ -83,6 +81,5 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly string graphitePathPrefix = $"EDI.SubSystem.EventFeeds.ActualizationLag.{Environment.MachineName}";
-        private readonly object locker = new object();
     }
 }

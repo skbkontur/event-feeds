@@ -8,7 +8,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
     {
         public EventWithOffset([NotNull] TEvent @event, [NotNull] TOffset offset)
         {
-            if(offset == null)
+            if (offset == null)
                 throw new InvalidProgramStateException(string.Format("Offset is null for event: {0}", @event));
             Event = @event;
             Offset = offset;

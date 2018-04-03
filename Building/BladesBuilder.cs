@@ -34,7 +34,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [NotNull, ItemNotNull]
         public IEnumerable<IBlade> CreateBlades([NotNull] IGlobalTimeProvider globalTimeProvider, [NotNull] IOffsetInterpreter<TOffset> offsetInterpreter, [NotNull] Func<BladeId, IOffsetStorage<TOffset>> createOffsetStorage)
         {
-            foreach(var bladeId in bladeIds)
+            foreach (var bladeId in bladeIds)
             {
                 var offsetStorage = createOffsetStorage(bladeId);
                 yield return new Blade<TEvent, TOffset>(bladeId, globalTimeProvider, eventSource, offsetStorage, offsetInterpreter, eventConsumer);

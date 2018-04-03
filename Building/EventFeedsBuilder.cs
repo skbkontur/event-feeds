@@ -70,9 +70,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         [NotNull]
         private IOffsetInterpreter<TOffset> GetOffsetInterpreter()
         {
-            if (offsetInterpreter != null)
+            if(offsetInterpreter != null)
                 return offsetInterpreter;
-            if (typeof(TOffset) == typeof(long?))
+            if(typeof(TOffset) == typeof(long?))
                 return (IOffsetInterpreter<TOffset>)StandardTicksOffsetInterpreter.Instance;
             throw new InvalidProgramStateException($"OffsetInterpreter has not set and for type {typeof(TOffset).FullName} there is no default interpreter");
         }

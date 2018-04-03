@@ -44,7 +44,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                                         .Where(t => t.currentGlobalOffsetTimestamp != null)
                                         .ToArray();
             var now = Timestamp.Now;
-            foreach (var t in offsetsToReport)
+            foreach(var t in offsetsToReport)
             {
                 var graphitePath = $"{graphitePathPrefix}.{t.bladeKey}";
                 graphiteClient.Send(graphitePath, (long)(now - t.currentGlobalOffsetTimestamp).TotalMilliseconds, now.ToDateTime());

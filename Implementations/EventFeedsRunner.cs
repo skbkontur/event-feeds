@@ -27,12 +27,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         private void RunFeeds([CanBeNull] string compositeFeedKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades)
         {
-            if (!blades.Any())
+            if(!blades.Any())
                 throw new InvalidProgramStateException("No feeds to run");
 
-            if (string.IsNullOrEmpty(compositeFeedKey))
+            if(string.IsNullOrEmpty(compositeFeedKey))
             {
-                foreach (var blade in blades)
+                foreach(var blade in blades)
                 {
                     var eventFeed = new EventFeed(blade, graphiteClient, periodicTaskRunner);
                     RunFeed(eventFeed, delayBetweenIterations);
@@ -54,7 +54,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         private static void ExecuteFeeding([NotNull] EventFeed eventFeed)
         {
-            lock (eventFeed)
+            lock(eventFeed)
                 eventFeed.ExecuteFeeding();
         }
 
@@ -62,10 +62,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         {
             try
             {
-                lock (eventFeed)
+                lock(eventFeed)
                     eventFeed.ExecuteForcedFeeding(delayUpperBound);
             }
-            catch (Exception)
+            catch(Exception)
             {
                 eventFeed.Shutdown();
                 throw;
@@ -74,13 +74,13 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void ResetLocalState()
         {
-            foreach (var eventFeed in runningFeeds)
+            foreach(var eventFeed in runningFeeds)
                 eventFeed.ResetLocalState();
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
-            foreach (var eventFeed in runningFeeds)
+            foreach(var eventFeed in runningFeeds)
                 ExecuteForcedFeeding(eventFeed, delayUpperBound);
         }
 
@@ -91,7 +91,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         public void Stop()
         {
-            foreach (var eventFeed in runningFeeds)
+            foreach(var eventFeed in runningFeeds)
                 periodicJobRunnerWithLeaderElection.StopPeriodicJob(FormatFeedJobName(eventFeed));
         }
 

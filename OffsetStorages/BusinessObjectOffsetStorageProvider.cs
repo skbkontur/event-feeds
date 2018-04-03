@@ -1,7 +1,5 @@
 ﻿using GroboContainer.Core;
-
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages

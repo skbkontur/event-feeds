@@ -1,7 +1,6 @@
 ﻿using System;
 
 using JetBrains.Annotations;
-
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Arrays;
 using SKBKontur.Catalogue.CassandraStorageCore.EventLog.Simple;

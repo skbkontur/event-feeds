@@ -31,7 +31,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         public TOffset Read()
         {
             var elasticsearchResponse = elasticsearchClient.Get<GetResponse<OffsetStorageElement>>(indexName, elasticTypeName, key).ProcessResponse().Response;
-            if (elasticsearchResponse?.Source != null && elasticsearchResponse.Found)
+            if(elasticsearchResponse?.Source != null && elasticsearchResponse.Found)
                 return elasticsearchResponse.Source.Offset;
             return GetDefaultOffset();
         }

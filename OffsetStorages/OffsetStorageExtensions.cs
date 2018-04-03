@@ -9,7 +9,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         {
             return new RollbackOnEmptyOffsetStorage(offsetStorage, rollback);
         }
-
+        
         [NotNull]
         public static IOffsetStorage<long?> AndFallbackToIfOffsetEmpty([NotNull] this IOffsetStorage<long?> offsetStorage, long offsetValue)
         {

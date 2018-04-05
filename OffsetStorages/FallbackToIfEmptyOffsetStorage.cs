@@ -1,5 +1,7 @@
 ﻿using System;
+
 using JetBrains.Annotations;
+
 using log4net;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
@@ -20,7 +22,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         public long? Read()
         {
             var result = innerStorage.Read();
-            if(!result.HasValue || result <= 0)
+            if (!result.HasValue || result <= 0)
             {
                 var fallbackTime = new DateTime(offsetTicks, DateTimeKind.Utc);
                 logger.InfoFormat("Set offset to {0}", fallbackTime);

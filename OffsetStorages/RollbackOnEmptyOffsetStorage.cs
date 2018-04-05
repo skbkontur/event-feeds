@@ -1,5 +1,7 @@
 ﻿using System;
+
 using JetBrains.Annotations;
+
 using log4net;
 
 using SKBKontur.Catalogue.Objects;
@@ -22,7 +24,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         public long? Read()
         {
             var result = innerStorage.Read();
-            if(!result.HasValue || result <= 0)
+            if (!result.HasValue || result <= 0)
             {
                 var rolledBackTime = Timestamp.Now.AddTicks(-rollbackTicks);
                 logger.InfoFormat("Rolled back offset to {0}", rolledBackTime);

@@ -8,7 +8,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
     {
         private EventsProcessingResult(bool commitOffset, [CanBeNull] TOffset offsetToCommit)
         {
-            if(commitOffset && offsetToCommit == null)
+            if (commitOffset && offsetToCommit == null)
                 throw new InvalidProgramStateException("OffsetToCommit is null but commitOffset flag is set to true");
             CommitOffset = commitOffset;
             OffsetToCommit = offsetToCommit;
@@ -22,7 +22,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         [NotNull]
         public TOffset GetOffsetToCommit()
         {
-            if(OffsetToCommit == null)
+            if (OffsetToCommit == null)
                 throw new InvalidProgramStateException("OffsetToCommit is null");
             return OffsetToCommit;
         }

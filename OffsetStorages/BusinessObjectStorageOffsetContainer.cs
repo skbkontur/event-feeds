@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+
 using SKBKontur.Catalogue.Core.CommonBusinessObjects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
@@ -20,7 +21,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         public TOffset Read()
         {
             var businessObject = businessObjectStorage.InScope(key).TryRead(key);
-            if(businessObject != null)
+            if (businessObject != null)
                 return businessObject.Offset;
             return default(TOffset);
         }

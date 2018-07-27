@@ -5,6 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
+using SKBKontur.Catalogue.Core.Graphite.Client.Settings;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
@@ -16,10 +17,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                                 TimeSpan delayBetweenIterations,
                                 [NotNull, ItemNotNull] IBlade[] blades,
                                 ICatalogueGraphiteClient graphiteClient,
+                                IGraphitePathPrefixProvider graphitePathPrefixProvider,
                                 IPeriodicTaskRunner periodicTaskRunner,
                                 IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.graphiteClient = graphiteClient;
+            this.graphitePathPrefixProvider = graphitePathPrefixProvider;
             this.periodicTaskRunner = periodicTaskRunner;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             RunFeeds(compositeFeedKey, delayBetweenIterations, blades);
@@ -34,14 +37,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             {
                 foreach (var blade in blades)
                 {
-                    var eventFeed = new EventFeed(blade, graphiteClient, periodicTaskRunner);
+                    var eventFeed = new EventFeed(blade, graphiteClient, graphitePathPrefixProvider, periodicTaskRunner);
                     RunFeed(eventFeed, delayBetweenIterations);
                     runningFeeds.Add(eventFeed);
                 }
             }
             else
             {
-                var eventFeed = new EventFeed(compositeFeedKey, blades, graphiteClient, periodicTaskRunner);
+                var eventFeed = new EventFeed(compositeFeedKey, blades, graphiteClient, graphitePathPrefixProvider, periodicTaskRunner);
                 RunFeed(eventFeed, delayBetweenIterations);
                 runningFeeds.Add(eventFeed);
             }
@@ -102,6 +105,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IGraphitePathPrefixProvider graphitePathPrefixProvider;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private readonly List<EventFeed> runningFeeds = new List<EventFeed>();

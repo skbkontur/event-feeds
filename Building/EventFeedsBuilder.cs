@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
+using SKBKontur.Catalogue.Core.Graphite.Client.Settings;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
@@ -14,10 +15,15 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class EventFeedsBuilder<TOffset>
     {
-        public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder, ICatalogueGraphiteClient graphiteClient, IPeriodicTaskRunner periodicTaskRunner, IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
+        public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
+                                 ICatalogueGraphiteClient graphiteClient,
+                                 IGraphitePathPrefixProvider graphitePathPrefixProvider,
+                                 IPeriodicTaskRunner periodicTaskRunner,
+                                 IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
             this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
             this.graphiteClient = graphiteClient;
+            this.graphitePathPrefixProvider = graphitePathPrefixProvider;
             this.periodicTaskRunner = periodicTaskRunner;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
             bladesBuilders = new List<IBladesBuilder<TOffset>>();
@@ -64,7 +70,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
             var theOffsetInterpreter = GetOffsetInterpreter();
             var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
             var blades = bladesBuilders.SelectMany(x => x.CreateBlades(theGlobalTimeProvider, theOffsetInterpreter, offsetStorageFactory)).ToArray();
-            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, graphiteClient, periodicTaskRunner, periodicJobRunnerWithLeaderElection);
+            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, graphiteClient, graphitePathPrefixProvider, periodicTaskRunner, periodicJobRunnerWithLeaderElection);
         }
 
         [NotNull]
@@ -80,6 +86,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         private string compositeFeedKey;
         private readonly Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder;
         private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IGraphitePathPrefixProvider graphitePathPrefixProvider;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;
         private IGlobalTimeProvider globalTimeProvider;

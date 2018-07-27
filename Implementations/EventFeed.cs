@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using MoreLinq;
 
 using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
+using SKBKontur.Catalogue.Core.Graphite.Client.Settings;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
@@ -13,17 +14,18 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     public class EventFeed
     {
-        public EventFeed([NotNull] IBlade blade, ICatalogueGraphiteClient graphiteClient, IPeriodicTaskRunner periodicTaskRunner)
-            : this(blade.BladeId.BladeKey, new[] {blade}, graphiteClient, periodicTaskRunner)
+        public EventFeed([NotNull] IBlade blade, ICatalogueGraphiteClient graphiteClient, IGraphitePathPrefixProvider graphitePathPrefixProvider, IPeriodicTaskRunner periodicTaskRunner)
+            : this(blade.BladeId.BladeKey, new[] {blade}, graphiteClient, graphitePathPrefixProvider, periodicTaskRunner)
         {
         }
 
-        public EventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades, ICatalogueGraphiteClient graphiteClient, IPeriodicTaskRunner periodicTaskRunner)
+        public EventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades, ICatalogueGraphiteClient graphiteClient, IGraphitePathPrefixProvider graphitePathPrefixProvider, IPeriodicTaskRunner periodicTaskRunner)
         {
             FeedKey = feedKey;
             this.blades = blades;
             this.graphiteClient = graphiteClient;
             this.periodicTaskRunner = periodicTaskRunner;
+            graphitePathPrefix = $"{graphitePathPrefixProvider.GlobalPathPrefix}.SubSystem.EventFeeds.ActualizationLag.{Environment.MachineName}";
         }
 
         [NotNull]
@@ -80,6 +82,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         private readonly IBlade[] blades;
         private readonly ICatalogueGraphiteClient graphiteClient;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
-        private readonly string graphitePathPrefix = $"EDI.SubSystem.EventFeeds.ActualizationLag.{Environment.MachineName}";
+        private readonly string graphitePathPrefix;
     }
 }

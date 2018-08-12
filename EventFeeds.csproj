@@ -36,9 +36,6 @@
     <Reference Include="GroboContainer">
       <HintPath>..\..\Assemblies\GroboContainer.dll</HintPath>
     </Reference>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\Assemblies\JetBrains.Annotations.dll</HintPath>
-    </Reference>
     <Reference Include="SKBKontur.Graphite.Client">
       <HintPath>..\..\Assemblies\GraphiteClient\SKBKontur.Graphite.Client.dll</HintPath>
     </Reference>

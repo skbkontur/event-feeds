@@ -36,9 +36,6 @@
     <Reference Include="GroboContainer">
       <HintPath>..\..\Assemblies\GroboContainer.dll</HintPath>
     </Reference>
-    <Reference Include="SKBKontur.Graphite.Client">
-      <HintPath>..\..\Assemblies\GraphiteClient\SKBKontur.Graphite.Client.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -94,10 +91,6 @@
     <ProjectReference Include="..\ElasticsearchClientExtensions\ElasticsearchClientExtensions.csproj">
       <Project>{988abfe1-2caf-4493-9d61-3d0e8760d0c2}</Project>
       <Name>ElasticsearchClientExtensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Graphite.Client\Graphite.Client.csproj">
-      <Project>{fccbee89-0b3c-4046-baf3-a99b0d10b3f5}</Project>
-      <Name>Graphite.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServiceLib\ServiceLib.csproj">
       <Project>{2f8f38dc-3cda-48bb-9798-7b6f75b02bc8}</Project>

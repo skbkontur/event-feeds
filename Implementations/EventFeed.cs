@@ -5,21 +5,22 @@ using JetBrains.Annotations;
 
 using MoreLinq;
 
-using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
-using SKBKontur.Catalogue.Core.Graphite.Client.Settings;
+using SkbKontur.Graphite.Client;
+
 using SKBKontur.Catalogue.Objects;
+using SKBKontur.Catalogue.ServiceLib.Graphite;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     public class EventFeed
     {
-        public EventFeed([NotNull] IBlade blade, ICatalogueGraphiteClient graphiteClient, IGraphitePathPrefixProvider graphitePathPrefixProvider, IPeriodicTaskRunner periodicTaskRunner)
+        public EventFeed([NotNull] IBlade blade, IGraphiteClient graphiteClient, IGraphitePathPrefixProvider graphitePathPrefixProvider, IPeriodicTaskRunner periodicTaskRunner)
             : this(blade.BladeId.BladeKey, new[] {blade}, graphiteClient, graphitePathPrefixProvider, periodicTaskRunner)
         {
         }
 
-        public EventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades, ICatalogueGraphiteClient graphiteClient, IGraphitePathPrefixProvider graphitePathPrefixProvider, IPeriodicTaskRunner periodicTaskRunner)
+        public EventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades, IGraphiteClient graphiteClient, IGraphitePathPrefixProvider graphitePathPrefixProvider, IPeriodicTaskRunner periodicTaskRunner)
         {
             FeedKey = feedKey;
             this.blades = blades;
@@ -80,7 +81,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         private readonly IBlade[] blades;
-        private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IGraphiteClient graphiteClient;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly string graphitePathPrefix;
     }

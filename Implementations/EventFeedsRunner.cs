@@ -4,9 +4,10 @@ using System.Linq;
 
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
-using SKBKontur.Catalogue.Core.Graphite.Client.Settings;
+using SkbKontur.Graphite.Client;
+
 using SKBKontur.Catalogue.Objects;
+using SKBKontur.Catalogue.ServiceLib.Graphite;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
@@ -16,7 +17,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         public EventFeedsRunner([CanBeNull] string compositeFeedKey,
                                 TimeSpan delayBetweenIterations,
                                 [NotNull, ItemNotNull] IBlade[] blades,
-                                ICatalogueGraphiteClient graphiteClient,
+                                IGraphiteClient graphiteClient,
                                 IGraphitePathPrefixProvider graphitePathPrefixProvider,
                                 IPeriodicTaskRunner periodicTaskRunner,
                                 IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
@@ -104,7 +105,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             return $"{eventFeed.FeedKey}-PeriodicJob";
         }
 
-        private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IGraphiteClient graphiteClient;
         private readonly IGraphitePathPrefixProvider graphitePathPrefixProvider;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;

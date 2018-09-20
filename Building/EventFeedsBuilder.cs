@@ -4,11 +4,12 @@ using System.Linq;
 
 using JetBrains.Annotations;
 
+using SkbKontur.Graphite.Client;
+
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
-using SKBKontur.Catalogue.Core.Graphite.Client.Relay;
-using SKBKontur.Catalogue.Core.Graphite.Client.Settings;
 using SKBKontur.Catalogue.Objects;
+using SKBKontur.Catalogue.ServiceLib.Graphite;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
@@ -16,7 +17,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
     public class EventFeedsBuilder<TOffset>
     {
         public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
-                                 ICatalogueGraphiteClient graphiteClient,
+                                 IGraphiteClient graphiteClient,
                                  IGraphitePathPrefixProvider graphitePathPrefixProvider,
                                  IPeriodicTaskRunner periodicTaskRunner,
                                  IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
@@ -85,7 +86,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 
         private string compositeFeedKey;
         private readonly Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder;
-        private readonly ICatalogueGraphiteClient graphiteClient;
+        private readonly IGraphiteClient graphiteClient;
         private readonly IGraphitePathPrefixProvider graphitePathPrefixProvider;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;

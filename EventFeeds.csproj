@@ -33,9 +33,6 @@
     <Reference Include="Elasticsearch.Net">
       <HintPath>..\..\Assemblies\ElasticSearch\Client\Elasticsearch.Net.dll</HintPath>
     </Reference>
-    <Reference Include="GroboContainer">
-      <HintPath>..\..\Assemblies\GroboContainer.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>

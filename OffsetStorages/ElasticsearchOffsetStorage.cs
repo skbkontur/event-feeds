@@ -4,14 +4,15 @@ using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions.Responses.Get;
+using SKBKontur.Catalogue.Objects.Json;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     public class ElasticsearchOffsetStorage<TOffset> : IOffsetStorage<TOffset>
     {
-        public ElasticsearchOffsetStorage([NotNull] IElasticsearchClient elasticsearchClient, [NotNull] string key, [NotNull] string indexName = "event-feed-offsets")
+        public ElasticsearchOffsetStorage([NotNull] IElasticLowLevelClient elasticClient, [NotNull] string key, [NotNull] string indexName = "event-feed-offsets")
         {
-            this.elasticsearchClient = elasticsearchClient;
+            this.elasticClient = elasticClient;
             this.indexName = indexName;
             this.key = key;
         }
@@ -24,15 +25,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         public void Write([CanBeNull] TOffset newOffset)
         {
-            elasticsearchClient.Index(indexName, elasticTypeName, key, new OffsetStorageElement {Offset = newOffset}).ProcessResponse();
+            var payload = new OffsetStorageElement {Offset = newOffset};
+            elasticClient.Index<StringResponse>(indexName, elasticTypeName, key, PostData.String(payload.ToJson())).EnsureSuccess();
         }
 
         [CanBeNull]
         public TOffset Read()
         {
-            var elasticsearchResponse = elasticsearchClient.Get<GetResponse<OffsetStorageElement>>(indexName, elasticTypeName, key).ProcessResponse().Response;
-            if (elasticsearchResponse?.Source != null && elasticsearchResponse.Found)
-                return elasticsearchResponse.Source.Offset;
+            var elasticResponse = elasticClient.Get<StringResponse>(indexName, elasticTypeName, key, allowNotFoundStatusCode).EnsureSuccess().Body?.FromJson<GetResponse<OffsetStorageElement>>();
+            if (elasticResponse?.Source != null && elasticResponse.Found)
+                return elasticResponse.Source.Offset;
             return GetDefaultOffset();
         }
 
@@ -43,9 +45,14 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         }
 
         private const string elasticTypeName = "MultiRazorEventFeedOffset";
-        private readonly IElasticsearchClient elasticsearchClient;
+        private readonly IElasticLowLevelClient elasticClient;
         private readonly string indexName;
         private readonly string key;
+
+        private readonly GetRequestParameters allowNotFoundStatusCode = new GetRequestParameters
+            {
+                RequestConfiguration = new RequestConfiguration {AllowedStatusCodes = new[] {404}}
+            };
 
         private class OffsetStorageElement
         {

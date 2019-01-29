@@ -18,7 +18,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         public string GetDescription()
         {
-            return string.Format("{0} and rollback if empty for {1}", innerStorage.GetDescription(), TimeSpan.FromTicks(rollbackTicks));
+            return $"{innerStorage.GetDescription()} and rollback if empty for {TimeSpan.FromTicks(rollbackTicks)}";
         }
 
         public long? Read()

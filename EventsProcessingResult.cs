@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Objects;
 
@@ -14,10 +14,10 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
             OffsetToCommit = offsetToCommit;
         }
 
-        public bool CommitOffset { get; private set; }
+        public bool CommitOffset { get; }
 
         [CanBeNull]
-        public TOffset OffsetToCommit { get; private set; }
+        public TOffset OffsetToCommit { get; }
 
         [NotNull]
         public TOffset GetOffsetToCommit()
@@ -29,7 +29,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
 
         public override string ToString()
         {
-            return string.Format("CommitOffset: {0}, OffsetToCommit: {1}", CommitOffset, OffsetToCommit);
+            return $"CommitOffset: {CommitOffset}, OffsetToCommit: {OffsetToCommit}";
         }
 
         [NotNull]

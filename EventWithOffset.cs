@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 using SKBKontur.Catalogue.Objects;
 
@@ -9,20 +9,20 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         public EventWithOffset([NotNull] TEvent @event, [NotNull] TOffset offset)
         {
             if (offset == null)
-                throw new InvalidProgramStateException(string.Format("Offset is null for event: {0}", @event));
+                throw new InvalidProgramStateException($"Offset is null for event: {@event}");
             Event = @event;
             Offset = offset;
         }
 
         [NotNull]
-        public TEvent Event { get; private set; }
+        public TEvent Event { get; }
 
         [NotNull]
-        public TOffset Offset { get; private set; }
+        public TOffset Offset { get; }
 
         public override string ToString()
         {
-            return string.Format("Event: {0}, Offset: {1}", Event, Offset);
+            return $"Event: {Event}, Offset: {Offset}";
         }
     }
 }

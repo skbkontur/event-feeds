@@ -22,7 +22,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
 
         public string GetDescription()
         {
-            return string.Format("EventLog based event source: BusinessObjectType: {0}, Type identifier: {1}", businessObjectType.Name, typeIdentifier);
+            return $"EventLog based event source: BusinessObjectType: {businessObjectType.Name}, Type identifier: {typeIdentifier}";
         }
 
         public EventsQueryResult<Event, long?> GetEvents(long? fromOffsetExclusive, long? toOffsetInclusive, int estimatedCount)

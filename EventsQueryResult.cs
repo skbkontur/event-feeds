@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using JetBrains.Annotations;
 
@@ -14,16 +14,16 @@ namespace SKBKontur.Catalogue.Core.EventFeeds
         }
 
         [NotNull]
-        public List<EventWithOffset<TEvent, TOffset>> Events { get; private set; }
+        public List<EventWithOffset<TEvent, TOffset>> Events { get; }
 
         [CanBeNull]
-        public TOffset LastOffset { get; private set; }
+        public TOffset LastOffset { get; }
 
-        public bool NoMoreEventsInSource { get; private set; }
+        public bool NoMoreEventsInSource { get; }
 
         public override string ToString()
         {
-            return string.Format("Events.Count: {0}, LastOffset: {1}, NoMoreEventsInSource: {2}", Events.Count, LastOffset, NoMoreEventsInSource);
+            return $"Events.Count: {Events.Count}, LastOffset: {LastOffset}, NoMoreEventsInSource: {NoMoreEventsInSource}";
         }
     }
 }

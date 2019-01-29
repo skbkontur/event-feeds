@@ -16,7 +16,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         public string GetDescription()
         {
-            return string.Format("{0} and set value to {1} if empty", innerStorage.GetDescription(), new DateTime(offsetTicks, DateTimeKind.Utc));
+            return $"{innerStorage.GetDescription()} and set value to {new DateTime(offsetTicks, DateTimeKind.Utc)} if empty";
         }
 
         public long? Read()

@@ -2,18 +2,19 @@
 
 using JetBrains.Annotations;
 
-using log4net;
-
 using SKBKontur.Catalogue.Objects;
+
+using Vostok.Logging.Abstractions;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     internal class RollbackOnEmptyOffsetStorage : IOffsetStorage<long?>
     {
-        public RollbackOnEmptyOffsetStorage([NotNull] IOffsetStorage<long?> innerStorage, long rollbackTicks)
+        public RollbackOnEmptyOffsetStorage([NotNull] IOffsetStorage<long?> innerStorage, long rollbackTicks, [NotNull] ILog logger)
         {
             this.innerStorage = innerStorage;
             this.rollbackTicks = rollbackTicks;
+            this.logger = logger.ForContext("DelayedEventFeed");
         }
 
         public string GetDescription()
@@ -27,7 +28,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             if (!result.HasValue || result <= 0)
             {
                 var rolledBackTime = Timestamp.Now.AddTicks(-rollbackTicks);
-                logger.InfoFormat("Rolled back offset to {0}", rolledBackTime);
+                logger.Info($"Rolled back offset to {rolledBackTime}");
                 Write(rolledBackTime.Ticks);
                 result = innerStorage.Read();
             }
@@ -41,6 +42,6 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 
         private readonly IOffsetStorage<long?> innerStorage;
         private readonly long rollbackTicks;
-        private static readonly ILog logger = LogManager.GetLogger(typeof(RollbackOnEmptyOffsetStorage));
+        private readonly ILog logger;
     }
 }

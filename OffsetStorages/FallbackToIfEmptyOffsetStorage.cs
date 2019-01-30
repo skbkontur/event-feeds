@@ -2,16 +2,17 @@
 
 using JetBrains.Annotations;
 
-using log4net;
+using Vostok.Logging.Abstractions;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
     internal class FallbackToIfEmptyOffsetStorage : IOffsetStorage<long?>
     {
-        public FallbackToIfEmptyOffsetStorage([NotNull] IOffsetStorage<long?> innerStorage, long offsetTicks)
+        public FallbackToIfEmptyOffsetStorage([NotNull] IOffsetStorage<long?> innerStorage, long offsetTicks, [NotNull] ILog logger)
         {
             this.innerStorage = innerStorage;
             this.offsetTicks = offsetTicks;
+            this.logger = logger.ForContext("DelayedEventFeed");
         }
 
         public string GetDescription()
@@ -25,7 +26,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
             if (!result.HasValue || result <= 0)
             {
                 var fallbackTime = new DateTime(offsetTicks, DateTimeKind.Utc);
-                logger.InfoFormat("Set offset to {0}", fallbackTime);
+                logger.Info($"Set offset to {fallbackTime}");
                 Write(offsetTicks);
                 result = innerStorage.Read();
             }
@@ -38,7 +39,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         }
 
         private readonly IOffsetStorage<long?> innerStorage;
-        private static readonly ILog logger = LogManager.GetLogger(typeof(RollbackOnEmptyOffsetStorage));
+        private readonly ILog logger;
         private readonly long offsetTicks;
     }
 }

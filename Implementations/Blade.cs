@@ -5,12 +5,11 @@ using System.Text;
 
 using JetBrains.Annotations;
 
-using log4net;
-
 using SKBKontur.Catalogue.Core.EventFeeds.Building;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.Objects.Comparing;
-using SKBKontur.Catalogue.ServiceLib.Logging;
+
+using Vostok.Logging.Abstractions;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
@@ -22,7 +21,8 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                      IEventSource<TEvent, TOffset> eventSource,
                      IOffsetStorage<TOffset> offsetStorage,
                      IOffsetInterpreter<TOffset> offsetInterpreter,
-                     IEventConsumer<TEvent, TOffset> eventConsumer)
+                     IEventConsumer<TEvent, TOffset> eventConsumer,
+                     ILog logger)
         {
             BladeId = bladeId;
             this.globalTimeProvider = globalTimeProvider;
@@ -30,8 +30,9 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             this.offsetStorage = offsetStorage;
             this.offsetInterpreter = offsetInterpreter;
             this.eventConsumer = eventConsumer;
+            this.logger = logger.ForContext("DelayedEventFeed");
             LogComponentsDescription();
-            offsetHolder = new OffsetHolder(offsetStorage, offsetInterpreter);
+            offsetHolder = new OffsetHolder(offsetStorage, offsetInterpreter, this.logger);
         }
 
         private void LogComponentsDescription()
@@ -124,7 +125,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
         }
 
         private bool feedIsRunning;
-        private readonly ILog logger = Log.For("DelayedEventFeed");
+        private readonly ILog logger;
         private readonly IGlobalTimeProvider globalTimeProvider;
         private readonly IEventSource<TEvent, TOffset> eventSource;
         private readonly IOffsetStorage<TOffset> offsetStorage;
@@ -134,10 +135,11 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         private class OffsetHolder
         {
-            public OffsetHolder(IOffsetStorage<TOffset> offsetStorage, IOffsetInterpreter<TOffset> offsetInterpreter)
+            public OffsetHolder(IOffsetStorage<TOffset> offsetStorage, IOffsetInterpreter<TOffset> offsetInterpreter, ILog logger)
             {
                 this.offsetStorage = offsetStorage;
                 this.offsetInterpreter = offsetInterpreter;
+                this.logger = logger;
             }
 
             public void Reset()
@@ -163,7 +165,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
                     localOffset = offsetInterpreter.Max(localOffset, newOffset);
                     localOffsetWasSet = true;
                     var offsetInStorage = offsetStorage.Read();
-                    Log.For("DelayedEventFeed").Info($"NewOffset: {FormatOffset(newOffset)}, LocalOffset: {FormatOffset(localOffset)}, OffsetInStorage: {FormatOffset(offsetInStorage)}");
+                    logger.Info($"NewOffset: {FormatOffset(newOffset)}, LocalOffset: {FormatOffset(localOffset)}, OffsetInStorage: {FormatOffset(offsetInStorage)}");
                     offsetStorage.Write(offsetInterpreter.Max(localOffset, offsetInStorage));
                 }
             }
@@ -178,6 +180,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
             private readonly object locker = new object();
             private readonly IOffsetStorage<TOffset> offsetStorage;
             private readonly IOffsetInterpreter<TOffset> offsetInterpreter;
+            private readonly ILog logger;
         }
     }
 }

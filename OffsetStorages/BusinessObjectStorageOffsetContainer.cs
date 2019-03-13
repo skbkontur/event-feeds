@@ -8,7 +8,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
     {
         public BusinessObjectStorageOffsetContainer(
             [NotNull] IBusinessObjectStorage<TBusinessObject> businessObjectStorage
-            )
+        )
         {
             this.businessObjectStorage = businessObjectStorage;
         }

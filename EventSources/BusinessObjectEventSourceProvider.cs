@@ -15,7 +15,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.EventSources
             [NotNull] ITypeIdentifierProvider typeIdentifierProvider,
             [NotNull] IUnorderedEventLogRepositoryFactory eventLogRepositoryFactory,
             [NotNull] IUnorderedArrayEventLogRepositoryFactory arrayEventLogRepositoryFactory
-            )
+        )
         {
             this.typeIdentifierProvider = typeIdentifierProvider;
             this.eventLogRepositoryFactory = eventLogRepositoryFactory;

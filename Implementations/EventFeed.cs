@@ -42,7 +42,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 
         private void ReportActualizationLagToGraphite()
         {
-            var offsetsToReport = blades.Select(x => (bladeKey: x.BladeId.BladeKey, currentGlobalOffsetTimestamp: x.GetCurrentGlobalOffsetTimestamp()))
+            var offsetsToReport = blades.Select(x => (bladeKey : x.BladeId.BladeKey, currentGlobalOffsetTimestamp : x.GetCurrentGlobalOffsetTimestamp()))
                                         .Where(t => t.currentGlobalOffsetTimestamp != null)
                                         .ToArray();
             var now = Timestamp.Now;

@@ -1,107 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BDBE2CC2-AD4A-4EB9-8865-4789E4D264BC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net472</TargetFramework>
     <RootNamespace>SKBKontur.Catalogue.Core.EventFeeds</RootNamespace>
     <AssemblyName>Catalogue.Core.EventFeeds</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
     <OutputPath>..\..\Assemblies\Temp\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\Assemblies\Temp\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <ProjectReference Include="..\CassandraStorageCore\CassandraStorageCore.csproj" />
+    <ProjectReference Include="..\ElasticsearchClientExtensions\ElasticsearchClientExtensions.csproj" />
+    <ProjectReference Include="..\ServiceLib\ServiceLib.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Building\BladeId.cs" />
-    <Compile Include="Building\EventFeedsBuilder.cs" />
-    <Compile Include="Building\IBladesBuilder.cs" />
-    <Compile Include="Building\BladesBuilder.cs" />
-    <Compile Include="EventSources\BusinessObjectEventSourceProvider.cs" />
-    <Compile Include="EventSources\UnorderedArrayEventSource.cs" />
-    <Compile Include="EventSources\UnorderedEventSource.cs" />
-    <Compile Include="EventSources\UnorderedEventLogRepositoryGenericExtensions.cs" />
-    <Compile Include="EventsProcessingResult.cs" />
-    <Compile Include="EventsQueryResult.cs" />
-    <Compile Include="EventWithOffset.cs" />
-    <Compile Include="Implementations\IBlade.cs" />
-    <Compile Include="Implementations\EventFeedsRunner.cs" />
-    <Compile Include="IEventFeedsRunner.cs" />
-    <Compile Include="IEventConsumer.cs" />
-    <Compile Include="IEventSource.cs" />
-    <Compile Include="IGlobalTimeProvider.cs" />
-    <Compile Include="Implementations\EventFeed.cs" />
-    <Compile Include="Implementations\DefaultGlobalTimeProvider.cs" />
-    <Compile Include="Implementations\StandardTicksOffsetInterpreter.cs" />
-    <Compile Include="IOffsetInterpreter.cs" />
-    <Compile Include="Implementations\Blade.cs" />
-    <Compile Include="IOffsetStorage.cs" />
-    <Compile Include="EventFeedFactory.cs" />
-    <Compile Include="OffsetStorages\BusinessObjectOffsetStorageProvider.cs" />
-    <Compile Include="OffsetStorages\BusinessObjectStorageOffsetContainer.cs" />
-    <Compile Include="OffsetStorages\ElasticsearchOffsetStorage.cs" />
-    <Compile Include="OffsetStorages\FallbackToIfEmptyOffsetStorage.cs" />
-    <Compile Include="OffsetStorages\IEventFeedOffsetContainer.cs" />
-    <Compile Include="OffsetStorages\InMemoryOffsetStorage.cs" />
-    <Compile Include="OffsetStorages\OffsetStorageExtensions.cs" />
-    <Compile Include="OffsetStorages\RollbackOnEmptyOffsetStorage.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="OffsetStorages\InMemoryOffsetStorageProvider.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CassandraStorageCore\CassandraStorageCore.csproj">
-      <Project>{3e5b30ef-0a43-459d-8c09-0bbb1ce62a63}</Project>
-      <Name>CassandraStorageCore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CommonBusinessObjects\CommonBusinessObjects.csproj">
-      <Project>{3a5bb480-8709-4130-ae27-bf31750123f8}</Project>
-      <Name>CommonBusinessObjects</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Commons\Commons.csproj">
-      <Project>{95b2ccb1-0c83-4a9b-a33f-ea8b13fd099b}</Project>
-      <Name>Commons</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ElasticsearchClientExtensions\ElasticsearchClientExtensions.csproj">
-      <Project>{988abfe1-2caf-4493-9d61-3d0e8760d0c2}</Project>
-      <Name>ElasticsearchClientExtensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ServiceLib\ServiceLib.csproj">
-      <Project>{2f8f38dc-3cda-48bb-9798-7b6f75b02bc8}</Project>
-      <Name>ServiceLib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations">
-      <Version>2019.1.1</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

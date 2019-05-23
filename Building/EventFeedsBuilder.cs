@@ -4,12 +4,12 @@ using System.Linq;
 
 using JetBrains.Annotations;
 
-using SkbKontur.Graphite.Client;
-
 using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
+
+using SkbKontur.Graphite.Client;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {

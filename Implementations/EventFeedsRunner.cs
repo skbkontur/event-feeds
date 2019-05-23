@@ -4,10 +4,10 @@ using System.Linq;
 
 using JetBrains.Annotations;
 
-using SkbKontur.Graphite.Client;
-
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
+
+using SkbKontur.Graphite.Client;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {

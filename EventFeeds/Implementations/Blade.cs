@@ -6,7 +6,6 @@ using System.Text;
 using JetBrains.Annotations;
 
 using SkbKontur.Cassandra.TimeBasedUuid;
-using SkbKontur.EventFeeds.Building;
 
 using Vostok.Logging.Abstractions;
 

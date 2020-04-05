@@ -2,7 +2,7 @@ using System;
 
 using JetBrains.Annotations;
 
-namespace SkbKontur.EventFeeds.Building
+namespace SkbKontur.EventFeeds
 {
     [PublicAPI]
     public class BladeId

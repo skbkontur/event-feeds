@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 using SkbKontur.EventFeeds.Implementations;
 
-namespace SkbKontur.EventFeeds.Building
+namespace SkbKontur.EventFeeds
 {
     [PublicAPI]
     [SuppressMessage("ReSharper", "ParameterHidesMember")]

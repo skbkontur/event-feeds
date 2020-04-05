@@ -3,7 +3,6 @@ using System;
 using JetBrains.Annotations;
 
 using SkbKontur.Cassandra.TimeBasedUuid;
-using SkbKontur.EventFeeds.Building;
 
 namespace SkbKontur.EventFeeds
 {

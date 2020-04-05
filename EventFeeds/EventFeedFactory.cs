@@ -1,7 +1,5 @@
 using JetBrains.Annotations;
 
-using SkbKontur.EventFeeds.Building;
-
 namespace SkbKontur.EventFeeds
 {
     [PublicAPI]

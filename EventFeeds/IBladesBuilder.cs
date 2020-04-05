@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 using SkbKontur.EventFeeds.Implementations;
 
-namespace SkbKontur.EventFeeds.Building
+namespace SkbKontur.EventFeeds
 {
     [PublicAPI]
     public interface IBladesBuilder<TOffset>

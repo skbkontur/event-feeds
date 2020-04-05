@@ -7,7 +7,7 @@ using SkbKontur.EventFeeds.Implementations;
 
 using Vostok.Logging.Abstractions;
 
-namespace SkbKontur.EventFeeds.Building
+namespace SkbKontur.EventFeeds
 {
     [PublicAPI]
     public static class BladesBuilder

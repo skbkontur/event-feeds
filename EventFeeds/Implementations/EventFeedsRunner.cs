@@ -5,7 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 using SkbKontur.Cassandra.TimeBasedUuid;
-using SkbKontur.Graphite.Client;
+using SkbKontur.EventFeeds.Building;
 
 namespace SkbKontur.EventFeeds.Implementations
 {
@@ -14,15 +14,14 @@ namespace SkbKontur.EventFeeds.Implementations
         public EventFeedsRunner([CanBeNull] string compositeFeedKey,
                                 TimeSpan delayBetweenIterations,
                                 [NotNull, ItemNotNull] IBlade[] blades,
-                                IGraphiteClient graphiteClient,
                                 IPeriodicJobRunner periodicJobRunner)
         {
-            this.graphiteClient = graphiteClient;
+            this.blades = blades;
             this.periodicJobRunner = periodicJobRunner;
-            RunFeeds(compositeFeedKey, delayBetweenIterations, blades);
+            RunFeeds(compositeFeedKey, delayBetweenIterations);
         }
 
-        private void RunFeeds([CanBeNull] string compositeFeedKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades)
+        private void RunFeeds([CanBeNull] string compositeFeedKey, TimeSpan delayBetweenIterations)
         {
             if (!blades.Any())
                 throw new InvalidOperationException("No feeds to run");
@@ -31,14 +30,14 @@ namespace SkbKontur.EventFeeds.Implementations
             {
                 foreach (var blade in blades)
                 {
-                    var eventFeed = new EventFeed(blade, graphiteClient, periodicJobRunner);
+                    var eventFeed = new EventFeed(blade);
                     RunFeed(eventFeed, delayBetweenIterations);
                     runningFeeds.Add(eventFeed);
                 }
             }
             else
             {
-                var eventFeed = new EventFeed(compositeFeedKey, blades, graphiteClient, periodicJobRunner);
+                var eventFeed = new EventFeed(compositeFeedKey, blades);
                 RunFeed(eventFeed, delayBetweenIterations);
                 runningFeeds.Add(eventFeed);
             }
@@ -73,6 +72,11 @@ namespace SkbKontur.EventFeeds.Implementations
             }
         }
 
+        public ( /*[NotNull]*/ BladeId BladeId, /*[CanBeNull]*/ Timestamp CurrentGlobalOffsetTimestamp)[] GetCurrentGlobalOffsetTimestamps()
+        {
+            return blades.Select(x => (x.BladeId, CurrentGlobalOffsetTimestamp : x.GetCurrentGlobalOffsetTimestamp())).ToArray();
+        }
+
         public void ResetLocalState()
         {
             foreach (var eventFeed in runningFeeds)
@@ -102,7 +106,7 @@ namespace SkbKontur.EventFeeds.Implementations
             return $"{eventFeed.FeedKey}-PeriodicJob";
         }
 
-        private readonly IGraphiteClient graphiteClient;
+        private readonly IBlade[] blades;
         private readonly IPeriodicJobRunner periodicJobRunner;
         private readonly List<EventFeed> runningFeeds = new List<EventFeed>();
     }

@@ -7,12 +7,6 @@ namespace SkbKontur.EventFeeds
     [PublicAPI]
     public interface IPeriodicJobRunner
     {
-        void RunPeriodicJob([NotNull] string jobName,
-                            TimeSpan delayBetweenIterations,
-                            [NotNull] Action jobAction);
-
-        void StopPeriodicJob([NotNull] string jobName);
-
         void RunPeriodicJobWithLeaderElection([NotNull] string jobName,
                                               TimeSpan delayBetweenIterations,
                                               [NotNull] Action jobAction,

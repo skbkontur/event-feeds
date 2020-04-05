@@ -6,7 +6,6 @@ using System.Linq;
 using JetBrains.Annotations;
 
 using SkbKontur.EventFeeds.Implementations;
-using SkbKontur.Graphite.Client;
 
 namespace SkbKontur.EventFeeds.Building
 {
@@ -14,10 +13,9 @@ namespace SkbKontur.EventFeeds.Building
     [SuppressMessage("ReSharper", "ParameterHidesMember")]
     public class EventFeedsBuilder<TOffset>
     {
-        public EventFeedsBuilder(IGlobalTimeProvider globalTimeProvider, IGraphiteClient graphiteClient, IPeriodicJobRunner periodicJobRunner)
+        public EventFeedsBuilder(IGlobalTimeProvider globalTimeProvider, IPeriodicJobRunner periodicJobRunner)
         {
             this.globalTimeProvider = globalTimeProvider;
-            this.graphiteClient = graphiteClient;
             this.periodicJobRunner = periodicJobRunner;
             bladesBuilders = new List<IBladesBuilder<TOffset>>();
         }
@@ -55,7 +53,7 @@ namespace SkbKontur.EventFeeds.Building
         {
             var theOffsetInterpreter = GetOffsetInterpreter();
             var blades = bladesBuilders.SelectMany(x => x.CreateBlades(globalTimeProvider, theOffsetInterpreter, offsetStorageFactory)).ToArray();
-            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, graphiteClient, periodicJobRunner);
+            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, periodicJobRunner);
         }
 
         [NotNull]
@@ -72,7 +70,6 @@ namespace SkbKontur.EventFeeds.Building
 
         private string compositeFeedKey;
         private readonly IGlobalTimeProvider globalTimeProvider;
-        private readonly IGraphiteClient graphiteClient;
         private readonly IPeriodicJobRunner periodicJobRunner;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;
         private IOffsetInterpreter<TOffset> offsetInterpreter;

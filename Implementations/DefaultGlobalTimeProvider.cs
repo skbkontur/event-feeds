@@ -1,23 +1,23 @@
 ﻿using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
-using SKBKontur.Catalogue.Objects;
+using SkbKontur.Cassandra.GlobalTimestamp;
+using SkbKontur.Cassandra.TimeBasedUuid;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {
     public class DefaultGlobalTimeProvider : IGlobalTimeProvider
     {
-        public DefaultGlobalTimeProvider(IGlobalTicksHolder globalTicksHolder)
+        public DefaultGlobalTimeProvider(IGlobalTime globalTime)
         {
-            this.globalTicksHolder = globalTicksHolder;
+            this.globalTime = globalTime;
         }
 
         [NotNull]
         public Timestamp GetNowTimestamp()
         {
-            return new Timestamp(globalTicksHolder.GetNowTicks());
+            return globalTime.UpdateNowTimestamp();
         }
 
-        private readonly IGlobalTicksHolder globalTicksHolder;
+        private readonly IGlobalTime globalTime;
     }
 }

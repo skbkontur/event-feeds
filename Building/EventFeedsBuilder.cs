@@ -4,7 +4,8 @@ using System.Linq;
 
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.CassandraStorageCore.GlobalTicks;
+using SkbKontur.Cassandra.GlobalTimestamp;
+
 using SKBKontur.Catalogue.Core.EventFeeds.Implementations;
 using SKBKontur.Catalogue.Objects;
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
@@ -15,12 +16,12 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
 {
     public class EventFeedsBuilder<TOffset>
     {
-        public EventFeedsBuilder(Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder,
+        public EventFeedsBuilder(IGlobalTime defaultGlobalTime,
                                  IGraphiteClient graphiteClient,
                                  IPeriodicTaskRunner periodicTaskRunner,
                                  IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection)
         {
-            this.defaultGlobalTicksHolder = defaultGlobalTicksHolder;
+            this.defaultGlobalTime = defaultGlobalTime;
             this.graphiteClient = graphiteClient;
             this.periodicTaskRunner = periodicTaskRunner;
             this.periodicJobRunnerWithLeaderElection = periodicJobRunnerWithLeaderElection;
@@ -66,7 +67,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations)
         {
             var theOffsetInterpreter = GetOffsetInterpreter();
-            var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTicksHolder.Value);
+            var theGlobalTimeProvider = globalTimeProvider ?? new DefaultGlobalTimeProvider(defaultGlobalTime);
             var blades = bladesBuilders.SelectMany(x => x.CreateBlades(theGlobalTimeProvider, theOffsetInterpreter, offsetStorageFactory)).ToArray();
             return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, graphiteClient, periodicTaskRunner, periodicJobRunnerWithLeaderElection);
         }
@@ -82,7 +83,7 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.Building
         }
 
         private string compositeFeedKey;
-        private readonly Lazy<IGlobalTicksHolder> defaultGlobalTicksHolder;
+        private readonly IGlobalTime defaultGlobalTime;
         private readonly IGraphiteClient graphiteClient;
         private readonly IPeriodicTaskRunner periodicTaskRunner;
         private readonly IPeriodicJobRunnerWithLeaderElection periodicJobRunnerWithLeaderElection;

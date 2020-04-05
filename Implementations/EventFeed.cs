@@ -5,7 +5,8 @@ using JetBrains.Annotations;
 
 using MoreLinq;
 
-using SKBKontur.Catalogue.Objects;
+using SkbKontur.Cassandra.TimeBasedUuid;
+
 using SKBKontur.Catalogue.ServiceLib.Scheduling;
 
 using SkbKontur.Graphite.Client;

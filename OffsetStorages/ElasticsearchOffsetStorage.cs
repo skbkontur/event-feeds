@@ -2,9 +2,10 @@
 
 using JetBrains.Annotations;
 
+using Newtonsoft.Json;
+
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions;
 using SKBKontur.Catalogue.Core.ElasticsearchClientExtensions.Responses.Get;
-using SKBKontur.Catalogue.Objects.Json;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
 {
@@ -26,22 +27,28 @@ namespace SKBKontur.Catalogue.Core.EventFeeds.OffsetStorages
         public void Write([CanBeNull] TOffset newOffset)
         {
             var payload = new OffsetStorageElement {Offset = newOffset};
-            elasticClient.Index<StringResponse>(indexName, elasticTypeName, key, PostData.String(payload.ToJson())).EnsureSuccess();
+            var postData = PostData.String(JsonConvert.SerializeObject(payload));
+            elasticClient.Index<StringResponse>(indexName, elasticTypeName, key, postData).EnsureSuccess();
         }
 
         [CanBeNull]
         public TOffset Read()
         {
-            var elasticResponse = elasticClient.Get<StringResponse>(indexName, elasticTypeName, key, allowNotFoundStatusCode).EnsureSuccess().Body?.FromJson<GetResponse<OffsetStorageElement>>();
-            if (elasticResponse?.Source != null && elasticResponse.Found)
-                return elasticResponse.Source.Offset;
-            return GetDefaultOffset();
+            var stringResponse = elasticClient.Get<StringResponse>(indexName, elasticTypeName, key, allowNotFoundStatusCode).EnsureSuccess();
+            if (string.IsNullOrEmpty(stringResponse.Body))
+                return GetDefaultOffset();
+
+            var elasticResponse = JsonConvert.DeserializeObject<GetResponse<OffsetStorageElement>>(stringResponse.Body);
+            if (elasticResponse?.Source == null || !elasticResponse.Found)
+                return GetDefaultOffset();
+
+            return elasticResponse.Source.Offset;
         }
 
         [CanBeNull]
         protected virtual TOffset GetDefaultOffset()
         {
-            return default(TOffset);
+            return default;
         }
 
         private const string elasticTypeName = "MultiRazorEventFeedOffset";

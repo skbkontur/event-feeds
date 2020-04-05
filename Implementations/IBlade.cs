@@ -2,8 +2,9 @@
 
 using JetBrains.Annotations;
 
+using SkbKontur.Cassandra.TimeBasedUuid;
+
 using SKBKontur.Catalogue.Core.EventFeeds.Building;
-using SKBKontur.Catalogue.Objects;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds.Implementations
 {

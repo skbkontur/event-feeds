@@ -2,7 +2,7 @@
 
 using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Objects;
+using SkbKontur.Cassandra.TimeBasedUuid;
 
 using Vostok.Logging.Abstractions;
 

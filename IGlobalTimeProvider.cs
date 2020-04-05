@@ -1,6 +1,6 @@
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
-using SKBKontur.Catalogue.Objects;
+using SkbKontur.Cassandra.TimeBasedUuid;
 
 namespace SKBKontur.Catalogue.Core.EventFeeds
 {

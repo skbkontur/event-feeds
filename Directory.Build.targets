@@ -9,7 +9,6 @@
 
   <Target Name="SetNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
-      <PackageId>$(AssemblyName)</PackageId>
       <Authors>Evgeny Tikhonov, Ivan Burmistrov, Andrew Kostousov</Authors>
       <PackageDescription>General-purpose .NET library for reading and processing event timelines using several "blades"</PackageDescription>
       <RepositoryType>git</RepositoryType>

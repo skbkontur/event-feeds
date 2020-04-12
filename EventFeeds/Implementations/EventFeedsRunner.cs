@@ -10,33 +10,33 @@ namespace SkbKontur.EventFeeds.Implementations
 {
     public class EventFeedsRunner : IEventFeedsRunner
     {
-        public EventFeedsRunner([CanBeNull] string compositeFeedKey,
+        public EventFeedsRunner([CanBeNull] string singleLeaderElectionKey,
                                 TimeSpan delayBetweenIterations,
                                 [NotNull, ItemNotNull] IBlade[] blades,
                                 IPeriodicJobRunner periodicJobRunner)
         {
             this.blades = blades;
             this.periodicJobRunner = periodicJobRunner;
-            RunFeeds(compositeFeedKey, delayBetweenIterations);
+            RunFeeds(singleLeaderElectionKey, delayBetweenIterations);
         }
 
-        private void RunFeeds([CanBeNull] string compositeFeedKey, TimeSpan delayBetweenIterations)
+        private void RunFeeds([CanBeNull] string singleLeaderElectionKey, TimeSpan delayBetweenIterations)
         {
             if (!blades.Any())
                 throw new InvalidOperationException("No feeds to run");
 
-            if (string.IsNullOrEmpty(compositeFeedKey))
+            if (string.IsNullOrEmpty(singleLeaderElectionKey))
             {
                 foreach (var blade in blades)
                 {
-                    var eventFeed = new EventFeed(blade);
+                    var eventFeed = new EventFeed(feedKey : blade.BladeId.BladeKey, new[] {blade});
                     RunFeed(eventFeed, delayBetweenIterations);
                     runningFeeds.Add(eventFeed);
                 }
             }
             else
             {
-                var eventFeed = new EventFeed(compositeFeedKey, blades);
+                var eventFeed = new EventFeed(feedKey : singleLeaderElectionKey, blades);
                 RunFeed(eventFeed, delayBetweenIterations);
                 runningFeeds.Add(eventFeed);
             }

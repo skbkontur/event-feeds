@@ -9,11 +9,6 @@ namespace SkbKontur.EventFeeds.Implementations
 {
     public class EventFeed
     {
-        public EventFeed([NotNull] IBlade blade)
-            : this(blade.BladeId.BladeKey, new[] {blade})
-        {
-        }
-
         public EventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades)
         {
             FeedKey = feedKey;

@@ -42,9 +42,12 @@ namespace SkbKontur.EventFeeds
         }
 
         [NotNull]
-        public EventFeedsBuilder<TOffset> WithSingleLeaderElectionKey([NotNull] string compositeFeedKey)
+        public EventFeedsBuilder<TOffset> WithSingleLeaderElectionKey([NotNull] string singleLeaderElectionKey)
         {
-            this.compositeFeedKey = compositeFeedKey;
+            if (string.IsNullOrEmpty(singleLeaderElectionKey))
+                throw new InvalidOperationException("singleLeaderElectionKey is not set");
+
+            this.singleLeaderElectionKey = singleLeaderElectionKey;
             return this;
         }
 
@@ -53,7 +56,7 @@ namespace SkbKontur.EventFeeds
         {
             var theOffsetInterpreter = GetOffsetInterpreter();
             var blades = bladesBuilders.SelectMany(x => x.CreateBlades(globalTimeProvider, theOffsetInterpreter, offsetStorageFactory)).ToArray();
-            return new EventFeedsRunner(compositeFeedKey, delayBetweenIterations, blades, periodicJobRunner);
+            return new EventFeedsRunner(singleLeaderElectionKey, delayBetweenIterations, blades, periodicJobRunner);
         }
 
         [NotNull]
@@ -68,7 +71,7 @@ namespace SkbKontur.EventFeeds
             throw new InvalidOperationException($"OffsetInterpreter has not set and for type {typeof(TOffset).FullName} there is no default interpreter");
         }
 
-        private string compositeFeedKey;
+        private string singleLeaderElectionKey;
         private readonly IGlobalTimeProvider globalTimeProvider;
         private readonly IPeriodicJobRunner periodicJobRunner;
         private Func<BladeId, IOffsetStorage<TOffset>> offsetStorageFactory;

@@ -14,7 +14,7 @@
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://github.com/skbkontur/event-feeds</RepositoryUrl>
       <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-      <PackageReleaseNotes>$(RepositoryUrl)/releases/tag/v$(MajorMinorVersion)-release</PackageReleaseNotes>
+      <PackageReleaseNotes>$(RepositoryUrl)/releases</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
 

@@ -66,7 +66,7 @@ namespace SkbKontur.EventFeeds
                 return offsetInterpreter;
 
             if (typeof(TOffset) == typeof(long?))
-                return (IOffsetInterpreter<TOffset>)StandardTicksOffsetInterpreter.Instance;
+                return (IOffsetInterpreter<TOffset>)DefaultTicksOffsetInterpreter.Instance;
 
             throw new InvalidOperationException($"OffsetInterpreter has not set and for type {typeof(TOffset).FullName} there is no default interpreter");
         }

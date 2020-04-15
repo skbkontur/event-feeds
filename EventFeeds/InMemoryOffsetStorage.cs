@@ -1,7 +1,8 @@
 using JetBrains.Annotations;
 
-namespace SkbKontur.EventFeeds.Implementations
+namespace SkbKontur.EventFeeds
 {
+    [PublicAPI]
     public class InMemoryOffsetStorage<TOffset> : IOffsetStorage<TOffset>
     {
         public InMemoryOffsetStorage()

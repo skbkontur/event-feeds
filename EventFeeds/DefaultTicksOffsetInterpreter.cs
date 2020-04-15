@@ -2,11 +2,12 @@ using JetBrains.Annotations;
 
 using SkbKontur.Cassandra.TimeBasedUuid;
 
-namespace SkbKontur.EventFeeds.Implementations
+namespace SkbKontur.EventFeeds
 {
-    public class StandardTicksOffsetInterpreter : IOffsetInterpreter<long?>
+    [PublicAPI]
+    public class DefaultTicksOffsetInterpreter : IOffsetInterpreter<long?>
     {
-        private StandardTicksOffsetInterpreter()
+        private DefaultTicksOffsetInterpreter()
         {
         }
 
@@ -45,6 +46,6 @@ namespace SkbKontur.EventFeeds.Implementations
             return x.Value.CompareTo(y.Value);
         }
 
-        public static readonly StandardTicksOffsetInterpreter Instance = new StandardTicksOffsetInterpreter();
+        public static readonly DefaultTicksOffsetInterpreter Instance = new DefaultTicksOffsetInterpreter();
     }
 }

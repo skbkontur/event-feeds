@@ -7,7 +7,7 @@ using SkbKontur.Cassandra.TimeBasedUuid;
 
 namespace SkbKontur.EventFeeds.Implementations
 {
-    public class EventFeed
+    public class EventFeed : IRunningEventFeed
     {
         public EventFeed([NotNull] string feedKey, [NotNull, ItemNotNull] IBlade[] blades)
         {
@@ -51,6 +51,11 @@ namespace SkbKontur.EventFeeds.Implementations
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)
         {
             return blades.All(blade => blade.AreEventsProcessedAt(timestamp));
+        }
+
+        public ( /*[NotNull]*/ BladeId BladeId, /*[CanBeNull]*/ Timestamp CurrentGlobalOffsetTimestamp)[] GetCurrentGlobalOffsetTimestamps()
+        {
+            return blades.Select(x => (x.BladeId, CurrentGlobalOffsetTimestamp : x.GetCurrentGlobalOffsetTimestamp())).ToArray();
         }
 
         private readonly IBlade[] blades;

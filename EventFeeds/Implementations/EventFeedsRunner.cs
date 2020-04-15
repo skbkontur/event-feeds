@@ -15,12 +15,11 @@ namespace SkbKontur.EventFeeds.Implementations
                                 [NotNull, ItemNotNull] IBlade[] blades,
                                 IPeriodicJobRunner periodicJobRunner)
         {
-            this.blades = blades;
             this.periodicJobRunner = periodicJobRunner;
-            RunFeeds(singleLeaderElectionKey, delayBetweenIterations);
+            RunFeeds(singleLeaderElectionKey, delayBetweenIterations, blades);
         }
 
-        private void RunFeeds([CanBeNull] string singleLeaderElectionKey, TimeSpan delayBetweenIterations)
+        private void RunFeeds([CanBeNull] string singleLeaderElectionKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades)
         {
             if (!blades.Any())
                 throw new InvalidOperationException("No feeds to run");
@@ -47,8 +46,16 @@ namespace SkbKontur.EventFeeds.Implementations
             periodicJobRunner.RunPeriodicJobWithLeaderElection(FormatFeedJobName(eventFeed),
                                                                delayBetweenIterations,
                                                                jobAction : () => ExecuteFeeding(eventFeed),
-                                                               onTakeTheLead : eventFeed.Initialize,
-                                                               onLoseTheLead : eventFeed.Shutdown);
+                                                               onTakeTheLead : () =>
+                                                                   {
+                                                                       eventFeed.Initialize();
+                                                                       return eventFeed;
+                                                                   },
+                                                               onLoseTheLead : () =>
+                                                                   {
+                                                                       eventFeed.Shutdown();
+                                                                       return eventFeed;
+                                                                   });
         }
 
         private static void ExecuteFeeding([NotNull] EventFeed eventFeed)
@@ -69,11 +76,6 @@ namespace SkbKontur.EventFeeds.Implementations
                 eventFeed.Shutdown();
                 throw;
             }
-        }
-
-        public ( /*[NotNull]*/ BladeId BladeId, /*[CanBeNull]*/ Timestamp CurrentGlobalOffsetTimestamp)[] GetCurrentGlobalOffsetTimestamps()
-        {
-            return blades.Select(x => (x.BladeId, CurrentGlobalOffsetTimestamp : x.GetCurrentGlobalOffsetTimestamp())).ToArray();
         }
 
         public void ResetLocalState()
@@ -105,7 +107,6 @@ namespace SkbKontur.EventFeeds.Implementations
             return $"{eventFeed.FeedKey}-PeriodicJob";
         }
 
-        private readonly IBlade[] blades;
         private readonly IPeriodicJobRunner periodicJobRunner;
         private readonly List<EventFeed> runningFeeds = new List<EventFeed>();
     }

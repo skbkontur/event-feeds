@@ -68,7 +68,8 @@ namespace SkbKontur.EventFeeds.Implementations
         [CanBeNull]
         public Timestamp GetCurrentGlobalOffsetTimestamp()
         {
-            return offsetInterpreter.GetTimestampFromOffset(offsetStorage.Read());
+            var offsetInStorage = offsetStorage.Read();
+            return offsetInterpreter.GetTimestampFromOffset(offsetInStorage);
         }
 
         public bool AreEventsProcessedAt([NotNull] Timestamp timestamp)

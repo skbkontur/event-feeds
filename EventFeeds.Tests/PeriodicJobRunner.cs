@@ -9,7 +9,11 @@ namespace EventFeeds.Tests
 {
     public class PeriodicJobRunner : IPeriodicJobRunner, IDisposable
     {
-        public void RunPeriodicJobWithLeaderElection(string jobName, TimeSpan delayBetweenIterations, Action jobAction, Action onTakeTheLead, Action onLoseTheLead)
+        public void RunPeriodicJobWithLeaderElection(string jobName,
+                                                     TimeSpan delayBetweenIterations,
+                                                     Action jobAction,
+                                                     Func<IRunningEventFeed> onTakeTheLead,
+                                                     Func<IRunningEventFeed> onLoseTheLead)
         {
             lock (this)
             {
@@ -17,7 +21,12 @@ namespace EventFeeds.Tests
                     throw new ObjectDisposedException("PeriodicJobRunnerWithLeaderElection is already disposed");
                 if (runningJobs.ContainsKey(jobName))
                     throw new InvalidOperationException($"Job is already running: {jobName}");
-                var runningJob = new PeriodicJob(jobName, delayBetweenIterations, jobAction, onTakeTheLead, onLoseTheLead, new SilentLog());
+                var runningJob = new PeriodicJob(jobName,
+                                                 delayBetweenIterations,
+                                                 jobAction,
+                                                 onTakeTheLead : () => onTakeTheLead(),
+                                                 onLoseTheLead : () => onLoseTheLead(),
+                                                 new SilentLog());
                 runningJobs.Add(jobName, runningJob);
             }
         }

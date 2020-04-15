@@ -10,8 +10,8 @@ namespace SkbKontur.EventFeeds
         void RunPeriodicJobWithLeaderElection([NotNull] string jobName,
                                               TimeSpan delayBetweenIterations,
                                               [NotNull] Action jobAction,
-                                              [CanBeNull] Action onTakeTheLead,
-                                              [CanBeNull] Action onLoseTheLead);
+                                              [NotNull] Func<IRunningEventFeed> onTakeTheLead,
+                                              [NotNull] Func<IRunningEventFeed> onLoseTheLead);
 
         void StopPeriodicJobWithLeaderElection([NotNull] string jobName);
     }

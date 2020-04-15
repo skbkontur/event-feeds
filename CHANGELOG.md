@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.9 - 2020.04.16
+- Allow clients to implement event feed lag metrics reporting in such a way 
+  that only the leader thread which runs given feed will send metrics to e.g. Graphite.
+
 ## v1.0.5 - 2020.04.12
 - Extract this package from [internal git repository](https://git.skbkontur.ru/edi/edi/tree/c600d6072e243a4302a73bacc5629f560fd25779/Core/EventFeeds).
 - Target .NET Standard 2.0.

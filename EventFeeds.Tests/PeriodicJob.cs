@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading;
 
@@ -8,7 +8,12 @@ namespace EventFeeds.Tests
 {
     public class PeriodicJob
     {
-        public PeriodicJob(string jobName, TimeSpan delayBetweenIterations, Action jobAction, Action onTakeTheLead, Action onLoseTheLead, ILog logger)
+        public PeriodicJob(string jobName,
+                           TimeSpan delayBetweenIterations,
+                           Action<CancellationToken> jobAction,
+                           Action onTakeTheLead,
+                           Action onLoseTheLead,
+                           ILog logger)
         {
             this.jobName = jobName;
             this.delayBetweenIterations = delayBetweenIterations;
@@ -64,13 +69,13 @@ namespace EventFeeds.Tests
             do
             {
                 iterationStopwatch = Stopwatch.StartNew();
-                jobAction();
+                jobAction(CancellationToken.None);
             } while (!stopSignal.Wait(TimeSpanExtensions.Max(TimeSpan.Zero, delayBetweenIterations - iterationStopwatch.Elapsed)));
         }
 
         private readonly string jobName;
         private readonly TimeSpan delayBetweenIterations;
-        private readonly Action jobAction;
+        private readonly Action<CancellationToken> jobAction;
         private readonly Action onTakeTheLead;
         private readonly Action onLoseTheLead;
         private readonly ILog logger;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 using SkbKontur.EventFeeds;
 
@@ -11,7 +12,7 @@ namespace EventFeeds.Tests
     {
         public void RunPeriodicJobWithLeaderElection(string jobName,
                                                      TimeSpan delayBetweenIterations,
-                                                     Action jobAction,
+                                                     Action<CancellationToken> jobAction,
                                                      Func<IRunningEventFeed> onTakeTheLead,
                                                      Func<IRunningEventFeed> onLoseTheLead)
         {

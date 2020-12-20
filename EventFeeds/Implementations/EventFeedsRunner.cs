@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -45,7 +46,7 @@ namespace SkbKontur.EventFeeds.Implementations
         {
             periodicJobRunner.RunPeriodicJobWithLeaderElection(FormatFeedJobName(eventFeed),
                                                                delayBetweenIterations,
-                                                               jobAction : () => ExecuteFeeding(eventFeed),
+                                                               jobAction : leaderLockExpirationToken => ExecuteFeeding(eventFeed, leaderLockExpirationToken),
                                                                onTakeTheLead : () =>
                                                                    {
                                                                        eventFeed.Initialize();
@@ -58,10 +59,10 @@ namespace SkbKontur.EventFeeds.Implementations
                                                                    });
         }
 
-        private static void ExecuteFeeding([NotNull] EventFeed eventFeed)
+        private static void ExecuteFeeding([NotNull] EventFeed eventFeed, CancellationToken leaderLockExpirationToken)
         {
             lock (eventFeed)
-                eventFeed.ExecuteFeeding();
+                eventFeed.ExecuteFeeding(leaderLockExpirationToken);
         }
 
         private static void ExecuteForcedFeeding([NotNull] EventFeed eventFeed, TimeSpan delayUpperBound)

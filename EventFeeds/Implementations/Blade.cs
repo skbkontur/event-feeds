@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -78,19 +79,19 @@ namespace SkbKontur.EventFeeds.Implementations
             return offsetInterpreter.GetTimestampFromOffset(localOffset) >= timestamp;
         }
 
-        public void ExecuteFeeding()
+        public void ExecuteFeeding(CancellationToken leaderLockExpirationToken)
         {
-            DoExecuteFeeding(useDelay : true);
+            DoExecuteFeeding(useDelay : true, leaderLockExpirationToken);
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             if (delayUpperBound < BladeId.Delay)
                 return;
-            DoExecuteFeeding(useDelay : false);
+            DoExecuteFeeding(useDelay : false, leaderLockExpirationToken : CancellationToken.None);
         }
 
-        private void DoExecuteFeeding(bool useDelay)
+        private void DoExecuteFeeding(bool useDelay, CancellationToken leaderLockExpirationToken)
         {
             if (!feedIsRunning)
                 throw new InvalidOperationException($"Blade with id '{BladeId}' is not running");
@@ -108,6 +109,7 @@ namespace SkbKontur.EventFeeds.Implementations
             EventsQueryResult<TEvent, TOffset> eventsQueryResult;
             do
             {
+                leaderLockExpirationToken.ThrowIfCancellationRequested();
                 eventsQueryResult = eventSource.GetEvents(fromOffsetExclusive, toOffsetInclusive, estimatedCount : 5000);
                 var eventsProcessingResult = eventConsumer.ProcessEvents(eventsQueryResult);
                 if (eventsProcessingResult.CommitOffset)

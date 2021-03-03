@@ -34,7 +34,12 @@ namespace SkbKontur.EventFeeds.Implementations
         public void ExecuteFeeding(CancellationToken cancellationToken)
         {
             foreach (var blade in blades)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
                 blade.ExecuteFeeding(cancellationToken);
+            }
         }
 
         public void ResetLocalState()

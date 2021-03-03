@@ -88,13 +88,14 @@ namespace SkbKontur.EventFeeds.Implementations
         {
             if (delayUpperBound < BladeId.Delay)
                 return;
-            DoExecuteFeeding(useDelay : false, leaderLockExpirationToken : CancellationToken.None);
+            DoExecuteFeeding(useDelay : false, cancellationToken : CancellationToken.None);
         }
 
-        private void DoExecuteFeeding(bool useDelay, CancellationToken leaderLockExpirationToken)
+        private void DoExecuteFeeding(bool useDelay, CancellationToken cancellationToken)
         {
             if (!feedIsRunning)
                 throw new InvalidOperationException($"Blade with id '{BladeId}' is not running");
+
             var fromOffsetExclusive = offsetHolder.GetLocalOffset();
             var globalNowTimestamp = globalTimeProvider.GetNowTimestamp();
             var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - BladeId.Delay : globalNowTimestamp);
@@ -109,7 +110,9 @@ namespace SkbKontur.EventFeeds.Implementations
             EventsQueryResult<TEvent, TOffset> eventsQueryResult;
             do
             {
-                leaderLockExpirationToken.ThrowIfCancellationRequested();
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
                 eventsQueryResult = eventSource.GetEvents(fromOffsetExclusive, toOffsetInclusive, estimatedCount : 5000);
                 var eventsProcessingResult = eventConsumer.ProcessEvents(eventsQueryResult);
                 if (eventsProcessingResult.CommitOffset)

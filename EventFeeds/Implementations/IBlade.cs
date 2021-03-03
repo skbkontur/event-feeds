@@ -15,7 +15,7 @@ namespace SkbKontur.EventFeeds.Implementations
         void Initialize();
         void Shutdown();
         void ResetLocalState();
-        void ExecuteFeeding(CancellationToken leaderLockExpirationToken);
+        void ExecuteFeeding(CancellationToken cancellationToken);
         void ExecuteForcedFeeding(TimeSpan delayUpperBound);
 
         [CanBeNull]

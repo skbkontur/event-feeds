@@ -12,7 +12,8 @@ namespace SkbKontur.EventFeeds
                                               TimeSpan delayBetweenIterations,
                                               [NotNull] Action<CancellationToken> jobAction,
                                               [NotNull] Func<IRunningEventFeed> onTakeTheLead,
-                                              [NotNull] Func<IRunningEventFeed> onLoseTheLead);
+                                              [NotNull] Func<IRunningEventFeed> onLoseTheLead,
+                                              CancellationToken cancellationToken = default);
 
         void StopPeriodicJobWithLeaderElection([NotNull] string jobName);
     }

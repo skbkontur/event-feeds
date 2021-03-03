@@ -14,13 +14,14 @@ namespace SkbKontur.EventFeeds.Implementations
         public EventFeedsRunner([CanBeNull] string singleLeaderElectionKey,
                                 TimeSpan delayBetweenIterations,
                                 [NotNull, ItemNotNull] IBlade[] blades,
-                                IPeriodicJobRunner periodicJobRunner)
+                                IPeriodicJobRunner periodicJobRunner,
+                                CancellationToken cancellationToken)
         {
             this.periodicJobRunner = periodicJobRunner;
-            RunFeeds(singleLeaderElectionKey, delayBetweenIterations, blades);
+            RunFeeds(singleLeaderElectionKey, delayBetweenIterations, blades, cancellationToken);
         }
 
-        private void RunFeeds([CanBeNull] string singleLeaderElectionKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades)
+        private void RunFeeds([CanBeNull] string singleLeaderElectionKey, TimeSpan delayBetweenIterations, [NotNull, ItemNotNull] IBlade[] blades, CancellationToken cancellationToken)
         {
             if (!blades.Any())
                 throw new InvalidOperationException("No feeds to run");
@@ -30,23 +31,23 @@ namespace SkbKontur.EventFeeds.Implementations
                 foreach (var blade in blades)
                 {
                     var eventFeed = new EventFeed(feedKey : blade.BladeId.BladeKey, new[] {blade});
-                    RunFeed(eventFeed, delayBetweenIterations);
+                    RunFeed(eventFeed, delayBetweenIterations, cancellationToken);
                     runningFeeds.Add(eventFeed);
                 }
             }
             else
             {
                 var eventFeed = new EventFeed(feedKey : singleLeaderElectionKey, blades);
-                RunFeed(eventFeed, delayBetweenIterations);
+                RunFeed(eventFeed, delayBetweenIterations, cancellationToken);
                 runningFeeds.Add(eventFeed);
             }
         }
 
-        private void RunFeed([NotNull] EventFeed eventFeed, TimeSpan delayBetweenIterations)
+        private void RunFeed([NotNull] EventFeed eventFeed, TimeSpan delayBetweenIterations, CancellationToken cancellationToken)
         {
             periodicJobRunner.RunPeriodicJobWithLeaderElection(FormatFeedJobName(eventFeed),
                                                                delayBetweenIterations,
-                                                               jobAction : leaderLockExpirationToken => ExecuteFeeding(eventFeed, leaderLockExpirationToken),
+                                                               jobAction : jobCancellationToken => ExecuteFeeding(eventFeed, jobCancellationToken),
                                                                onTakeTheLead : () =>
                                                                    {
                                                                        eventFeed.Initialize();
@@ -56,13 +57,14 @@ namespace SkbKontur.EventFeeds.Implementations
                                                                    {
                                                                        eventFeed.Shutdown();
                                                                        return eventFeed;
-                                                                   });
+                                                                   },
+                                                               cancellationToken);
         }
 
-        private static void ExecuteFeeding([NotNull] EventFeed eventFeed, CancellationToken leaderLockExpirationToken)
+        private static void ExecuteFeeding([NotNull] EventFeed eventFeed, CancellationToken cancellationToken)
         {
             lock (eventFeed)
-                eventFeed.ExecuteFeeding(leaderLockExpirationToken);
+                eventFeed.ExecuteFeeding(cancellationToken);
         }
 
         private static void ExecuteForcedFeeding([NotNull] EventFeed eventFeed, TimeSpan delayUpperBound)

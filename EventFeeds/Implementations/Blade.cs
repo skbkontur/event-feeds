@@ -79,9 +79,9 @@ namespace SkbKontur.EventFeeds.Implementations
             return offsetInterpreter.GetTimestampFromOffset(localOffset) >= timestamp;
         }
 
-        public void ExecuteFeeding(CancellationToken leaderLockExpirationToken)
+        public void ExecuteFeeding(CancellationToken cancellationToken)
         {
-            DoExecuteFeeding(useDelay : true, leaderLockExpirationToken);
+            DoExecuteFeeding(useDelay : true, cancellationToken);
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)

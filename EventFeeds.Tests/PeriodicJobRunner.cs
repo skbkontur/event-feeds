@@ -14,7 +14,8 @@ namespace EventFeeds.Tests
                                                      TimeSpan delayBetweenIterations,
                                                      Action<CancellationToken> jobAction,
                                                      Func<IRunningEventFeed> onTakeTheLead,
-                                                     Func<IRunningEventFeed> onLoseTheLead)
+                                                     Func<IRunningEventFeed> onLoseTheLead,
+                                                     CancellationToken cancellationToken = default)
         {
             lock (this)
             {
@@ -27,7 +28,8 @@ namespace EventFeeds.Tests
                                                  jobAction,
                                                  onTakeTheLead : () => onTakeTheLead(),
                                                  onLoseTheLead : () => onLoseTheLead(),
-                                                 new SilentLog());
+                                                 new SilentLog(),
+                                                 cancellationToken);
                 runningJobs.Add(jobName, runningJob);
             }
         }
@@ -41,8 +43,8 @@ namespace EventFeeds.Tests
                 if (!runningJobs.ContainsKey(jobName))
                     throw new InvalidOperationException($"Job {jobName} does not exist");
                 var job = runningJobs[jobName];
-                job.Stop();
                 runningJobs.Remove(jobName);
+                job.Dispose();
             }
         }
 
@@ -53,7 +55,7 @@ namespace EventFeeds.Tests
                 if (isDisposed)
                     return;
                 foreach (var runningJob in runningJobs.Values)
-                    runningJob.Stop();
+                    runningJob.Dispose();
                 isDisposed = true;
             }
         }

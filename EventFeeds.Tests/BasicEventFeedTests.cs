@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using FluentAssertions;
@@ -10,7 +11,6 @@ using NUnit.Framework;
 
 using SkbKontur.Cassandra.TimeBasedUuid;
 using SkbKontur.EventFeeds;
-using SkbKontur.EventFeeds.Implementations;
 
 using Vostok.Logging.Abstractions;
 
@@ -73,7 +73,7 @@ namespace EventFeeds.Tests
             var eventFeedsRunner = eventFeedFactory.WithOffsetType<long?>()
                                                    .WithEventType(bladesBuilder)
                                                    .WithOffsetStorageFactory(bladeId => new InMemoryOffsetStorage<long?>())
-                                                   .RunFeeds(delayBetweenIterations : TimeSpan.FromMilliseconds(20));
+                                                   .RunFeeds(delayBetweenIterations : TimeSpan.FromMilliseconds(20), cancellationToken : CancellationToken.None);
             return eventFeedsRunner;
         }
 

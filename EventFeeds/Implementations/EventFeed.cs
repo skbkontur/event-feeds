@@ -31,10 +31,10 @@ namespace SkbKontur.EventFeeds.Implementations
                 blade.Shutdown();
         }
 
-        public void ExecuteFeeding(CancellationToken leaderLockExpirationToken)
+        public void ExecuteFeeding(CancellationToken cancellationToken)
         {
             foreach (var blade in blades)
-                blade.ExecuteFeeding(leaderLockExpirationToken);
+                blade.ExecuteFeeding(cancellationToken);
         }
 
         public void ResetLocalState()

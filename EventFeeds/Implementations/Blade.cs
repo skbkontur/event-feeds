@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -78,22 +79,23 @@ namespace SkbKontur.EventFeeds.Implementations
             return offsetInterpreter.GetTimestampFromOffset(localOffset) >= timestamp;
         }
 
-        public void ExecuteFeeding()
+        public void ExecuteFeeding(CancellationToken cancellationToken)
         {
-            DoExecuteFeeding(useDelay : true);
+            DoExecuteFeeding(useDelay : true, cancellationToken);
         }
 
         public void ExecuteForcedFeeding(TimeSpan delayUpperBound)
         {
             if (delayUpperBound < BladeId.Delay)
                 return;
-            DoExecuteFeeding(useDelay : false);
+            DoExecuteFeeding(useDelay : false, cancellationToken : CancellationToken.None);
         }
 
-        private void DoExecuteFeeding(bool useDelay)
+        private void DoExecuteFeeding(bool useDelay, CancellationToken cancellationToken)
         {
             if (!feedIsRunning)
                 throw new InvalidOperationException($"Blade with id '{BladeId}' is not running");
+
             var fromOffsetExclusive = offsetHolder.GetLocalOffset();
             var globalNowTimestamp = globalTimeProvider.GetNowTimestamp();
             var toOffsetInclusive = offsetInterpreter.GetMaxOffsetForTimestamp(useDelay ? globalNowTimestamp - BladeId.Delay : globalNowTimestamp);
@@ -108,6 +110,9 @@ namespace SkbKontur.EventFeeds.Implementations
             EventsQueryResult<TEvent, TOffset> eventsQueryResult;
             do
             {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
                 eventsQueryResult = eventSource.GetEvents(fromOffsetExclusive, toOffsetInclusive, estimatedCount : 5000);
                 var eventsProcessingResult = eventConsumer.ProcessEvents(eventsQueryResult);
                 if (eventsProcessingResult.CommitOffset)

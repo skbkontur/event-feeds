@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -9,9 +10,10 @@ namespace SkbKontur.EventFeeds
     {
         void RunPeriodicJobWithLeaderElection([NotNull] string jobName,
                                               TimeSpan delayBetweenIterations,
-                                              [NotNull] Action jobAction,
+                                              [NotNull] Action<CancellationToken> jobAction,
                                               [NotNull] Func<IRunningEventFeed> onTakeTheLead,
-                                              [NotNull] Func<IRunningEventFeed> onLoseTheLead);
+                                              [NotNull] Func<IRunningEventFeed> onLoseTheLead,
+                                              CancellationToken cancellationToken = default);
 
         void StopPeriodicJobWithLeaderElection([NotNull] string jobName);
     }

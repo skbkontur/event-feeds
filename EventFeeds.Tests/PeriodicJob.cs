@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading;
 
@@ -6,9 +6,15 @@ using Vostok.Logging.Abstractions;
 
 namespace EventFeeds.Tests
 {
-    public class PeriodicJob
+    public class PeriodicJob: IDisposable
     {
-        public PeriodicJob(string jobName, TimeSpan delayBetweenIterations, Action jobAction, Action onTakeTheLead, Action onLoseTheLead, ILog logger)
+        public PeriodicJob(string jobName,
+                           TimeSpan delayBetweenIterations,
+                           Action<CancellationToken> jobAction,
+                           Action onTakeTheLead,
+                           Action onLoseTheLead,
+                           ILog logger,
+                           CancellationToken cancellationToken)
         {
             this.jobName = jobName;
             this.delayBetweenIterations = delayBetweenIterations;
@@ -16,8 +22,9 @@ namespace EventFeeds.Tests
             this.onTakeTheLead = onTakeTheLead;
             this.onLoseTheLead = onLoseTheLead;
             this.logger = logger;
-            stopSignal = new ManualResetEventSlim(false);
-            jobThread = new Thread(ThreadProc)
+            jobCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            jobThread = new Thread(() => ThreadProc(jobCancellationTokenSource.Token))
                 {
                     Name = jobName,
                     IsBackground = true,
@@ -26,24 +33,26 @@ namespace EventFeeds.Tests
             this.logger.Info($"Job thread has started for: {jobName}");
         }
 
-        public void Stop()
+        public void Dispose()
         {
-            stopSignal.Set();
+            jobCancellationTokenSource.Cancel();
             jobThread.Join();
             logger.Info($"Job thread has stopped for: {jobName}");
+
+            jobCancellationTokenSource.Dispose();
         }
 
-        private void ThreadProc()
+        private void ThreadProc(CancellationToken jobCancellationToken)
         {
             do
-            {
+            {   
                 try
                 {
                     logger.Info($"Leadership acquired for: {jobName}");
                     onTakeTheLead?.Invoke();
                     try
                     {
-                        LeaderThreadProc();
+                        LeaderThreadProc(jobCancellationToken);
                     }
                     finally
                     {
@@ -55,26 +64,26 @@ namespace EventFeeds.Tests
                 {
                     logger.Error(e, $"Leadership lost with unhandled exception on job thread for: {jobName}");
                 }
-            } while (!stopSignal.Wait(delayBetweenIterations));
+            } while (!jobCancellationToken.WaitHandle.WaitOne(delayBetweenIterations));
         }
 
-        private void LeaderThreadProc()
+        private void LeaderThreadProc(CancellationToken cancellationToken)
         {
             Stopwatch iterationStopwatch;
             do
             {
                 iterationStopwatch = Stopwatch.StartNew();
-                jobAction();
-            } while (!stopSignal.Wait(TimeSpanExtensions.Max(TimeSpan.Zero, delayBetweenIterations - iterationStopwatch.Elapsed)));
+                jobAction(cancellationToken);
+            } while (!cancellationToken.WaitHandle.WaitOne(TimeSpanExtensions.Max(TimeSpan.Zero, delayBetweenIterations - iterationStopwatch.Elapsed)));
         }
 
         private readonly string jobName;
         private readonly TimeSpan delayBetweenIterations;
-        private readonly Action jobAction;
+        private readonly Action<CancellationToken> jobAction;
         private readonly Action onTakeTheLead;
         private readonly Action onLoseTheLead;
         private readonly ILog logger;
-        private readonly ManualResetEventSlim stopSignal;
         private readonly Thread jobThread;
+        private readonly CancellationTokenSource jobCancellationTokenSource;
     }
 }

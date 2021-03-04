@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -30,10 +31,15 @@ namespace SkbKontur.EventFeeds.Implementations
                 blade.Shutdown();
         }
 
-        public void ExecuteFeeding()
+        public void ExecuteFeeding(CancellationToken cancellationToken)
         {
             foreach (var blade in blades)
-                blade.ExecuteFeeding();
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                blade.ExecuteFeeding(cancellationToken);
+            }
         }
 
         public void ResetLocalState()

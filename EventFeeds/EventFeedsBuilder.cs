@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -52,11 +53,11 @@ namespace SkbKontur.EventFeeds
         }
 
         [NotNull]
-        public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations)
+        public IEventFeedsRunner RunFeeds(TimeSpan delayBetweenIterations, CancellationToken cancellationToken)
         {
             var theOffsetInterpreter = GetOffsetInterpreter();
             var blades = bladesBuilders.SelectMany(x => x.CreateBlades(globalTimeProvider, theOffsetInterpreter, offsetStorageFactory)).ToArray();
-            return new EventFeedsRunner(singleLeaderElectionKey, delayBetweenIterations, blades, periodicJobRunner);
+            return new EventFeedsRunner(singleLeaderElectionKey, delayBetweenIterations, blades, periodicJobRunner, cancellationToken);
         }
 
         [NotNull]

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -14,7 +15,7 @@ namespace SkbKontur.EventFeeds.Implementations
         void Initialize();
         void Shutdown();
         void ResetLocalState();
-        void ExecuteFeeding();
+        void ExecuteFeeding(CancellationToken cancellationToken);
         void ExecuteForcedFeeding(TimeSpan delayUpperBound);
 
         [CanBeNull]

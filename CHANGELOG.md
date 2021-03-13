@@ -1,6 +1,11 @@
 # Changelog
-## v1.1.0 - 2021.03.05
-- Add cancellation token to the EventFeedsRunner and blade executing
+
+## v1.1.2 - 2021.03.14
+- Update dependencies.
+- Run tests against net5.0 tfm.
+
+## v1.1.1 - 2021.03.05
+- Add cancellation token to the `EventFeedsRunner` and blade executing.
 
 ## v1.0.9 - 2020.04.16
 - Allow clients to implement event feed lag metrics reporting in such a way 

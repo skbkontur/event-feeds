@@ -6,7 +6,7 @@ using Vostok.Logging.Abstractions;
 
 namespace EventFeeds.Tests
 {
-    public class PeriodicJob: IDisposable
+    public class PeriodicJob : IDisposable
     {
         public PeriodicJob(string jobName,
                            TimeSpan delayBetweenIterations,
@@ -45,7 +45,7 @@ namespace EventFeeds.Tests
         private void ThreadProc(CancellationToken jobCancellationToken)
         {
             do
-            {   
+            {
                 try
                 {
                     logger.Info($"Leadership acquired for: {jobName}");
